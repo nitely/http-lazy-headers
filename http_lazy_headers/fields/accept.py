@@ -61,16 +61,9 @@ class Accept(bases.HeaderBase):
         for v in values:
             (top_level, sub_level), params = v
 
-            assertions.must_be_instance_of(
-                top_level, str)
-            assertions.must_be_instance_of(
-                sub_level, str)
             assertions.must_be_token(top_level)
             assertions.must_be_token(sub_level)
-            assertions.must_be_instance_of(
-                params, parameters.Params)
-            assertions.must_be_quality(
-                params.get('q', 1))
+            assertions.must_be_quality(params)
             assertions.must_be_token(
                 params.get('charset', 'token'))
 
