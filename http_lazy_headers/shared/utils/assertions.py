@@ -10,15 +10,10 @@ def assertion(value, explanation=''):
 
 
 def must_be_instance_of(value, klass):
-    if isinstance(klass, tuple):
-        expected = repr(klass)
-    else:
-        expected = type(klass)
-
     assertion(
         isinstance(value, klass),
         '{} instance expected, found: {}'.format(
-            expected, type(value)))
+            repr(klass), type(value)))
 
 
 def must_be_params(params):
@@ -45,8 +40,7 @@ def must_be_token(value):
 
 
 def must_be_weight(params):
-    must_be_quality(
-        params.get('q', 1))
+    must_be_quality(params)
     assertion(
         not params or
         (len(params) == 1 and

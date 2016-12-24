@@ -4,6 +4,7 @@ from ..shared.generic import quality
 from ..shared import bases
 from ..shared import parameters
 from ..shared.values import encodings
+from ..shared.utils import assertions
 
 
 def accept_encoding(encoding, quality=None):
@@ -60,8 +61,17 @@ class AcceptEncoding(bases.AcceptSomeBase):
 
     `Ref. <http://httpwg.org/specs/rfc7231.html#header.accept-encoding>`_
     """
+    
+    # todo: use float instead of Params
 
     name = 'accept-encoding'
+
+    def check_values(self, values):
+        for v in values:
+            encoding, params = v
+
+            assertions.must_be_token(encoding)
+            assertions.must_be_weight(params)
 
     def clean(self, raw_values):
         # Allow empty value

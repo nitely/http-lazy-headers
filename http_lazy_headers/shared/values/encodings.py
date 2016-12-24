@@ -13,6 +13,6 @@ class Encodings:
 
 
 ENCODING_VALUES = {
-    getattr(Encodings,attr)
+    getattr(Encodings, attr)
     for attr in vars(Encodings)
     if not attr.startswith('_')}
