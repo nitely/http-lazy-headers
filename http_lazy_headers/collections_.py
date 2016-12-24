@@ -56,11 +56,8 @@ class Headers:
     def get(self, header, *args):
         assert isinstance(header, bases.HeaderBase)
 
-        if args:
-            return self._headers.get(
-                header.name, *args)
-        else:
-            return self._headers[header.name]
+        return self._headers.get(
+            header.name, *args)
 
 
 class HeadersMut(Headers):
