@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.utils import assertions
 from ..shared.values import charsets
 from ..shared import bases
 from ..shared import parameters
 
 
 def accept_charset(charset, quality=None):
-    assert charset in charsets.CHARSET_VALUES
+    assert (
+        charset == '*' or
+        charset in charsets.CHARSET_VALUES)
     assert (
         quality is None or
         0 <= quality <= 1)
@@ -35,7 +38,8 @@ class AcceptCharset(bases.AcceptSomeBase):
     Example::
 
         AcceptCharset([
-            accept_charset(Charset.utf_8, quality=1)
+            accept_charset(Charset.utf_8, quality=1),
+            accept_charset('*', quality=0.5)
         ])
 
         AcceptCharset([
@@ -47,3 +51,10 @@ class AcceptCharset(bases.AcceptSomeBase):
     """
 
     name = 'accept-charset'
+
+    def check_values(self, values):
+        for v in values:
+            charset, params = v
+
+            assertions.must_be_token(charset)
+            assertions.must_be_weight(params)
