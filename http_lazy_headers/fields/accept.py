@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from ..shared.values import media_types
+from ..shared.generic import formatters
+from ..shared.generic import cleaners
+from ..shared.generic import quality
+from ..shared.generic import preparers
+from ..shared.utils import assertions
 from ..shared import bases
-from ..shared import cleaners
-from ..shared import helpers
-from ..shared import quality
+from ..shared import parameters
+from ..shared.values import media_types
 
 
 def accept(
@@ -54,14 +57,31 @@ class Accept(bases.HeaderBase):
 
     name = 'accept'
 
+    def check_values(self, values):
+        for v in values:
+            (top_level, sub_level), params = v
+
+            assertions.must_be_instance_of(
+                top_level, str)
+            assertions.must_be_instance_of(
+                sub_level, str)
+            assertions.must_be_token(top_level)
+            assertions.must_be_token(sub_level)
+            assertions.must_be_instance_of(
+                params, parameters.Params)
+            assertions.must_be_quality(
+                params.get('q', 1))
+            assertions.must_be_token(
+                params.get('charset', 'token'))
+
     def values_str(self, values):
         return ', '.join(
-            helpers.format_values_with_params(
+            formatters.format_values_with_params(
                 ('/'.join(mime), params)
                 for mime, params in values))
 
     def prepare_raw_values(self, raw_values_collection):
-        return helpers.prepare_multi_raw_values(raw_values_collection)
+        return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_value(self, value):
         # todo: params may contain only a token (no argument), except q

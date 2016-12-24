@@ -2,13 +2,13 @@
 
 import encodings.idna
 
-from ..settings import settings
+from ..shared.common import cookies
+from ..shared.generic import cleaners
+from ..shared.utils import ascii_tools
+from ..shared.utils import constraints
 from .. import exceptions
+from ..settings import settings
 from ..shared import bases
-from ..shared import constraints
-from ..shared import cleaners
-from ..shared import cookies
-from ..shared import ascii_tools
 
 
 # 0-9 / a-f / A-F
@@ -50,7 +50,7 @@ def _host(
         port=None):
     assert any(
         v is not None
-        for v in locals())
+        for v in locals().values())
     return domain, ipv4, ipv6, ipv_future, unsafe, port
 
 

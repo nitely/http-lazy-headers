@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.generic import formatters
+from ..shared.generic import cleaners
+from ..shared.generic import preparers
+from ..shared.utils import checkers
+from ..shared.utils import constraints
 from ..shared import bases
-from ..shared import helpers
-from ..shared import checkers
-from ..shared import constraints
-from ..shared import cleaners
 from ..shared import parameters
 
 
@@ -88,10 +89,10 @@ class WWWAuthenticate(bases.HeaderBase):
 
     def values_str(self, values):
         return ', '.join(
-            helpers.format_auth_values(values))
+            formatters.format_auth_values(values))
 
     def prepare_raw_values(self, raw_values_collection):
-        return helpers.prepare_multi_raw_values(raw_values_collection)
+        return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_challenge(self, raw_challenge):
         scheme, *token_or_params = raw_challenge

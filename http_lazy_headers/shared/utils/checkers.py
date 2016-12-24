@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ..shared import ascii_tools
+from . import ascii_tools
 
 
 # 0-9 / A-Z / a-z

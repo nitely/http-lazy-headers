@@ -2,11 +2,11 @@
 
 import datetime
 
-from ..shared import bases
-from ..shared import checkers
-from ..shared import helpers
-from ..shared import dates
+from ..shared.generic import formatters
+from ..shared.common import dates
+from ..shared.utils import checkers
 from . import etag as etag_field
+from ..shared import bases
 
 
 def entity_tag(etag):
@@ -58,7 +58,7 @@ class IfRange(bases.SingleHeaderBase):
         if isinstance(value, datetime.datetime):
             return dates.format_date(value)
         else:  # e-tag
-            return next(helpers.format_etag_values(values))
+            return next(formatters.format_etag_values(values))
 
     def clean_value(self, raw_value):
         # Can't be weak

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.generic import formatters
+from ..shared.common import language_tags
+from ..shared.generic import cleaners
+from ..shared.generic import quality
+from ..shared.utils import constraints
+from ..shared.utils import parsers
 from ..shared import bases
-from ..shared import constraints
-from ..shared import quality
-from ..shared import helpers
-from ..shared import cleaners
-from ..shared import parsers
-from ..shared import language_tags
 from ..shared import parameters
 
 
@@ -76,7 +76,7 @@ class AcceptLanguage(bases.TokensHeaderBase):
 
     def values_str(self, values):
         return ', '.join(
-            helpers.format_values_with_params(
+            formatters.format_values_with_params(
                 (language_tags.format_language_tag(*value),
                  params)
                 for value, params in values))

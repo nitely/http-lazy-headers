@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.utils import checkers
+from ..shared.utils import constraints
+from ..shared.utils import parsers
 from .. import exceptions
 from ..shared import bases
-from ..shared import checkers
-from ..shared import constraints
-from ..shared import parsers
 
 
 def via(received_protocol, received_by, comment=None):

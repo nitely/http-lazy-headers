@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from ..settings import settings
 from . import checkers
-from .. import exceptions
+from ... import exceptions
+from ...settings import settings
 
 
 _QUOTE_OR_COMMENT_CHARS_MAP = {'"': '"', '(': ')'}

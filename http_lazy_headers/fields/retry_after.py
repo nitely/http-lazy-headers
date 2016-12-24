@@ -2,10 +2,10 @@
 
 import datetime
 
+from ..shared.common import dates
+from ..shared.generic import cleaners
 from .. import exceptions
 from ..shared import bases
-from ..shared import cleaners
-from ..shared import dates
 
 
 class RetryAfter(bases.SingleHeaderBase):

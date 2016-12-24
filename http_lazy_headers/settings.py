@@ -31,7 +31,7 @@ class Settings:
         # valid domains or IPs
         self.HOST_UNSAFE_ALLOW = host_unsafe_allow
 
-        # Debug mode for logging
+        # Debug mode for logging and values checking
         self.DEBUG = debug
 
 

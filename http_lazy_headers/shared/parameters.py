@@ -2,7 +2,7 @@
 
 import collections
 
-from . import parsers
+from .utils import parsers
 
 
 class Params:

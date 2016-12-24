@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from ..shared.values import media_types
+from ..shared.generic import formatters
+from ..shared.generic import cleaners
 from ..shared import bases
-from ..shared import cleaners
-from ..shared import helpers
+from ..shared.values import media_types
 
 
 def content_type(
@@ -51,7 +51,7 @@ class ContentType(bases.SingleHeaderBase):
 
     def values_str(self, values):
         return next(
-            helpers.format_values_with_params(
+            formatters.format_values_with_params(
                 ('/'.join(mime), params)
                 for mime, params in values))
 

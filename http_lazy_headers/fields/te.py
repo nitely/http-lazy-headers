@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.generic import formatters
+from ..shared.generic import cleaners
+from ..shared.generic import quality
+from ..shared.generic import preparers
+from ..shared.utils import constraints
+from ..shared.utils import parsers
 from ..shared import bases
-from ..shared import helpers
-from ..shared import cleaners
-from ..shared import quality
-from ..shared import parsers
-from ..shared import constraints
 from ..shared import parameters
 from ..shared.values import encodings
 
@@ -81,10 +82,10 @@ class TE(bases.HeaderBase):
     def values_str(self, values):
         # todo: remove the q=1 in trailers (from str values)
         return ', '.join(
-            helpers.format_values_with_params(values))
+            formatters.format_values_with_params(values))
 
     def prepare_raw_values(self, raw_values_collection):
-        return helpers.prepare_multi_raw_values(raw_values_collection)
+        return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_value(self, raw_value):
         # todo: don't allow params in "trailers"

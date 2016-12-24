@@ -3,12 +3,12 @@
 import itertools
 import urllib.parse
 
-from ..settings import settings
-from . import checkers
-from . import constraints
-from . import parameters
-from . import parsers
-from .. import exceptions
+from ..utils import constraints
+from ..utils import parsers
+from ..utils import checkers
+from .. import parameters
+from ... import exceptions
+from ...settings import settings
 
 
 def clean_token(raw_token):

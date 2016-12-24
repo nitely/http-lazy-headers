@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.generic import cleaners
 from ..shared import bases
-from ..shared import cleaners
 
 
 class Age(bases.SingleHeaderBase):

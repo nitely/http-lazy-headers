@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.utils import constraints
 from ..shared import bases
-from ..shared import constraints
-
 
 _CONTINUE = '100-continue'
 

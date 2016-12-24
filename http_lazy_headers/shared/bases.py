@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from ..shared import ascii_tools
-from . import checkers
-from . import cleaners
-from . import constraints
-from . import helpers
-from . import parsers
-from . import quality
+from .generic import formatters
+from .generic import cleaners
+from .generic import quality
+from .generic import preparers
+from .utils import ascii_tools
+from .utils import parsers
+from .utils import constraints
+from .utils import checkers
 from .. import exceptions
 from ..settings import settings
 
@@ -75,6 +76,10 @@ class HeaderBase:
         if values is not None:
             values = tuple(values)
 
+        if (settings.DEBUG and
+                values is not None):
+            self.check_values(values)
+
         self._values = values
         self._raw_values_collection = raw_values_collection
 
@@ -114,9 +119,6 @@ class HeaderBase:
 
         self._raw_values_collection = None
 
-    def check_values(self, values):
-        raise NotImplementedError
-
     def values_str(self, values):
         raise NotImplementedError
 
@@ -126,6 +128,10 @@ class HeaderBase:
     def clean(self, raw_values):
         raise NotImplementedError
 
+    def check_values(self, values):
+        # todo: raise NotImplementedError
+        pass
+
 
 class MultiHeaderBase(HeaderBase):
 
@@ -133,7 +139,7 @@ class MultiHeaderBase(HeaderBase):
         return ', '.join(values)
 
     def prepare_raw_values(self, raw_values_collection):
-        return helpers.prepare_multi_raw_values(raw_values_collection)
+        return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_value(self, raw_value):
         raise NotImplementedError
@@ -164,7 +170,7 @@ class SingleHeaderBase(HeaderBase):
         return values[0]
 
     def prepare_raw_values(self, raw_values_collection):
-        return helpers.prepare_single_raw_values(raw_values_collection)
+        return preparers.prepare_single_raw_values(raw_values_collection)
 
     def clean_value(self, raw_value):
         raise NotImplementedError
@@ -186,7 +192,7 @@ class URIHeaderBase(SingleHeaderBase):
 class TokensHeaderBase(MultiHeaderBase):
 
     def prepare_raw_values(self, raw_values_collection):
-        return helpers.prepare_tokens(raw_values_collection)
+        return preparers.prepare_tokens(raw_values_collection)
 
     def clean_value(self, raw_value):
         constraints.must_be_token(raw_value)
@@ -210,7 +216,7 @@ class IfMatchSomeBase(MultiHeaderBase):
         if etag == '*':
             return etag
 
-        return ', '.join(helpers.format_etag_values(values))
+        return ', '.join(formatters.format_etag_values(values))
 
     def clean_value(self, raw_value):
         # todo: validate is single value when value is "*"
@@ -232,10 +238,10 @@ class AcceptSomeBase(HeaderBase):
 
     def values_str(self, values):
         return ', '.join(
-            helpers.format_values_with_params(values))
+            formatters.format_values_with_params(values))
 
     def prepare_raw_values(self, raw_values_collection):
-        return helpers.prepare_tokens(raw_values_collection)
+        return preparers.prepare_tokens(raw_values_collection)
 
     def clean_value(self, value):
         return cleaners.clean_accept_some(value)
@@ -283,7 +289,7 @@ class LibsHeaderBase(HeaderBase):
             for v in values)
 
     def prepare_raw_values(self, raw_values_collection):
-        raw_values_collection = helpers.prepare_single_raw_values(
+        raw_values_collection = preparers.prepare_single_raw_values(
             raw_values_collection)
         return parsers.from_raw_values(
             raw_values_collection[0],

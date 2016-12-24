@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.generic import formatters
+from ..shared.generic import cleaners
 from ..shared import bases
-from ..shared import cleaners
-from ..shared import helpers
 
 
 def entity_tag(etag, is_weak=False):
@@ -45,7 +45,7 @@ class ETag(bases.SingleHeaderBase):
     name = 'etag'
 
     def values_str(self, values):
-        return next(helpers.format_etag_values(values))
+        return next(formatters.format_etag_values(values))
 
     def clean_value(self, raw_value):
         return cleaners.clean_etag(raw_value)

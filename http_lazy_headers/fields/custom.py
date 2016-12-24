@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.utils import checkers
 from .. import exceptions
 from ..shared import bases
-from ..shared import checkers
 
 
 _B_TOKEN_CHARS = frozenset(

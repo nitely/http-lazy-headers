@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.common import language_tags
 from ..shared import bases
-from ..shared import language_tags
 
 
 # todo: this is basically the same as accept_language

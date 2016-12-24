@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.common import dates
 from ..shared import bases
-from ..shared import dates
 
 
 class LastModified(bases.SingleHeaderBase):

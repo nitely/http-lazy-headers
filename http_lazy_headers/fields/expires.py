@@ -2,8 +2,8 @@
 
 import datetime
 
+from ..shared.common import dates
 from ..shared import bases
-from ..shared import dates
 
 
 class Expires(bases.SingleHeaderBase):

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from .. import exceptions
-from ..shared import constraints
-from ..shared import checkers
+from ..utils import constraints
+from ..utils import checkers
+from ... import exceptions
 
 
 (LANG,
@@ -94,7 +94,7 @@ def accept_language_value(
         extension=(),
         private_use=(),
         grandfathered=None):
-    assert any(locals())
+    assert any(locals().values())
 
     return (
         lang,

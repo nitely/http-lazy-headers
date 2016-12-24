@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.generic import quality
 from ..shared import bases
-from ..shared import quality
 from ..shared import parameters
 from ..shared.values import encodings
 

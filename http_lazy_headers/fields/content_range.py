@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from ..settings import settings
+from ..shared.generic import cleaners
+from ..shared.utils import constraints
 from .. import exceptions
+from ..settings import settings
 from ..shared import bases
-from ..shared import cleaners
-from ..shared import constraints
 from ..shared.values import ranges
 
 

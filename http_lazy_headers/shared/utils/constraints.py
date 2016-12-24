@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .. import exceptions
 from . import checkers
+from ... import exceptions
 
 
 def constraint(value, explanation='', status=400):

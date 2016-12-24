@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.generic import cleaners
+from ..shared.generic import preparers
+from ..shared.utils import checkers
+from ..shared.utils import constraints
+from ..shared.utils import parsers
 from ..shared import bases
-from ..shared import helpers
-from ..shared import parsers
-from ..shared import cleaners
-from ..shared import constraints
 from ..shared import parameters
-from ..shared import checkers
 
 
 def cache_control(
@@ -18,7 +18,7 @@ def cache_control(
         s_maxage=None):
     assert any(
         v is not None
-        for v in locals())
+        for v in locals().values())
     assert all(
         isinstance(v, (bool, tuple, list, set))
         for v in (
@@ -46,7 +46,7 @@ def cache_control(
         if param_value is None:
             continue
 
-        if isinstance(param_value, bool):
+        if param_value and isinstance(param_value, bool):
             param_value = ()
 
         if isinstance(param_value, (list, set)):
@@ -140,7 +140,7 @@ class CacheControl(bases.HeaderBase):
             for p in params.items())
 
     def prepare_raw_values(self, raw_values_collection):
-        return helpers.prepare_multi_raw_values(raw_values_collection)
+        return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_value(self, raw_value):
         # Directives with delta secs

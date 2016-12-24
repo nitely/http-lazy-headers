@@ -2,9 +2,9 @@
 
 import encodings.idna
 
-from ..shared import ascii_tools
-from .. import exceptions
-from ..shared import constraints
+from ..utils import ascii_tools
+from ..utils import constraints
+from ... import exceptions
 
 
 # %x21 / %x23-2B / %x2D-3A / %x3C-5B / %x5D-7E

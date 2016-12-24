@@ -3,14 +3,14 @@
 import collections
 import encodings.idna
 
-from ..shared import ascii_tools
+from ..shared.common import cookies
+from ..shared.common import dates
+from ..shared.generic import cleaners
+from ..shared.utils import ascii_tools
+from ..shared.utils import constraints
+from ..shared.utils import parsers
 from .. import exceptions
 from ..shared import bases
-from ..shared import cleaners
-from ..shared import constraints
-from ..shared import cookies
-from ..shared import dates
-from ..shared import parsers
 
 
 # 0x20-0x7E (except ";")

@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.generic import cleaners
+from ..shared.generic import preparers
+from ..shared.utils import checkers
+from ..shared.utils import constraints
+from ..shared.utils import parsers
 from ..shared import bases
-from ..shared import helpers
-from ..shared import constraints
-from ..shared import cleaners
 from ..shared import parameters
-from ..shared import parsers
-from ..shared import checkers
 
 
 def pragma(no_cache=False, params=()):
@@ -73,7 +73,7 @@ class Pragma(bases.HeaderBase):
             for p in params.items())
 
     def prepare_raw_values(self, raw_values_collection):
-        return helpers.prepare_multi_raw_values(raw_values_collection)
+        return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_value(self, raw_value):
         if checkers.is_token(raw_value):

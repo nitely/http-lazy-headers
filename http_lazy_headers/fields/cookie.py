@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from ..shared import parsers
+from ..shared.common import cookies
+from ..shared.generic import preparers
+from ..shared.utils import constraints
+from ..shared.utils import parsers
 from ..shared import bases
-from ..shared import cookies
-from ..shared import constraints
-from ..shared import helpers
 
 
 def cookie(name, value):
@@ -56,7 +56,7 @@ class Cookie(bases.HeaderBase):
             for name, value in self.values())
 
     def prepare_raw_values(self, raw_values_collection):
-        raw_values_collection = helpers.prepare_single_raw_values(
+        raw_values_collection = preparers.prepare_single_raw_values(
             raw_values_collection)
         return parsers.from_tokens(
             raw_values_collection[0],
