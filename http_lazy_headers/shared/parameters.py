@@ -53,6 +53,11 @@ class Params:
     def items(self):
         return self._params.items()
 
+    def get(self, param, *args):
+        assert isinstance(param, str)
+
+        return self._params.get(param, *args)
+
     def merge(self, other):
         """
         Return a copy of the params\
