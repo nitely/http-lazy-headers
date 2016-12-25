@@ -8,6 +8,7 @@ from .utils import ascii_tools
 from .utils import parsers
 from .utils import constraints
 from .utils import checkers
+from .utils import assertions
 from .. import exceptions
 from ..settings import settings
 
@@ -135,6 +136,16 @@ class HeaderBase:
 
 class MultiHeaderBase(HeaderBase):
 
+    def check_value(self, value):
+        # todo: raise NotImplementedError
+        pass
+
+    def check_values(self, values):
+        assertions.must_not_be_empty(values)
+
+        for v in values:
+            self.check_value(v)
+
     def values_str(self, values):
         return ', '.join(values)
 
@@ -157,14 +168,16 @@ class SingleHeaderBase(HeaderBase):
     Single Value Header
     """
 
-    def __init__(
-            self,
-            values=None,
-            raw_values_collection=None):
-        super().__init__(values, raw_values_collection)
-        assert (
-            self._values is None or
-            len(self._values) == 1)
+    def check_value(self, value):
+        # todo: raise NotImplementedError
+        pass
+
+    def check_values(self, values):
+        assertions.assertion(
+            len(values) == 1,
+            'Expected 1 value, found: {}'
+            .format(len(values)))
+        self.check_value(values[0])
 
     def values_str(self, values):
         return values[0]
@@ -190,6 +203,9 @@ class URIHeaderBase(SingleHeaderBase):
 
 
 class TokensHeaderBase(MultiHeaderBase):
+
+    def check_value(self, value):
+        assertions.must_be_token(value)
 
     def prepare_raw_values(self, raw_values_collection):
         return preparers.prepare_tokens(raw_values_collection)

@@ -52,3 +52,7 @@ def must_not_be_empty(value):
     assertion(
         value,
         'Empty value is not allowed')
+
+
+def must_be_int(value):
+    must_be_instance_of(value, int)
