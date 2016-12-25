@@ -61,7 +61,7 @@ class AcceptEncoding(bases.AcceptSomeBase):
 
     `Ref. <http://httpwg.org/specs/rfc7231.html#header.accept-encoding>`_
     """
-    
+
     # todo: use float instead of Params
 
     name = 'accept-encoding'

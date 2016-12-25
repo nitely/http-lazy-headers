@@ -46,3 +46,9 @@ def must_be_weight(params):
         (len(params) == 1 and
          'q' in params),
         'Only weight (q=x) is allowed as a param')
+
+
+def must_not_be_empty(value):
+    assertion(
+        value,
+        'Empty value is not allowed')

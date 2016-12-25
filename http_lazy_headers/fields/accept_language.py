@@ -8,6 +8,7 @@ from ..shared.utils import constraints
 from ..shared.utils import parsers
 from ..shared import bases
 from ..shared import parameters
+from ..shared.utils import assertions
 
 
 def accept_language(
@@ -73,6 +74,15 @@ class AcceptLanguage(bases.TokensHeaderBase):
     """
 
     name = 'accept-language'
+
+    def check_values(self, values):
+        assertions.must_not_be_empty(values)
+
+        for v in values:
+            encoding, params = v
+
+            assertions.must_be_token(encoding)
+            assertions.must_be_weight(params)
 
     def values_str(self, values):
         return ', '.join(

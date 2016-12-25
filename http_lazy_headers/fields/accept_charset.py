@@ -53,6 +53,8 @@ class AcceptCharset(bases.AcceptSomeBase):
     name = 'accept-charset'
 
     def check_values(self, values):
+        assertions.must_not_be_empty(values)
+
         for v in values:
             charset, params = v
 
