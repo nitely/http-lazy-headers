@@ -9,6 +9,7 @@ from ..shared.utils import constraints
 from ..shared.utils import parsers
 from ..shared import bases
 from ..shared import parameters
+from ..shared.utils import assertions
 
 
 def authorization_basic(username, password):
@@ -70,6 +71,17 @@ class Authorization(bases.SingleHeaderBase):
     """
 
     name = 'authorization'
+
+    def check_value(self, value):
+        schema, token, params = value
+        assertions.must_be_token(schema)
+        assertions.assertion(
+            not token or checkers.is_token68(token),
+            'Token must be a token68')
+        assertions.must_be_params(params)
+        assertions.assertion(
+            not (token and params),
+            'Expected either a token, params')
 
     def values_str(self, values):
         return next(formatters.format_auth_values(values))
