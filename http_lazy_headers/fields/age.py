@@ -2,6 +2,7 @@
 
 from ..shared.generic import cleaners
 from ..shared import bases
+from ..shared.utils import assertions
 
 
 class Age(bases.SingleHeaderBase):
@@ -22,6 +23,9 @@ class Age(bases.SingleHeaderBase):
     """
 
     name = 'age'
+
+    def check_value(self, value):
+        assertions.must_be_int(value)
 
     def values_str(self, values):
         return str(values[0])
