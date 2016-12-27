@@ -6,6 +6,7 @@ from .. import exceptions
 from ..settings import settings
 from ..shared import bases
 from ..shared.values import ranges
+from ..shared.utils import assertions
 
 
 def content_range_bytes(
@@ -135,6 +136,72 @@ class ContentRange(bases.SingleHeaderBase):
 
     name = 'content-range'
 
+    def check_value(self, value):
+        unit, unit_range, length, chars = value
+
+        if unit is None:
+            assertions.assertion(
+                all(not v
+                    for v in value),
+                '"{}" received, a unit was '
+                'expected'.format(value))
+
+            return
+
+        if unit != ranges.RangesOptions.bytes:
+            assertions.assertion(
+                unit_range is None and
+                length is None,
+                '"{}" received, either unit '
+                '\'bytes\' or no range and '
+                'no length were expected'
+                .format(value))
+
+            return
+
+        # Bytes
+
+        start = None
+        end = None
+
+        if unit_range:
+            start, end = unit_range
+
+        assertions.assertion(
+            start is None or
+            isinstance(start, int),
+            'Start range must be None or int')
+        assertions.assertion(
+            end is None or
+            isinstance(end, int),
+            'End range must be None or int')
+        assertions.assertion(
+            start is None or
+            end is None or
+            start <= end,
+            '"{}" range received, '
+            'start <= end was expected'
+            .format(value))
+
+        assertions.assertion(
+            length is None or
+            isinstance(length, int),
+            'Length must be None or int')
+        assertions.assertion(
+            start is None or
+            length is None or
+            start <= length,
+            '"{}" received, '
+            'start <= length was expected'
+            .format(value))
+        assertions.assertion(
+            end is None or
+            length is None or
+            end <= length,
+            '"{}" received, '
+            'end <= length was expected'
+            .format(value))
+
     def values_str(self, values):
         unit, range_, length, chars = values[0]
 
@@ -177,6 +244,9 @@ class ContentRange(bases.SingleHeaderBase):
 
         constraints.must_be_token(unit)
         unit = unit.lower()
+
+        if unit == ranges.RangesOptions.none:
+            return content_range_none()
 
         if unit != ranges.RangesOptions.bytes:
             return content_range_other(unit, chars)
