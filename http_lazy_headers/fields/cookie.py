@@ -4,6 +4,7 @@ from ..shared.common import cookies
 from ..shared.generic import preparers
 from ..shared.utils import constraints
 from ..shared.utils import parsers
+from ..shared.utils import assertions
 from ..shared import bases
 
 
@@ -49,6 +50,22 @@ class Cookie(bases.HeaderBase):
     """
 
     name = 'cookie'
+
+    def check_values(self, values):
+        assertions.must_not_be_empty(values)
+
+        for name, value in values:
+            assertions.must_be_instance_of(name, str)
+            assertions.must_be_instance_of(value, str)
+            assertions.assertion(
+                cookies.is_cookie_token(name),
+                '"{}" received, a token '
+                'was expected'.format(name))
+            assertions.assertion(
+                not value or
+                cookies.is_cookie_octets(value),
+                '"{}" received, a token or '
+                'empty value was expected'.format(value))
 
     def values_str(self, values):
         return '; '.join(

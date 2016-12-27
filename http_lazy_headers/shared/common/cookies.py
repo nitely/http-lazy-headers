@@ -61,7 +61,7 @@ def is_quoted_cookie_octets(txt):
     return is_cookie_octets(txt[1:-1])
 
 
-def must_be_cookie_token(txt):
+def is_cookie_token(txt):
     if not txt:
         return False
 
@@ -81,7 +81,9 @@ def clean_cookie_pair(raw_cookie_pair):
     name = name.strip()
     value = value.strip()
 
-    must_be_cookie_token(name)
+    constraints.constraint(
+        is_cookie_token(name),
+        'Cookie name is not a token')
     constraints.constraint(
         not value or
         is_cookie_octets(value) or
