@@ -6,6 +6,7 @@ from ..shared.common import cookies
 from ..shared.generic import cleaners
 from ..shared.utils import ascii_tools
 from ..shared.utils import constraints
+from ..shared.utils import assertions
 from .. import exceptions
 from ..settings import settings
 from ..shared import bases
@@ -39,19 +40,6 @@ _REG_NAME = (
     frozenset('-._~') |
     frozenset('!$&\'()*+,;=') |
     frozenset('%'))
-
-
-def _host(
-        domain=None,
-        ipv4=None,
-        ipv6=None,
-        ipv_future=None,
-        unsafe=None,
-        port=None):
-    assert any(
-        v is not None
-        for v in locals().values())
-    return domain, ipv4, ipv6, ipv_future, unsafe, port
 
 
 def is_ipv4(raw_ipv4):
@@ -213,13 +201,15 @@ def host(
         ipv_future=None,
         unsafe=None,
         port=None):
-    assert any(
-        v is not None
-        for v in (
+    assert len(tuple(
+        x
+        for x in (
             domain,
             ipv4,
+            ipv6,
             ipv_future,
-            unsafe))
+            unsafe)
+        if x is not None)) < 2
     assert (
         port is None or
         isinstance(port, int))
@@ -282,6 +272,38 @@ class Host(bases.SingleHeaderBase):
 
     name = 'host'
 
+    def check_value(self, value):
+        assertions.assertion(
+            len(value) == 6,
+            '"{}" received, '
+            '6 items were expected'
+            .format(value))
+        assertions.assertion(
+            len(tuple(
+                v
+                for v in value[:5]
+                if v is not None)) < 2,
+            '"{}" received, only one '
+            'non-empty value was expected'
+            .format(value[:5]))
+
+        for v, check_func in zip(
+                value[:5],
+                (cookies.is_domain,
+                 is_ipv4,
+                 is_ipv6,
+                 is_ipv_future,
+                 is_unsafe_host)):
+            assertions.assertion(
+                v is None or
+                (isinstance(v, str) and
+                 check_func(v)),
+                '"{}" received, a valid host '
+                'was expected'.format(v))
+
+        port = value[5]
+        port is None or assertions.must_be_int(port)
+
     def values_str(self, values):
         (domain,
          ipv4,
@@ -333,7 +355,7 @@ class Host(bases.SingleHeaderBase):
 
         # For some reason this is actually valid
         if not raw_host:
-            return _host(port=port)
+            return host(port=port)
 
         if (raw_host.startswith('[v') and
                 raw_host.endswith(']')):
@@ -343,7 +365,7 @@ class Host(bases.SingleHeaderBase):
                 is_ipv_future(ipv_some),
                 'Value is not a valid IPvFuture')
 
-            return _host(
+            return host(
                 ipv_future=ipv_some[1:],
                 port=port)
 
@@ -355,13 +377,13 @@ class Host(bases.SingleHeaderBase):
                 is_ipv6(ipv_some),
                 'Value is not a valid IPv6')
 
-            return _host(ipv6=ipv_some, port=port)
+            return host(ipv6=ipv_some, port=port)
 
         if is_ipv4(raw_host):
-            return _host(ipv4=raw_host, port=port)
+            return host(ipv4=raw_host, port=port)
 
         try:
-            return _host(
+            return host(
                 domain=cookies.clean_domain(raw_host),
                 port=port)
         except exceptions.HeaderError:
@@ -369,7 +391,7 @@ class Host(bases.SingleHeaderBase):
 
         if (settings.HOST_UNSAFE_ALLOW and
                 is_unsafe_host(raw_host)):
-            return _host(unsafe=raw_host.lower())
+            return host(unsafe=raw_host.lower())
 
         raise exceptions.BadRequest('Bad host name')
 
@@ -386,4 +408,5 @@ class Host(bases.SingleHeaderBase):
             return (
                 self.clean_value(raw_value),)
         else:
-            return ()
+            return (
+                host(),)
