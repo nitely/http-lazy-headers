@@ -35,6 +35,9 @@ _DIGIT_CHARS = frozenset(
 _ASCII_CHARS = frozenset(
     ascii_tools.ascii_chars(0x09, (0x20, 0x7E)))
 
+# Token chars except "*" / "'" / "%"
+_EXT_TOKEN = _TOKEN_CHARS - frozenset('*\'%')
+
 
 def is_token(txt):
     assert isinstance(txt, str)
@@ -163,3 +166,12 @@ def is_ascii(txt):
         return False
 
     return set(txt).issubset(_ASCII_CHARS)
+
+
+def is_ext_token(txt):
+    assert isinstance(txt, str)
+
+    if not txt:
+        return False
+
+    return set(txt).issubset(_EXT_TOKEN)

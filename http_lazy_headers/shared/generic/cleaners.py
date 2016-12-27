@@ -51,6 +51,7 @@ def clean_params(raw_params):
 def clean_extended_param(raw_param):
     # https://tools.ietf.org/html/rfc5987#section-3.2.1
 
+    # todo: check param_name is a attr-char
     param_name, param_value = clean_param(raw_param)
 
     if not param_name.endswith('*'):
@@ -71,7 +72,7 @@ def clean_extended_param(raw_param):
         checkers.is_mime_charset(charset),
         'Invalid charset')
     constraints.constraint(
-        not lang or checkers.is_lang_value(charset),
+        not lang or checkers.is_lang_value(lang),
         'Invalid language')
     constraints.constraint(
         checkers.is_mime_charset_value(value),

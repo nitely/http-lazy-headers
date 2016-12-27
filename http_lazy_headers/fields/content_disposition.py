@@ -6,6 +6,8 @@ from ..shared.utils import constraints
 from ..shared.utils import parsers
 from ..shared import bases
 from ..shared import parameters
+from ..shared.utils import assertions
+from ..shared.utils import checkers
 
 
 def content_disposition_filename(
@@ -79,6 +81,49 @@ class ContentDisposition(bases.SingleHeaderBase):
     """
 
     name = 'content-disposition'
+
+    def check_value(self, value):
+        disposition_type, params = value
+        assertions.must_be_token(disposition_type)
+        assertions.must_be_params(params)
+
+        for p, v in params.items():
+            assertions.must_be_instance_of(v, (str, tuple))
+
+            if isinstance(v, str):
+                assertions.must_be_ext_token(p)
+                assertions.assertion(
+                    not p.endswith('*'),
+                    '{} has extended format name '
+                    '(ends with "*"), a tuple '
+                    'was expected'.format(p))
+                assertions.must_be_ascii(v)
+                continue
+
+            assertions.assertion(
+                p.endswith('*'),
+                '"{}" has a tuple as value, '
+                'a "*" at the end of the '
+                'name was expected'.format(p))
+            assertions.must_be_ext_token(p[:-1])
+            assertions.assertion(
+                len(v) == 3,
+                '"{}" has {} items, 3 items '
+                'were expected'.format(v, len(v)))
+
+            charset, lang, mime_value = v
+
+            assertions.must_be_instance_of(charset, str)
+            assertions.assertion(
+                checkers.is_mime_charset(charset),
+                '"{}" is not a valid charset'
+                .format(charset))
+            not lang or assertions.must_be_instance_of(lang, str)
+            not lang or assertions.assertion(
+                checkers.is_lang_value(lang),
+                '"{}" is not a valid language'
+                .format(lang))
+            assertions.must_be_encoded_as(mime_value, charset)
 
     def values_str(self, values):
         disposition_type, params = values[0]

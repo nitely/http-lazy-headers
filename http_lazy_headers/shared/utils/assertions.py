@@ -80,3 +80,32 @@ def must_be_ascii(value):
         checkers.is_ascii(value),
         '"{}" received, an ascii '
         'was expected'.format(value))
+
+
+def must_be_ext_token(value):
+    must_be_instance_of(
+        value, str)
+    assertion(
+        checkers.is_ext_token(value),
+        '"{}" received, a ext-token '
+        'was expected'.format(value))
+
+
+def must_be_encoded_as(value, charset):
+    must_be_instance_of(
+        value, str)
+    must_be_instance_of(
+        charset, str)
+
+    try:
+        bytes(value, charset)
+    except LookupError:
+        assertion(
+            False,
+            '"{}" is not a valid '
+            'charset'.format(charset))
+    except UnicodeEncodeError:
+        assertion(
+            False,
+            'Can\'t encode "{}" as "{}" '
+            'charset'.format(value, charset))

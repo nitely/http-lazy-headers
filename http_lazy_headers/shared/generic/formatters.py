@@ -42,6 +42,7 @@ def format_etag_values(values):
 
 
 def format_ext_params(params):
+    # todo: move to common.extended_params.py
     for param_name, param_value in params.items():
         try:
             charset, lang, value = param_value
