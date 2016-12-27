@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from ..shared.utils import checkers
+from ..shared.utils import assertions
 from .. import exceptions
 from ..shared import bases
 
@@ -51,6 +52,13 @@ class Custom(bases.HeaderBase):
                 'be a valid token')
 
         self.name = bases.decode_one(name).lower()  # Override class var
+
+    def check_values(self, values):
+        for value in values:
+            if value == '':
+                continue
+
+            assertions.must_be_ascii(value)
 
     def values_str(self, values):
         return ', '.join(values)
