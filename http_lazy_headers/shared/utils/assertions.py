@@ -2,18 +2,22 @@
 
 from . import checkers
 from .. import parameters
+from ... import exceptions
 
 
 def assertion(value, explanation=''):
     if not value:
-        raise ValueError(explanation)
+        raise exceptions.InternalError(explanation)
 
 
 def must_be_instance_of(value, klass):
     assertion(
         isinstance(value, klass),
-        '{} instance expected, found: {}'.format(
-            repr(klass), type(value)))
+        '"{}" is a {}, {} instance '
+        'was expected'.format(
+            value,
+            type(value),
+            repr(klass)))
 
 
 def must_be_params(params):
@@ -36,7 +40,8 @@ def must_be_token(value):
         value, str)
     assertion(
         checkers.is_token(value),
-        'Token was expected, found: {}'.format(value))
+        '"{}" received, a token '
+        'was expected'.format(value))
 
 
 def must_be_weight(params):
@@ -45,7 +50,9 @@ def must_be_weight(params):
         not params or
         (len(params) == 1 and
          'q' in params),
-        'Only weight (q=x) is allowed as a param')
+        '"{}" received, weight '
+        '<Params([(\'q\', 1)])> was expected'
+        .format(params))
 
 
 def must_not_be_empty(value):
@@ -56,3 +63,20 @@ def must_not_be_empty(value):
 
 def must_be_int(value):
     must_be_instance_of(value, int)
+
+
+def must_have_one_value(values):
+    assertion(
+        len(values) == 1,
+        '"{}" has {} items, 1 item '
+        'was expected'.format(
+            values, len(values)))
+
+
+def must_be_ascii(value):
+    must_be_instance_of(
+        value, str)
+    assertion(
+        checkers.is_ascii(value),
+        '"{}" received, an ascii '
+        'was expected'.format(value))

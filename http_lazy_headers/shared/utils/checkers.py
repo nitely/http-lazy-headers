@@ -31,6 +31,10 @@ _LANG_CHARS = frozenset('-') | _ALPHA_NUM
 _DIGIT_CHARS = frozenset(
     ascii_tools.ascii_chars((0x30, 0x39)))
 
+# HTAB / SP / VCHAR
+_ASCII_CHARS = frozenset(
+    ascii_tools.ascii_chars(0x09, (0x20, 0x7E)))
+
 
 def is_token(txt):
     assert isinstance(txt, str)
@@ -150,3 +154,12 @@ def is_number(txt):
         return False
 
     return set(txt).issubset(_DIGIT_CHARS)
+
+
+def is_ascii(txt):
+    assert isinstance(txt, str)
+
+    if not txt:
+        return False
+
+    return set(txt).issubset(_ASCII_CHARS)

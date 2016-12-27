@@ -173,10 +173,7 @@ class SingleHeaderBase(HeaderBase):
         pass
 
     def check_values(self, values):
-        assertions.assertion(
-            len(values) == 1,
-            'Expected 1 value, found: {}'
-            .format(len(values)))
+        assertions.must_have_one_value(values)
         self.check_value(values[0])
 
     def values_str(self, values):

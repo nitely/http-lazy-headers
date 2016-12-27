@@ -7,6 +7,7 @@ from ..shared.utils import constraints
 from ..shared.utils import parsers
 from ..shared import bases
 from ..shared import parameters
+from ..shared.utils import assertions
 
 
 def cache_control(
@@ -46,8 +47,11 @@ def cache_control(
         if param_value is None:
             continue
 
-        if param_value and isinstance(param_value, bool):
-            param_value = ()
+        if isinstance(param_value, bool):
+            if param_value:
+                param_value = ()
+            else:
+                continue
 
         if isinstance(param_value, (list, set)):
             param_value = tuple(param_value)
@@ -110,6 +114,39 @@ class CacheControl(bases.HeaderBase):
     directives_with_header_values = frozenset((
         'no-cache',
         'private'))
+
+    def check_value(self, value):
+        param_name, param_value = value
+        assertions.must_be_token(param_name)
+        param_name = param_name.lower()
+
+        if param_name in self.directives_with_header_values:
+            assertions.must_be_instance_of(param_value, tuple)
+
+            for t in param_value:
+                assertions.must_be_token(t)
+
+            return
+
+        if param_name in self.directives_with_delta_secs:
+            assertions.must_be_instance_of(param_value, int)
+            return
+
+        if isinstance(param_value, tuple):
+            for v in param_value:
+                assertions.must_be_ascii(v)
+
+            return
+
+        assertions.must_be_ascii(param_value)
+
+    def check_values(self, values):
+        assertions.must_have_one_value(values)
+        value = values[0]
+        assertions.must_be_params(value)
+
+        for item in value.items():
+            self.check_value(item)
 
     def value_str(self, value):
         param_name, param_value = value

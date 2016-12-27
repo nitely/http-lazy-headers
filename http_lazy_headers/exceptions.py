@@ -7,14 +7,18 @@ class HTTPLazyHeadersError(Exception):
     (custom) exception raised by this library
     """
 
+    status = 500
+
+
+class InternalError(HTTPLazyHeadersError):
+    """"""
+
 
 class HeaderError(HTTPLazyHeadersError):
     """
     This is raised by ``fields`` while\
     parsing/validating headers
     """
-
-    status = 500
 
     def __init__(self, explanation='', status=None, **kwargs):
         if status:
