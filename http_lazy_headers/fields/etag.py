@@ -3,6 +3,8 @@
 from ..shared.generic import formatters
 from ..shared.generic import cleaners
 from ..shared import bases
+from ..shared.utils import assertions
+from ..shared.utils import checkers
 
 
 def entity_tag(etag, is_weak=False):
@@ -43,6 +45,15 @@ class ETag(bases.SingleHeaderBase):
     # todo: match ala http://hyper.rs/hyper/v0.9.12/hyper/header/struct.EntityTag.html
 
     name = 'etag'
+
+    def check_value(self, value):
+        etag, is_weak = value
+        assertions.must_be_instance_of(etag, str)
+        assertions.assertion(
+            checkers.is_etag('"{}"'.format(etag)),
+            '"{}" received, an etag '
+            'was expected'.format(etag))
+        assertions.must_be_instance_of(is_weak, bool)
 
     def values_str(self, values):
         return next(formatters.format_etag_values(values))
