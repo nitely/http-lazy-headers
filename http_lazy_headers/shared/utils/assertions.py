@@ -109,3 +109,11 @@ def must_be_encoded_as(value, charset):
             False,
             'Can\'t encode "{}" as "{}" '
             'charset'.format(value, charset))
+
+
+def must_be_uri(value):
+    must_be_instance_of(value, str)
+    assertion(
+        checkers.is_uri(value),
+        '"{}" received, URI '
+        'was expected'.format(value))

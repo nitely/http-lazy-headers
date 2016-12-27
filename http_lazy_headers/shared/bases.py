@@ -194,6 +194,9 @@ class SingleHeaderBase(HeaderBase):
 
 class URIHeaderBase(SingleHeaderBase):
 
+    def check_value(self, value):
+        assertions.must_be_uri(value)
+
     def clean_value(self, raw_value):
         constraints.must_be_uri(raw_value)
         return raw_value
