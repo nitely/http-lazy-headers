@@ -4,6 +4,7 @@ from ..shared.generic import formatters
 from ..shared.generic import cleaners
 from ..shared import bases
 from ..shared.values import media_types
+from ..shared.utils import assertions
 
 
 def content_type(
@@ -48,6 +49,12 @@ class ContentType(bases.SingleHeaderBase):
     """
 
     name = 'content-type'
+
+    def check_value(self, value):
+        (top_level, sub_level), params = value
+        assertions.must_be_token(top_level)
+        assertions.must_be_token(sub_level)
+        assertions.must_be_params(params)
 
     def values_str(self, values):
         return next(
