@@ -4,7 +4,7 @@ from ..shared.utils import constraints
 from ..shared import bases
 
 
-class ContentEncoding(bases.MultiHeaderBase):
+class ContentEncoding(bases.TokensHeaderBase):
     """
     The ``Content-Encoding`` header field indicates\
     what content codings have been applied to the\
