@@ -29,6 +29,12 @@ class Expires(bases.SingleHeaderBase):
 
     name = 'expires'
 
+    def check_value(self, value):
+        if value == 0:
+            return
+
+        dates.check_value(value)
+
     def values_str(self, values):
         value = values[0]
 
