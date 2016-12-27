@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from ..shared.utils import constraints
+from ..shared.utils import assertions
 from ..shared import bases
+
 
 _CONTINUE = '100-continue'
 
@@ -30,6 +32,12 @@ class Expect(bases.SingleHeaderBase):
     """
 
     name = 'expect'
+
+    def check_value(self, value):
+        assertions.assertion(
+            value == _CONTINUE,
+            '"{}" received, {} was expected'
+            .format(value, _CONTINUE))
 
     def clean_value(self, raw_value):
         constraints.constraint(
