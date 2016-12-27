@@ -4,6 +4,7 @@ import datetime
 
 from ..generic import cleaners
 from ..utils import constraints
+from ..utils import assertions
 from ... import exceptions
 
 
@@ -316,3 +317,8 @@ def format_date(date_time):
             hour=date_time.hour,
             minute=date_time.minute,
             second=date_time.second))
+
+
+def check_value(value):
+    assertions.must_be_instance_of(
+        value, datetime.datetime)
