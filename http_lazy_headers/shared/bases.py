@@ -226,6 +226,15 @@ class IfMatchSomeBase(MultiHeaderBase):
 
     """
 
+    def check_value(self, value):
+        etag, is_weak = value
+        assertions.must_be_instance_of(etag, str)
+        assertions.assertion(
+            checkers.is_etag('"{}"'.format(etag)),
+            '"{}" received, an etag '
+            'was expected'.format(etag))
+        assertions.must_be_instance_of(is_weak, bool)
+
     def values_str(self, values):
         etag, is_weak = values[0]
 
