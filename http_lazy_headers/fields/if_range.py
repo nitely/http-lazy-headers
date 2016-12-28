@@ -7,6 +7,7 @@ from ..shared.common import dates
 from ..shared.utils import checkers
 from . import etag as etag_field
 from ..shared import bases
+from ..shared.utils import assertions
 
 
 def entity_tag(etag):
@@ -51,6 +52,25 @@ class IfRange(bases.SingleHeaderBase):
     """
 
     name = 'if-range'
+
+    def check_value(self, value):
+        assertions.must_be_instance_of(
+            value, (tuple, datetime.datetime))
+
+        # (isinstance(value, datetime.datetime) or
+        #  etags.check_value(value))
+
+        if isinstance(value, datetime.datetime):
+            dates.check_value(value)
+            return
+
+        etag, is_weak = value
+        assertions.must_be_instance_of(etag, str)
+        assertions.assertion(
+            checkers.is_etag('"{}"'.format(etag)),
+            '"{}" received, an etag '
+            'was expected'.format(etag))
+        assertions.must_be_instance_of(is_weak, bool)
 
     def values_str(self, values):
         value = values[0]
