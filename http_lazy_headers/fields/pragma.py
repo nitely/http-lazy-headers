@@ -5,6 +5,7 @@ from ..shared.generic import preparers
 from ..shared.utils import checkers
 from ..shared.utils import constraints
 from ..shared.utils import parsers
+from ..shared.utils import assertions
 from ..shared import bases
 from ..shared import parameters
 
@@ -55,10 +56,22 @@ class Pragma(bases.HeaderBase):
 
     name = 'pragma'
 
+    def check_values(self, values):
+        assertions.must_have_one_value(values)
+
+        params = values[0]
+
+        assertions.must_be_params(params)
+        assertions.must_not_be_empty(params)
+
+        for t, v in params.items():
+            assertions.must_be_token(t)
+            not v or assertions.must_be_ascii(v)
+
     def value_str(self, value):
         param_name, param_value = value
 
-        if param_name == 'no-cache':
+        if not param_value:
             return param_name
 
         return '{}={}'.format(
