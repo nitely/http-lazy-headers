@@ -22,8 +22,8 @@ def range_bytes(sub_ranges):
         for sr in sub_ranges
         if len(sr) == 2)
 
-    return parameters.Params((
-        (ranges.RangesOptions.bytes, tuple(sub_ranges)),))
+    return (
+        (ranges.RangesOptions.bytes, tuple(sub_ranges)),)
 
 
 class Range(bases.SingleHeaderBase):
@@ -50,21 +50,15 @@ class Range(bases.SingleHeaderBase):
         ])
 
         Range([
-            Params([
-                (Ranges.bytes, ((0, 499),))
-            ])
+            (Ranges.bytes, ((0, 499),))
         ])
 
         Range([
-            Params([
-                (Ranges.bytes, ((0, 499), (500, 999)))
-            ])
+            (Ranges.bytes, ((0, 499), (500, 999)))
         ])
 
         Range([
-            Params([
-                ('my_unit', 'my_sub_range')
-            ])
+            ('my_unit', 'my_sub_range')
         ])
 
     `Ref. <http://httpwg.org/specs/rfc7233.html#header.range>`_
@@ -72,32 +66,19 @@ class Range(bases.SingleHeaderBase):
 
     name = 'range'
 
-    def __init__(
-            self,
-            values=None,
-            raw_values_collection=None):
-        super().__init__(values, raw_values_collection)
-        assert (
-            self._values is None or
-            isinstance(self._values[0], parameters.Params))
-        assert (
-            self._values is None or
-            len(self._values[0]) == 1)
-
     def values_str(self, values):
-        params = values[0]
+        unit, unit_range = values[0]
 
-        if ranges.RangesOptions.bytes not in params:
-            return '{}={}'.format(
-                *next(params.items()))
+        if unit != ranges.RangesOptions.bytes:
+            return '{}={}'.format(unit, unit_range)
 
         return '{}={}'.format(
-            ranges.RangesOptions.bytes,
-            ', '.join(
+            unit,
+            ','.join(
                 '{}-{}'.format(
                     start if start is not None else '',
                     end if end is not None else '')
-                for start, end in params[ranges.RangesOptions.bytes]))
+                for start, end in unit_range))
 
     def clean_value(self, raw_value):
         try:
@@ -107,11 +88,11 @@ class Range(bases.SingleHeaderBase):
                 'Value must have "name=param" format')
 
         if name != ranges.RangesOptions.bytes:
-            return cleaners.clean_params((raw_value,))
+            return cleaners.clean_param(raw_value)
 
         # todo: setting.BYTES_RANGES_LIMIT
-        return parameters.ParamsCI((
-            (ranges.RangesOptions.bytes,
-             tuple(
-                 cleaners.clean_bytes_range(rp)
-                 for rp in raw_param_value.split(',', 20))),))
+        return (
+            ranges.RangesOptions.bytes,
+            tuple(
+                cleaners.clean_bytes_range(rp)
+                for rp in raw_param_value.split(',', 20)),)
