@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import datetime
-
 from . import checkers
 from .. import parameters
 from ... import exceptions
 
 
 def assertion(value, explanation=''):
+    assert isinstance(explanation, str)
+
     if not value:
         raise exceptions.InternalError(explanation)
 
@@ -130,6 +130,8 @@ def must_be_visible_chars(value):
 
 
 def must_be_tuple_of(value, length):
+    assert isinstance(length, int)
+
     must_be_instance_of(value, tuple)
     assertion(
         len(value) == length,

@@ -4,6 +4,7 @@ import encodings.idna
 
 from ..utils import ascii_tools
 from ..utils import constraints
+from ..utils import assertions
 from ... import exceptions
 
 
@@ -153,3 +154,23 @@ def clean_domain(raw_domain):
             'Invalid IDN label')
 
     return raw_domain.lower()
+
+
+def check_values(values):
+    assertions.must_not_be_empty(values)
+
+    for v in values:
+        assertions.must_be_tuple_of(v, 2)
+
+    for name, value in values:
+        assertions.must_be_instance_of(name, str)
+        assertions.must_be_instance_of(value, str)
+        assertions.assertion(
+            is_cookie_token(name),
+            '"{}" received, a token '
+            'was expected'.format(name))
+        assertions.assertion(
+            not value or
+            is_cookie_octets(value),
+            '"{}" received, a token or '
+            'empty value was expected'.format(value))
