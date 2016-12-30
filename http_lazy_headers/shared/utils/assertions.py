@@ -119,3 +119,11 @@ def must_be_uri(value):
         checkers.is_uri(value),
         '"{}" received, URI '
         'was expected'.format(value))
+
+
+def must_be_visible_chars(value):
+    must_be_instance_of(value, str)
+    assertion(
+        checkers.is_visible_chars(value),
+        '"{}" received, 1 or more visible chars '
+        'were expected'.format(value))

@@ -38,6 +38,10 @@ _ASCII_CHARS = frozenset(
 # Token chars except "*" / "'" / "%"
 _EXT_TOKEN = _TOKEN_CHARS - frozenset('*\'%')
 
+# VCHAR
+_VISIBLE_CHARS = frozenset(
+    ascii_tools.ascii_chars((0x21, 0x7E)))
+
 
 def is_token(txt):
     assert isinstance(txt, str)
@@ -175,3 +179,12 @@ def is_ext_token(txt):
         return False
 
     return set(txt).issubset(_EXT_TOKEN)
+
+
+def is_visible_chars(txt):
+    assert isinstance(txt, str)
+
+    if not txt:
+        return False
+
+    return set(txt).issubset(_VISIBLE_CHARS)

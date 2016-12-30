@@ -3,24 +3,17 @@
 from ..shared.generic import cleaners
 from .. import exceptions
 from ..shared import bases
-from ..shared import parameters
+from ..shared.utils import assertions
+from ..shared.utils import constraints
+from ..shared.utils import checkers
 from ..shared.values import ranges
 
 
 def range_bytes(sub_ranges):
     assert sub_ranges
     assert all(
-        1 <= len(sr) <= 2
+        len(sr) == 2
         for sr in sub_ranges)
-    assert all(
-        all(
-            isinstance(r, int)
-            for r in sr)
-        for sr in sub_ranges)
-    assert all(
-        sr[0] <= sr[1]
-        for sr in sub_ranges
-        if len(sr) == 2)
 
     return (
         (ranges.RangesOptions.bytes, tuple(sub_ranges)),)
@@ -66,6 +59,24 @@ class Range(bases.SingleHeaderBase):
 
     name = 'range'
 
+    def check_value(self, value):
+        unit, unit_range = value
+
+        if unit != ranges.RangesOptions.bytes:
+            assertions.must_be_token(unit)
+            assertions.must_be_visible_chars(unit_range)
+            return
+
+        assertions.must_be_instance_of(unit_range, tuple)
+        assertions.assertion(
+            ((isinstance(r, tuple) and
+              len(r) == 2 and
+              (r[0] is None or isinstance(r[0], int)) and
+              (r[1] is None or isinstance(r[1], int)))
+             for r in unit_range),
+            '"{}" received, a tuple of tuples of 2 '
+            'ints were expected'.format(unit_range))
+
     def values_str(self, values):
         unit, unit_range = values[0]
 
@@ -88,7 +99,12 @@ class Range(bases.SingleHeaderBase):
                 'Value must have "name=param" format')
 
         if name != ranges.RangesOptions.bytes:
-            return cleaners.clean_param(raw_value)
+            constraints.must_be_token(name)
+            constraints.constraint(
+                checkers.is_visible_chars(raw_param_value),
+                'Value must contain 1 or '
+                'more visible chars')
+            return name, raw_param_value
 
         # todo: setting.BYTES_RANGES_LIMIT
         return (
