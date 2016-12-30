@@ -291,6 +291,24 @@ class AcceptSomeBase(HeaderBase):
 
 class LibsHeaderBase(HeaderBase):
 
+    def check_value(self, value):
+        assertions.must_be_tuple_of(value, 3)
+
+        lib, version, comments = value
+
+        assertions.must_be_token(lib)
+        (not version or
+         assertions.must_be_token(version))
+        (not comments or
+         assertions.must_be_instance_of(comments, tuple))
+
+        for c in comments or ():
+            assertions.must_be_ascii(c)
+
+    def check_values(self, values):
+        for v in values:
+            self.check_value(v)
+
     def value_str(self, value):
         lib, version, comments = value
 

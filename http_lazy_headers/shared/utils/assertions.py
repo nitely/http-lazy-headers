@@ -127,3 +127,11 @@ def must_be_visible_chars(value):
         checkers.is_visible_chars(value),
         '"{}" received, 1 or more visible chars '
         'were expected'.format(value))
+
+
+def must_be_tuple_of(value, length):
+    must_be_instance_of(value, tuple)
+    assertion(
+        len(value) == length,
+        '"{}" received, {} items '
+        'were expected'.format(value, length))
