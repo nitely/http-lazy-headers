@@ -35,6 +35,12 @@ class RetryAfter(bases.SingleHeaderBase):
 
     name = 'retry-after'
 
+    def check_value(self, value):
+        if isinstance(value, int):
+            return
+
+        dates.check_value(value)
+
     def values_str(self, values):
         value = values[0]
 
