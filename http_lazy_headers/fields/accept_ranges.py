@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from ..shared import bases
+from ..shared.utils import assertions
 
 
 class AcceptRanges(bases.TokensHeaderBase):

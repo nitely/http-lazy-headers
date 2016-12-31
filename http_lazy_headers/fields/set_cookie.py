@@ -33,6 +33,14 @@ class CookiePair:
             extension=None,
             secure=False,
             http_only=False):
+        assert (
+            extension is None or
+            isinstance(
+                extension, (tuple, list)))
+
+        if extension is not None:
+            extension = tuple(extension)
+
         self.name = name
         self.value = value
         self.expires = expires

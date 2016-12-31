@@ -91,18 +91,18 @@ class ContentDisposition(bases.SingleHeaderBase):
             assertions.must_be_instance_of(v, (str, tuple))
 
             if isinstance(v, str):
-                assertions.must_be_ext_token(p)
                 assertions.assertion(
                     not p.endswith('*'),
-                    '{} has extended format name '
+                    '"{}" has extended format name '
                     '(ends with "*"), a tuple '
                     'was expected'.format(p))
+                assertions.must_be_ext_token(p)
                 assertions.must_be_ascii(v)
                 continue
 
             assertions.assertion(
                 p.endswith('*'),
-                '"{}" has a tuple as value, '
+                '"{}" is a extended param, '
                 'a "*" at the end of the '
                 'name was expected'.format(p))
             assertions.must_be_ext_token(p[:-1])

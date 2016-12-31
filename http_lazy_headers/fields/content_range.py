@@ -38,8 +38,7 @@ def content_range_bytes_unsatisfied(length=None):
     return ranges.RangesOptions.bytes, None, length, None
 
 
-def content_range_other(unit, chars=''):
-    # A SP after other-unit is required
+def content_range_other(unit, chars=None):
     return unit, None, None, chars
 
 
@@ -149,6 +148,8 @@ class ContentRange(bases.SingleHeaderBase):
             return
 
         if unit != ranges.RangesOptions.bytes:
+            assertions.must_be_token(unit)
+            not chars or assertions.must_be_ascii(chars)
             assertions.assertion(
                 unit_range is None and
                 length is None,
@@ -202,6 +203,12 @@ class ContentRange(bases.SingleHeaderBase):
             'end <= length was expected'
             .format(value))
 
+        assertions.assertion(
+            not chars,
+            '"{}" received, '
+            'no chars was expected'
+            .format(value))
+
     def values_str(self, values):
         unit, range_, length, chars = values[0]
 
@@ -209,9 +216,10 @@ class ContentRange(bases.SingleHeaderBase):
             return 'none'
 
         if unit != ranges.RangesOptions.bytes:
+            # A SP after other-unit is required
             return '{unit} {chars}'.format(
                 unit=unit,
-                chars=chars)
+                chars=chars or '')
 
         if length is None:
             length = '*'

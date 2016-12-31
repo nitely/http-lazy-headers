@@ -2,7 +2,6 @@
 
 from ..shared.generic import formatters
 from ..shared.generic import cleaners
-from ..shared.generic import preparers
 from ..shared.utils import constraints
 from ..shared.utils import parsers
 from ..shared.utils import assertions
@@ -17,7 +16,7 @@ def transfer_encoding(te):
     return te, parameters.Params()
 
 
-class TransferEncoding(bases.HeaderBase):
+class TransferEncoding(bases.MultiHeaderBase):
     """
     The ``Transfer-Encoding`` header field lists the\
     transfer coding names corresponding to the\
@@ -51,19 +50,15 @@ class TransferEncoding(bases.HeaderBase):
 
     name = 'transfer-encoding'
 
-    def check_values(self, values):
-        for v in values:
-            assertions.must_be_tuple_of(v, 2)
-            encoding, params = v
-            assertions.must_be_token(encoding)
-            assertions.must_be_params(params)
+    def check_value(self, value):
+        assertions.must_be_tuple_of(value, 2)
+        encoding, params = value
+        assertions.must_be_token(encoding)
+        assertions.must_be_params(params)
 
     def values_str(self, values):
         return ', '.join(
             formatters.format_values_with_params(values))
-
-    def prepare_raw_values(self, raw_values_collection):
-        return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_value(self, raw_value):
         value, raw_params = parsers.from_raw_value_with_params(raw_value)
@@ -71,10 +66,3 @@ class TransferEncoding(bases.HeaderBase):
         return (
             value.lower(),
             cleaners.clean_params(raw_params))
-
-    def clean(self, raw_values):
-        values = tuple(
-            self.clean_value(rv)
-            for rv in raw_values)
-        constraints.must_not_be_empty(values)
-        return values

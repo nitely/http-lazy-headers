@@ -76,8 +76,10 @@ class Authorization(bases.SingleHeaderBase):
         schema, token, params = value
         assertions.must_be_token(schema)
         assertions.assertion(
-            not token or checkers.is_token68(token),
-            'Token must be a token68')
+            not token or
+            (isinstance(token, str) and
+             checkers.is_token68(token)),
+            'Token must be a str token68')
         assertions.must_be_params(params)
         assertions.assertion(
             not (token and params),

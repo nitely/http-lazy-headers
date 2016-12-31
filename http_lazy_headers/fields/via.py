@@ -41,6 +41,9 @@ class Via(bases.MultiHeaderBase):
 
     name = 'via'
 
+    # todo: validate received_by as host
+    # todo: should be (received_by_host, received_by_port)
+
     def check_value(self, value):
         assertions.must_be_tuple_of(value, 3)
         assertions.must_be_tuple_of(value[0], 2)
