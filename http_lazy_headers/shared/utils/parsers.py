@@ -95,6 +95,15 @@ def from_raw_value_with_params(raw_value, separator=';'):
         raw_value_params)
 
 
+def from_raw_value_with_weight(raw_value, separator=';'):
+    try:
+        raw_value, raw_weight = raw_value.split(separator, 1)
+    except ValueError:
+        return raw_value.strip(), 'q=1'
+    else:
+        return raw_value.strip(), raw_weight.strip()
+
+
 def from_tokens(raw_tokens, separator=','):
     """
     This is an optimization of ``from_raw_values``\

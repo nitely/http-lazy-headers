@@ -51,15 +51,15 @@ class AcceptCharsetTest(FieldTestCase):
         self.assertFieldRawEqual(
             ['iso-8859-5, unicode-1-1;q=0.8', 'utf-8'],
             (
-                ('iso-8859-5', parameters.ParamsCI([('q', 1)])),
-                ('utf-8', parameters.ParamsCI([('q', 1)])),
-                ('unicode-1-1', parameters.ParamsCI([('q', 0.8)]))))
+                ('iso-8859-5', 1.0),
+                ('utf-8', 1.0),
+                ('unicode-1-1', 0.8)))
 
     def test_str(self):
         self.assertFieldStrEqual(
             (
-                ('iso-8859-5', parameters.ParamsCI()),
-                ('unicode-1-1', parameters.ParamsCI([('q', 0.8)]))),
+                ('iso-8859-5', None),
+                ('unicode-1-1', 0.8)),
             'accept-charset: iso-8859-5, unicode-1-1;q=0.8')
 
 
@@ -71,17 +71,17 @@ class AcceptEncodingTest(FieldTestCase):
         self.assertFieldRawEqual(
             ['gzip;q=1.0, identity; q=0.5', '*;q=0'],
             (
-                ('gzip', parameters.ParamsCI([('q', 1)])),
-                ('identity', parameters.ParamsCI([('q', 0.5)])),
-                ('*', parameters.ParamsCI([('q', 0)]))))
+                ('gzip', 1),
+                ('identity', 0.5),
+                ('*', 0)))
 
     def test_str(self):
         self.assertFieldStrEqual(
             (
-                ('gzip', parameters.ParamsCI([('q', 1.0)])),
-                ('identity', parameters.ParamsCI([('q', 0.5)])),
-                ('*', parameters.ParamsCI([('q', 0)]))),
-            'accept-encoding: gzip;q=1.0, identity;q=0.5, *;q=0')
+                ('gzip', 1.0),
+                ('identity', 0.5),
+                ('*', 0)),
+            'accept-encoding: gzip, identity;q=0.5, *;q=0')
 
 
 class AcceptLanguageTest(FieldTestCase):
@@ -92,22 +92,16 @@ class AcceptLanguageTest(FieldTestCase):
         self.assertFieldRawEqual(
             ['da, en-gb;q=0.8', 'en;q=0.7'],
             (
-                (('da', (), None, None, (), (), (), None),
-                 parameters.ParamsCI([('q', 1)])),
-                (('en', (), None, 'gb', (), (), (), None),
-                 parameters.ParamsCI([('q', 0.8)])),
-                (('en', (), None, None, (), (), (), None),
-                 parameters.ParamsCI([('q', 0.7)]))))
+                (('da', (), None, None, (), (), (), None), 1),
+                (('en', (), None, 'gb', (), (), (), None), 0.8),
+                (('en', (), None, None, (), (), (), None), 0.7)))
 
     def test_str(self):
         self.assertFieldStrEqual(
             (
-                (('da', (), None, None, (), (), (), None),
-                 parameters.ParamsCI()),
-                (('en', (), None, 'gb', (), (), (), None),
-                 parameters.ParamsCI([('q', 0.8)])),
-                (('en', (), None, None, (), (), (), None),
-                 parameters.ParamsCI([('q', 0.7)]))),
+                (('da', (), None, None, (), (), (), None), None),
+                (('en', (), None, 'gb', (), (), (), None), 0.8),
+                (('en', (), None, None, (), (), (), None), 0.7)),
             'accept-language: da, en-gb;q=0.8, en;q=0.7')
 
 

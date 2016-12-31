@@ -15,6 +15,16 @@ def format_values_with_params(values, separator=';'):
             yield value
 
 
+def format_values_with_weight(values, separator=';'):
+    for value, weight in values:
+        if weight is not None and weight < 1:
+            yield separator.join((
+                value,
+                'q={}'.format(weight)))
+        else:
+            yield value
+
+
 def format_auth_values(values):
     for auth_scheme, token, params in values:
         if params:

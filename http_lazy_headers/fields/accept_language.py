@@ -37,11 +37,6 @@ def accept_language(
         quality is None or
         0 <= quality <= 1)
 
-    params = ()
-
-    if quality is not None:
-        params = (('q', quality),)
-
     return (
         (lang,
          ext_lang,
@@ -51,7 +46,7 @@ def accept_language(
          extension,
          private_use,
          grandfathered),
-        parameters.Params(params))
+        quality)
 
 
 class AcceptLanguage(bases.TokensHeaderBase):
@@ -85,29 +80,29 @@ class AcceptLanguage(bases.TokensHeaderBase):
 
     def values_str(self, values):
         return ', '.join(
-            formatters.format_values_with_params(
+            formatters.format_values_with_weight(
                 (language_tags.format_language_tag(*value),
-                 params)
-                for value, params in values))
+                 weight)
+                for value, weight in values))
 
     def clean_value(self, raw_value):
-        raw_value, raw_params = parsers.from_raw_value_with_params(raw_value)
+        raw_value, raw_weight = parsers.from_raw_value_with_weight(raw_value)
 
         if raw_value == '*':
             return (
                 language_tags.accept_language_value(raw_value),
-                cleaners.clean_weight(raw_params))
+                cleaners.clean_weight(raw_weight))
 
         return (
             language_tags.clean_language_tag(raw_value),
-            cleaners.clean_weight(raw_params))
+            cleaners.clean_weight(raw_weight))
 
     def clean(self, raw_values):
         values = tuple(sorted(
             (
                 self.clean_value(raw_value)
                 for raw_value in raw_values),
-            key=quality.quality_sort_key))
+            key=quality.weight_sort_key))
 
         constraints.must_not_be_empty(values)
 

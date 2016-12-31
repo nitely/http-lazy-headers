@@ -261,9 +261,18 @@ class AcceptSomeBase(HeaderBase):
 
     # todo: remove, no header use this as is (well just one)
 
+    def check_values(self, values):
+        assertions.must_not_be_empty(values)
+
+        for v in values:
+            value, params = v
+
+            assertions.must_be_token(value)
+            assertions.must_be_weight(params)
+
     def values_str(self, values):
         return ', '.join(
-            formatters.format_values_with_params(values))
+            formatters.format_values_with_weight(values))
 
     def prepare_raw_values(self, raw_values_collection):
         return preparers.prepare_tokens(raw_values_collection)
@@ -276,17 +285,11 @@ class AcceptSomeBase(HeaderBase):
             (
                 self.clean_value(raw_value)
                 for raw_value in raw_values),
-            key=quality.quality_sort_key))
+            key=quality.weight_sort_key))
 
         constraints.must_not_be_empty(values)
 
         return values
-
-    def first_of(self, values):
-        return quality.first_of(self.values(), values)
-
-    def best_of(self, values):
-        return quality.best_of(self.values(), values)
 
 
 class LibsHeaderBase(HeaderBase):

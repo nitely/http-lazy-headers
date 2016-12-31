@@ -123,34 +123,42 @@ def clean_quality(params):
     return params.merge({'q': quality})
 
 
-def clean_weight(raw_params):
+def clean_weight(raw_weight):
     """
     Use on headers that only allow\
     quality parameters.
 
-    :param raw_params:
+    :param raw_weight:
     :return:
     """
-    params = parameters.ParamsCI(
-        clean_param(p)
-        for p in itertools.islice(raw_params, 2))
+    param_name, param_value = clean_param(raw_weight)
 
     constraints.constraint(
-        len(params) <= 1,
-        'Only weight is allowed')
-    constraints.constraint(
-        not params or 'q' in params,
+        param_name == 'q',
         'Weight must be in "q=value" format')
 
-    return clean_quality(params)
+    if param_value in {'0', '1'}:
+        return float(param_value)
+
+    weight = clean_float(
+        param_value,
+        exponent_max_len=1,
+        fraction_max_len=3)
+
+    constraints.constraint(
+        0 <= weight <= 1,
+        'q value must be equal/greater '
+        'than 0 and equal/lesser than 1')
+
+    return weight
 
 
 def clean_accept_some(raw_value):
-    value, raw_params = parsers.from_raw_value_with_params(raw_value)
+    value, raw_weight = parsers.from_raw_value_with_weight(raw_value)
 
     constraints.must_be_token(value)
 
-    return value.lower(), clean_weight(raw_params)
+    return value.lower(), clean_weight(raw_weight)
 
 
 def clean_etag(raw_value):

@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from ..shared.utils import assertions
 from ..shared.values import charsets
 from ..shared import bases
-from ..shared import parameters
 
 
 def accept_charset(charset, quality=None):
@@ -14,12 +12,7 @@ def accept_charset(charset, quality=None):
         quality is None or
         0 <= quality <= 1)
 
-    params = ()
-
-    if quality is not None:
-        params = (('q', quality),)
-
-    return charset, parameters.ParamsCI(params)
+    return charset, quality
 
 
 class AcceptCharset(bases.AcceptSomeBase):
@@ -43,20 +36,11 @@ class AcceptCharset(bases.AcceptSomeBase):
         ])
 
         AcceptCharset([
-            ('iso-8859-5', Params()),
-            ('unicode-1-1', Params({'q': 0.8}))
+            ('iso-8859-5', None),
+            ('unicode-1-1', 0.8)
         ])
 
     `Ref. <http://httpwg.org/specs/rfc7231.html#header.accept-charset>`_
     """
 
     name = 'accept-charset'
-
-    def check_values(self, values):
-        assertions.must_not_be_empty(values)
-
-        for v in values:
-            charset, params = v
-
-            assertions.must_be_token(charset)
-            assertions.must_be_weight(params)

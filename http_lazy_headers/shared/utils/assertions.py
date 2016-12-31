@@ -52,15 +52,14 @@ def must_be_quality(params):
         'Quality must be in 0-1 range')
 
 
-def must_be_weight(params):
-    must_be_quality(params)
+def must_be_weight(weight):
+    (weight is None or
+     must_be_instance_of(weight, (int, float)))
     assertion(
-        not params or
-        (len(params) == 1 and
-         'q' in params),
-        '"{}" received, weight '
-        '<Params([(\'q\', 1)])> was expected'
-        .format(params))
+        weight is None or
+        0 <= weight <= 1,
+        '"{}" received, weight in range '
+        '0-1 was expected'.format(weight))
 
 
 def must_be_ascii_params(params):
