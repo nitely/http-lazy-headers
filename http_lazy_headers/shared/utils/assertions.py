@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import datetime
+
 from . import checkers
 from .. import parameters
 from ... import exceptions
@@ -137,3 +139,7 @@ def must_be_tuple_of(value, length):
         len(value) == length,
         '"{}" received, {} items '
         'were expected'.format(value, length))
+
+
+def must_be_datetime(value):
+    must_be_instance_of(value, datetime.datetime)
