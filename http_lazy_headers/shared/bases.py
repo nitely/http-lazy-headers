@@ -265,10 +265,12 @@ class AcceptSomeBase(HeaderBase):
         assertions.must_not_be_empty(values)
 
         for v in values:
-            value, params = v
+            assertions.must_be_tuple_of(v, 2)
+
+            value, weight = v
 
             assertions.must_be_token(value)
-            assertions.must_be_weight(params)
+            assertions.must_be_weight(weight)
 
     def values_str(self, values):
         return ', '.join(
