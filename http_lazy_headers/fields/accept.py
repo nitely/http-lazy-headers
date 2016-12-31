@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from ..shared.generic import formatters
 from ..shared.generic import cleaners
 from ..shared.generic import quality
 from ..shared.generic import preparers
 from ..shared.utils import assertions
 from ..shared import bases
-from ..shared import parameters
 from ..shared.values import media_types
+from ..shared.common import media_ranges
 
 
 def accept(
@@ -59,26 +58,33 @@ class Accept(bases.HeaderBase):
 
     def check_values(self, values):
         for v in values:
-            (top_level, sub_level), params = v
+            media_ranges.check_value(v)
 
-            assertions.must_be_token(top_level)
-            assertions.must_be_token(sub_level)
+            _, params = v
+
+            # There may be a "q" with no value
+            # and "charset" with no value, but
+            # we don't allow it
             assertions.must_be_quality(params)
             assertions.must_be_token(
                 params.get('charset', 'token'))
+            assertions.assertion(
+                all(isinstance(v, str)
+                    for p, v in params.items()
+                    if not p == 'q'),
+                '"{}" received, all params as str '
+                'were expected'.format(params))
 
     def values_str(self, values):
         return ', '.join(
-            formatters.format_values_with_params(
-                ('/'.join(mime), params)
-                for mime, params in values))
+            media_ranges.format_media_ranges(values))
 
     def prepare_raw_values(self, raw_values_collection):
         return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_value(self, value):
         # todo: params may contain only a token (no argument), except q
-        value, params = cleaners.clean_media_type(value)
+        value, params = media_ranges.clean_media_type(value)
         return value, cleaners.clean_quality(params)
 
     def clean(self, raw_values):

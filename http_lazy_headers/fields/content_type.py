@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ..shared.generic import formatters
-from ..shared.generic import cleaners
+from ..shared.common import media_ranges
 from ..shared import bases
 from ..shared.values import media_types
 from ..shared.utils import assertions
@@ -51,16 +50,13 @@ class ContentType(bases.SingleHeaderBase):
     name = 'content-type'
 
     def check_value(self, value):
-        (top_level, sub_level), params = value
-        assertions.must_be_token(top_level)
-        assertions.must_be_token(sub_level)
-        assertions.must_be_params(params)
+        media_ranges.check_value(value)
+        _, params = value
+        assertions.must_be_ascii_params(params)
 
     def values_str(self, values):
         return next(
-            formatters.format_values_with_params(
-                ('/'.join(mime), params)
-                for mime, params in values))
+            media_ranges.format_media_ranges(values))
 
     def clean_value(self, value):
-        return cleaners.clean_media_type(value)
+        return media_ranges.clean_media_type(value)
