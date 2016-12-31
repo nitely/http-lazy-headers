@@ -71,12 +71,12 @@ class AcceptLanguage(bases.TokensHeaderBase):
     name = 'accept-language'
 
     def check_value(self, value):
-        sub_tags, params = value
+        assertions.must_be_tuple_of(value, 2)
 
-        assertions.assertion(
-            any(sub_tags),
-            'Expected one or more non-empty sub-tags')
-        assertions.must_be_weight(params)
+        sub_tags, weight = value
+
+        language_tags.check_value(sub_tags)
+        assertions.must_be_weight(weight)
 
     def values_str(self, values):
         return ', '.join(

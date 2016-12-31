@@ -61,9 +61,7 @@ class ContentLanguage(bases.TokensHeaderBase):
     name = 'content-language'
 
     def check_value(self, value):
-        assertions.assertion(
-            any(value),
-            'Expected one or more non-empty sub-tags')
+        language_tags.check_value(value)
 
     def values_str(self, values):
         return ', '.join(
