@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.utils import assertions
 from ..shared.utils import checkers
 from ..shared.utils import constraints
 from ..shared.utils import parsers
@@ -7,8 +8,8 @@ from .. import exceptions
 from ..shared import bases
 
 
-def via(received_protocol, received_by, comment=None):
-    return received_protocol, received_by, comment
+def via(version, received_by, protocol=None, comment=None):
+    return (protocol, version), received_by, comment
 
 
 class Via(bases.MultiHeaderBase):
@@ -28,11 +29,11 @@ class Via(bases.MultiHeaderBase):
 
         Vary([
             via(
-                received_protocol='1.0',
+                version='1.0',
                 received_by='fred',
                 comment='middle man'),
             via(
-                received_protocol='1.1',
+                version='1.1',
                 received_by='p.example.net'])
 
     `Ref. <http://httpwg.org/specs/rfc7230.html#header.via>`_
@@ -40,17 +41,38 @@ class Via(bases.MultiHeaderBase):
 
     name = 'via'
 
+    def check_value(self, value):
+        assertions.must_be_tuple_of(value, 3)
+        assertions.must_be_tuple_of(value[0], 2)
+
+        (protocol, version), received_by, comment = value
+
+        protocol is None or assertions.must_be_token(protocol)
+        assertions.must_be_token(version)
+        assertions.assertion(
+            (checkers.is_uri(received_by) or
+             checkers.is_token(received_by)),
+            '"{}" received, value received_by '
+            'was expected'.format(received_by))
+        comment is None or assertions.must_be_ascii(comment)
+
     def value_str(self, value):
-        protocol, received_by, comment = value
+        (protocol, version), received_by, comment = value
+
+        proto = version
+
+        if protocol is not None:
+            proto = '/'.join((
+                protocol, version))
 
         if comment is not None:
             return "{} {} {}".format(
-                protocol,
+                proto,
                 received_by,
                 parsers.quote_comment(comment))
         else:
             return "{} {}".format(
-                protocol,
+                proto,
                 received_by)
 
     def values_str(self, values):
@@ -60,18 +82,19 @@ class Via(bases.MultiHeaderBase):
 
     def clean_value(self, raw_value):
         try:
-            protocol, received_by = raw_value.split(' ', 1)
+            version, received_by = raw_value.split(' ', 1)
         except ValueError:
             raise exceptions.BadRequest(
                 'Expected "protocol received_by" format')
 
         try:
-            protocol_name, protocol_version = raw_value.split('/', 1)
+            protocol, version = version.split('/', 1)
         except ValueError:
-            constraints.must_be_token(protocol)  # Just version
+            protocol = None
         else:
-            constraints.must_be_token(protocol_name)
-            constraints.must_be_token(protocol_version)
+            constraints.must_be_token(protocol)
+
+        constraints.must_be_token(version)
 
         try:
             received_by, comment = received_by.split(' ', 1)
@@ -86,4 +109,4 @@ class Via(bases.MultiHeaderBase):
              checkers.is_token(received_by)),
             'The receiver value is not valid')
 
-        return protocol, received_by, comment
+        return (protocol, version), received_by, comment

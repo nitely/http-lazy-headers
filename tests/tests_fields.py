@@ -863,13 +863,14 @@ class ViaTest(FieldTestCase):
         self.assertFieldRawEqual(
             ['1.0 fred (middle man), 1.1 p.example.net', '2.0 foo'],
             (
-                ('1.0', 'fred', 'middle man'),
-                ('1.1', 'p.example.net', None),
-                ('2.0', 'foo', None)))
+                ((None, '1.0'), 'fred', 'middle man'),
+                ((None, '1.1'), 'p.example.net', None),
+                ((None, '2.0'), 'foo', None)))
 
     def test_str(self):
         self.assertFieldStrEqual(
-            (('1.0', 'fred', 'middle man'), ('1.1', 'p.example.net', None)),
+            (((None, '1.0'), 'fred', 'middle man'),
+             ((None, '1.1'), 'p.example.net', None)),
             'via: 1.0 fred (middle man), 1.1 p.example.net')
 
 
