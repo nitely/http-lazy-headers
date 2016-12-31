@@ -5,6 +5,7 @@ from ..shared.generic import cleaners
 from ..shared.generic import preparers
 from ..shared.utils import constraints
 from ..shared.utils import parsers
+from ..shared.utils import assertions
 from ..shared import bases
 from ..shared import parameters
 from ..shared.values import encodings
@@ -49,11 +50,13 @@ class TransferEncoding(bases.HeaderBase):
     """
 
     name = 'transfer-encoding'
-    codings = frozenset((
-        'chunked',
-        'compress',
-        'deflate',
-        'gzip'))
+
+    def check_values(self, values):
+        for v in values:
+            assertions.must_be_tuple_of(v, 2)
+            encoding, params = v
+            assertions.must_be_token(encoding)
+            assertions.must_be_params(params)
 
     def values_str(self, values):
         return ', '.join(
