@@ -24,9 +24,22 @@ def must_be_instance_of(value, klass):
             repr(klass)))
 
 
+def must_be_token(value):
+    must_be_instance_of(
+        value, str)
+    assertion(
+        checkers.is_token(value),
+        '"{}" received, a token '
+        'was expected'.format(value))
+
+
 def must_be_params(params):
     must_be_instance_of(
         params, parameters.Params)
+
+    for p, v in params.items():
+        must_be_token(p)
+        not isinstance(v, str) or must_be_ascii(v)
 
 
 def must_be_quality(params):
@@ -39,15 +52,6 @@ def must_be_quality(params):
         'Quality must be in 0-1 range')
 
 
-def must_be_token(value):
-    must_be_instance_of(
-        value, str)
-    assertion(
-        checkers.is_token(value),
-        '"{}" received, a token '
-        'was expected'.format(value))
-
-
 def must_be_weight(params):
     must_be_quality(params)
     assertion(
@@ -57,6 +61,13 @@ def must_be_weight(params):
         '"{}" received, weight '
         '<Params([(\'q\', 1)])> was expected'
         .format(params))
+
+
+def must_be_ascii_params(params):
+    must_be_params(params)
+
+    for _, v in params.items():
+        must_be_ascii(v)
 
 
 def must_not_be_empty(value):
@@ -143,3 +154,11 @@ def must_be_tuple_of(value, length):
 
 def must_be_datetime(value):
     must_be_instance_of(value, datetime.datetime)
+
+
+def must_be_token68(value):
+    must_be_instance_of(value, str)
+    assertion(
+        checkers.is_token68(value),
+        '"{}" received, a token68 '
+        'was expected'.format(value))

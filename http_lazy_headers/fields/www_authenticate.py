@@ -5,6 +5,7 @@ from ..shared.generic import cleaners
 from ..shared.generic import preparers
 from ..shared.utils import checkers
 from ..shared.utils import constraints
+from ..shared.utils import assertions
 from ..shared import bases
 from ..shared import parameters
 
@@ -86,6 +87,16 @@ class WWWAuthenticate(bases.HeaderBase):
     """
 
     name = 'www-authenticate'
+
+    def check_values(self, values):
+        assertions.must_not_be_empty(values)
+
+        for v in values:
+            assertions.must_be_tuple_of(v, 3)
+            scheme, token, params = v
+            assertions.must_be_token(scheme)
+            token is None or assertions.must_be_token68(token)
+            assertions.must_be_ascii_params(params)
 
     def values_str(self, values):
         return ', '.join(
