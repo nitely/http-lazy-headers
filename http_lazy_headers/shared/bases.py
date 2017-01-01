@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from .common import entity_tags
 from .generic import formatters
 from .generic import cleaners
 from .generic import quality
@@ -227,13 +228,7 @@ class IfMatchSomeBase(MultiHeaderBase):
     """
 
     def check_value(self, value):
-        etag, is_weak = value
-        assertions.must_be_instance_of(etag, str)
-        assertions.assertion(
-            checkers.is_etag('"{}"'.format(etag)),
-            '"{}" received, an etag '
-            'was expected'.format(etag))
-        assertions.must_be_instance_of(is_weak, bool)
+        entity_tags.check_etag(value)
 
     def values_str(self, values):
         etag, is_weak = values[0]
@@ -241,7 +236,7 @@ class IfMatchSomeBase(MultiHeaderBase):
         if etag == '*':
             return etag
 
-        return ', '.join(formatters.format_etag_values(values))
+        return ', '.join(entity_tags.format_etags(values))
 
     def clean_value(self, raw_value):
         # todo: validate is single value when value is "*"
@@ -249,7 +244,7 @@ class IfMatchSomeBase(MultiHeaderBase):
         if raw_value == '*':
             return raw_value, False
 
-        return cleaners.clean_etag(raw_value)
+        return entity_tags.clean_etag(raw_value)
 
     def match(self, etag, is_weak=False):
         values = set(self.values())

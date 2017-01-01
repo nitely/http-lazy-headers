@@ -161,18 +161,6 @@ def clean_accept_some(raw_value):
     return value.lower(), clean_weight(raw_weight)
 
 
-def clean_etag(raw_value):
-    is_weak = False
-
-    if raw_value.startswith('W/'):
-        raw_value = raw_value[len('W/'):]
-        is_weak = True
-
-    constraints.must_be_etag(raw_value)
-
-    return raw_value[1:-1], is_weak
-
-
 def clean_bytes_range(raw_bytes):
     # todo: check start >= end
 

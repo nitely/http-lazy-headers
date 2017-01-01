@@ -43,14 +43,6 @@ def format_auth_values(values):
             yield auth_scheme
 
 
-def format_etag_values(values):
-    for etag, is_weak in values:
-        if is_weak:
-            yield 'W/"{}"'.format(etag)
-        else:
-            yield '"{}"'.format(etag)
-
-
 def format_ext_params(params):
     # todo: move to common.extended_params.py
     for param_name, param_value in params.items():

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.common import entity_tags
 from ..shared.generic import formatters
 from ..shared.generic import cleaners
 from ..shared import bases
@@ -7,10 +8,7 @@ from ..shared.utils import assertions
 from ..shared.utils import checkers
 
 
-def entity_tag(etag, is_weak=False):
-    assert etag and isinstance(etag, str)
-
-    return etag, is_weak
+entity_tag = entity_tags.entity_tag
 
 
 class ETag(bases.SingleHeaderBase):
@@ -47,16 +45,10 @@ class ETag(bases.SingleHeaderBase):
     name = 'etag'
 
     def check_value(self, value):
-        etag, is_weak = value
-        assertions.must_be_instance_of(etag, str)
-        assertions.assertion(
-            checkers.is_etag('"{}"'.format(etag)),
-            '"{}" received, an etag '
-            'was expected'.format(etag))
-        assertions.must_be_instance_of(is_weak, bool)
+        entity_tags.check_etag(value)
 
     def values_str(self, values):
-        return next(formatters.format_etag_values(values))
+        return next(entity_tags.format_etags(values))
 
     def clean_value(self, raw_value):
-        return cleaners.clean_etag(raw_value)
+        return entity_tags.clean_etag(raw_value)
