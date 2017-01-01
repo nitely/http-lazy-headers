@@ -39,7 +39,7 @@ class From(bases.SingleHeaderBase):
     name = 'from'
 
     def check_value(self, value):
-        assertions.must_be_instance_of(value, str)
+        assertions.must_be_ascii(value)
 
     def clean_value(self, raw_value):
         return raw_value

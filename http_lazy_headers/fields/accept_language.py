@@ -75,7 +75,7 @@ class AcceptLanguage(bases.TokensHeaderBase):
 
         sub_tags, weight = value
 
-        language_tags.check_value(sub_tags)
+        language_tags.check_language_tag(sub_tags)
         assertions.must_be_weight(weight)
 
     def values_str(self, values):

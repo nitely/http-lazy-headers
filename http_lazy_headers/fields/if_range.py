@@ -61,7 +61,7 @@ class IfRange(bases.SingleHeaderBase):
         #  etags.check_value(value))
 
         if isinstance(value, datetime.datetime):
-            dates.check_value(value)
+            dates.check_date(value)
             return
 
         etag, is_weak = value

@@ -210,7 +210,7 @@ class SetCookie(bases.HeaderBase):
             for c in values))
 
         for c in values:
-            c.expires is None or dates.check_value(c.expires)
+            c.expires is None or dates.check_date(c.expires)
             c.max_age is None or assertions.must_be_int(c.max_age)
             c.domain is None or assertions.assertion(
                 isinstance(c.domain, str) and

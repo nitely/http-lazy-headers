@@ -61,7 +61,7 @@ class ContentLanguage(bases.TokensHeaderBase):
     name = 'content-language'
 
     def check_value(self, value):
-        language_tags.check_value(value)
+        language_tags.check_language_tag(value)
 
     def values_str(self, values):
         return ', '.join(

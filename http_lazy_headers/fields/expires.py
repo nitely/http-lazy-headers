@@ -33,7 +33,7 @@ class Expires(bases.SingleHeaderBase):
         if value == 0:
             return
 
-        dates.check_value(value)
+        dates.check_date(value)
 
     def values_str(self, values):
         value = values[0]

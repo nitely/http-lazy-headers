@@ -319,6 +319,6 @@ def format_date(date_time):
             second=date_time.second))
 
 
-def check_value(value):
+def check_date(date_time):
     assertions.must_be_instance_of(
-        value, datetime.datetime)
+        date_time, datetime.datetime)

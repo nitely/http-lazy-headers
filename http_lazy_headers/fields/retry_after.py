@@ -39,7 +39,7 @@ class RetryAfter(bases.SingleHeaderBase):
         if isinstance(value, int):
             return
 
-        dates.check_value(value)
+        dates.check_date(value)
 
     def values_str(self, values):
         value = values[0]

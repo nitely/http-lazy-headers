@@ -162,7 +162,8 @@ def check_values(values):
     for v in values:
         assertions.must_be_tuple_of(v, 2)
 
-    for name, value in values:
+        name, value = v
+
         assertions.must_be_instance_of(name, str)
         assertions.must_be_instance_of(value, str)
         assertions.assertion(

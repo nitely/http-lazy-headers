@@ -30,7 +30,7 @@ class IfUnmodifiedSince(bases.SingleHeaderBase):
     name = 'if-unmodified-since'
 
     def check_value(self, value):
-        dates.check_value(value)
+        dates.check_date(value)
 
     def values_str(self, values):
         return dates.format_date(values[0])

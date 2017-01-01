@@ -64,7 +64,7 @@ def is_sub_tag(txt):
     return len(txt) <= 8 and is_alphanum(txt)
 
 
-def check_value(value):
+def check_language_tag(value):
     assertions.must_be_tuple_of(value, 8)
 
     (lang,
