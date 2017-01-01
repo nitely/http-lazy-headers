@@ -57,20 +57,8 @@ class IfRange(bases.SingleHeaderBase):
         assertions.must_be_instance_of(
             value, (tuple, datetime.datetime))
 
-        # (isinstance(value, datetime.datetime) or
-        #  etags.check_value(value))
-
-        if isinstance(value, datetime.datetime):
-            dates.check_date(value)
-            return
-
-        etag, is_weak = value
-        assertions.must_be_instance_of(etag, str)
-        assertions.assertion(
-            checkers.is_etag('"{}"'.format(etag)),
-            '"{}" received, an etag '
-            'was expected'.format(etag))
-        assertions.must_be_instance_of(is_weak, bool)
+        (isinstance(value, datetime.datetime) or
+         entity_tags.check_etag(value))
 
     def values_str(self, values):
         value = values[0]

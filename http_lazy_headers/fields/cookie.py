@@ -52,7 +52,7 @@ class Cookie(bases.HeaderBase):
     name = 'cookie'
 
     def check_values(self, values):
-        cookies.check_values(values)
+        cookies.check_cookie(values)
 
     def values_str(self, values):
         return '; '.join(

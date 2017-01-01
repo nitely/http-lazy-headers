@@ -97,6 +97,11 @@ class WWWAuthenticate(bases.HeaderBase):
             assertions.must_be_token(scheme)
             token is None or assertions.must_be_token68(token)
             assertions.must_be_ascii_params(params)
+            assertions.assertion(
+                not (token and params),
+                '"{}" and "{}" received, either '
+                'token or params was expected'
+                .format(token, params))
 
     def values_str(self, values):
         return ', '.join(

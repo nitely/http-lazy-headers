@@ -205,7 +205,7 @@ class SetCookie(bases.HeaderBase):
         for c in values:
             assertions.must_be_instance_of(c, CookiePair)
 
-        cookies.check_values(tuple(
+        cookies.check_cookie(tuple(
             (c.name, c.value)
             for c in values))
 

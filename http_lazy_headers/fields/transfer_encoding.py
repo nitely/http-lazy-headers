@@ -54,7 +54,7 @@ class TransferEncoding(bases.MultiHeaderBase):
         assertions.must_be_tuple_of(value, 2)
         encoding, params = value
         assertions.must_be_token(encoding)
-        assertions.must_be_params(params)
+        assertions.must_be_ascii_params(params)
 
     def values_str(self, values):
         return ', '.join(

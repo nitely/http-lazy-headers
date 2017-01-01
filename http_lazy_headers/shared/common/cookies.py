@@ -156,10 +156,10 @@ def clean_domain(raw_domain):
     return raw_domain.lower()
 
 
-def check_values(values):
-    assertions.must_not_be_empty(values)
+def check_cookie(cookies):
+    assertions.must_not_be_empty(cookies)
 
-    for v in values:
+    for v in cookies:
         assertions.must_be_tuple_of(v, 2)
 
         name, value = v
