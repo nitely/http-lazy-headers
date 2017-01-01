@@ -1,0 +1,341 @@
+# -*- coding: utf-8 -*-
+
+import encodings.idna
+
+from . import cookies
+from ..generic import cleaners
+from ..utils import ascii_tools
+from ..utils import constraints
+from ..utils import assertions
+from ... import exceptions
+from ...settings import settings
+
+
+# 0-9 / a-f / A-F
+_HEXDIG = frozenset(
+    ascii_tools.ascii_chars(
+        (0x30, 0x39),
+        (0x41, 0x46),
+        (0x61, 0x66)))
+
+# unreserved / sub-delims / ":"
+_IPV_FUTURE_TAIL = (
+    frozenset(
+        ascii_tools.ascii_chars(
+            (0x30, 0x39),
+            (0x41, 0x5A),
+            (0x61, 0x7A))) |
+    frozenset('-._~') |
+    frozenset('!$&\'()*+,;=') |
+    frozenset(':'))
+
+# unreserved / sub-delims / "%" _HEXDIG
+_REG_NAME = (
+    frozenset(
+        ascii_tools.ascii_chars(
+            (0x30, 0x39),
+            (0x41, 0x5A),
+            (0x61, 0x7A))) |
+    frozenset('-._~') |
+    frozenset('!$&\'()*+,;=') |
+    frozenset('%'))
+
+
+def is_ipv4(raw_ipv4):
+    ipv4 = raw_ipv4.split('.', 3)
+
+    if len(ipv4) != 4:
+        return False
+
+    for part in ipv4:
+        if part != '0' and part.startswith('0'):
+            return False
+
+        try:
+            part = cleaners.clean_number(part, max_chars=3)
+        except exceptions.HeaderError:
+            return False
+
+        if part > 255:
+            return False
+
+    return True
+
+
+def _is_h16(raw_h16):
+    if not 1 <= len(raw_h16) <= 4:
+        return False
+
+    return set(raw_h16).issubset(_HEXDIG)
+
+
+def is_ipv6(raw_ipv6):
+    # http://download.dartware.com/thirdparty/test-ipv6-regex.pl
+
+    # https://tools.ietf.org/html/rfc3986#appendix-A
+    #
+    # Validation algorithm:
+    # has no head and has a tail of 8 or 7
+    # has head of 0 and has a tail of 7 or 6
+    # has head of <= 1 and has a tail of 6 or 5
+    # has head of <= 2 and has a tail of 5 or 4
+    # has head of <= 3 and has a tail of 4 or 3
+    # has head of <= 4 and has a tail of 3 or 2
+    # has head of <= 5 and has a tail of 2 or 1
+    # has head of <= 6 and has a tail of 1
+    # has head of <= 7 and has a tail of 0
+    #
+    # If ls32 is IPv4address there is one
+    # part less than if it is h16:h16,
+    # so must add 1 to the len to
+    # make up for the missing part.
+    #
+    # The "no head" is a special case.
+    #
+    # 7 <= len(tail) <= 8 ; if no head
+    # 0 <= len(head) <= 7 - len(tail) - 1 ; if IPv4address
+    # 0 <= len(head) <= 7 - len(tail) ; else
+
+    try:
+        head, tail = raw_ipv6.split('::', 1)
+    except ValueError:
+        head = None
+        tail = raw_ipv6
+
+    if head == '':
+        head = ()
+    else:
+        head = head.split(':', 6)
+
+    if not all(
+            _is_h16(h)
+            for h in head):
+        return False
+
+    if tail == '':
+        tail = ()
+    else:
+        tail = tail.split(':', 6)
+
+    if tail:
+        has_ipv4 = is_ipv4(tail[-1])
+    else:
+        has_ipv4 = False
+
+    if has_ipv4 and not all(
+            _is_h16(t)
+            for t in tail[:-1]):
+        return False
+
+    if not has_ipv4 and not all(
+            _is_h16(t)
+            for t in tail):
+        return False
+
+    if head is None:
+        return 7 <= len(tail) <= 8
+
+    if has_ipv4:
+        head_max_len = 7 - len(tail) - 1
+    else:
+        head_max_len = 7 - len(tail)
+
+    return 0 <= len(head) <= head_max_len
+
+
+def is_ipv_future(raw_ipv_future):
+    # https://tools.ietf.org/html/rfc3986#appendix-A
+
+    if not raw_ipv_future.startswith('v'):
+        return False
+
+    raw_ipv_future = raw_ipv_future[1:]
+
+    try:
+        head, tail = raw_ipv_future.split('.', 1)
+    except ValueError:
+        return False
+
+    if not head or not tail:
+        return False
+
+    if not set(head).issubset(_HEXDIG):
+        return False
+
+    if not set(tail).issubset(_IPV_FUTURE_TAIL):
+        return False
+
+    return True
+
+
+def is_unsafe_host(raw_host):
+    if not set(raw_host).issubset(_REG_NAME):
+        return False
+
+    percent = False
+    checked = 0
+
+    # Check "% HEXDIG HEXDIG"
+    for c in raw_host:
+        if percent and c not in _HEXDIG:
+            return False
+
+        if percent:
+            checked += 1
+
+        if checked == 2:
+            percent = False
+            checked = 0
+
+        if c == '%':
+            percent = True
+
+    return True
+
+
+def host(
+        domain=None,
+        ipv4=None,
+        ipv6=None,
+        ipv_future=None,
+        unsafe=None,
+        port=None):
+    assert len(tuple(
+        x
+        for x in (
+            domain,
+            ipv4,
+            ipv6,
+            ipv_future,
+            unsafe)
+        if x is not None)) < 2
+    assert (
+        port is None or
+        isinstance(port, int))
+
+    return domain, ipv4, ipv6, ipv_future, unsafe, port
+
+
+def check_host(value):
+    assertions.assertion(
+        len(value) == 6,
+        '"{}" received, '
+        '6 items were expected'
+        .format(value))
+    assertions.assertion(
+        len(tuple(
+            v
+            for v in value[:5]
+            if v is not None)) < 2,
+        '"{}" received, only one '
+        'non-empty value was expected'
+        .format(value[:5]))
+
+    for v, check_func in zip(
+            value[:5],
+            (cookies.is_domain,
+             is_ipv4,
+             is_ipv6,
+             is_ipv_future,
+             is_unsafe_host)):
+        assertions.assertion(
+            v is None or
+            (isinstance(v, str) and
+             check_func(v)),
+            '"{}" received, a valid host '
+            'was expected'.format(v))
+
+    port = value[5]
+    not port or assertions.must_be_int(port)
+
+
+def format_host(value):
+    (domain,
+     ipv4,
+     ipv6,
+     ipv_future,
+     unsafe,
+     port) = value
+
+    if not value:
+        return ''
+
+    if domain:
+        domain = str(
+            encodings.idna.ToASCII(domain),
+            encoding='ascii')
+
+    # Default to '' if no value
+    host_name = next((
+        h for h in (
+            domain,
+            ipv4,
+            ipv6,
+            ipv_future,
+            unsafe)
+        if h is not None),
+        '')
+
+    if port is not None:
+        return '{}:{}'.format(host_name, port)
+
+    return host_name
+
+
+def clean_host(raw_value):
+    # https://tools.ietf.org/html/rfc3986#appendix-A
+
+    # Port may be a empty str
+    try:
+        raw_host, port = raw_value.rsplit(':', 1)
+    except ValueError:
+        raw_host = raw_value
+        port = None
+
+    if port:
+        try:
+            port = cleaners.clean_number(port, max_chars=5)
+        except exceptions.HeaderError:
+            raw_host = raw_value
+
+    # For some reason this is actually valid
+    if not raw_host:
+        return host(port=port)
+
+    if (raw_host.startswith('[v') and
+            raw_host.endswith(']')):
+        ipv_some = raw_host[1:-1]
+
+        constraints.constraint(
+            is_ipv_future(ipv_some),
+            'Value is not a valid IPvFuture')
+
+        return host(
+            ipv_future=ipv_some[1:],
+            port=port)
+
+    if (raw_host.startswith('[') and
+            raw_host.endswith(']')):
+        ipv_some = raw_host[1:-1]
+
+        constraints.constraint(
+            is_ipv6(ipv_some),
+            'Value is not a valid IPv6')
+
+        return host(ipv6=ipv_some, port=port)
+
+    if is_ipv4(raw_host):
+        return host(ipv4=raw_host, port=port)
+
+    try:
+        return host(
+            domain=cookies.clean_domain(raw_host),
+            port=port)
+    except exceptions.HeaderError:
+        pass
+
+    if (settings.HOST_UNSAFE_ALLOW and
+            is_unsafe_host(raw_host)):
+        return host(unsafe=raw_host.lower())
+
+    raise exceptions.BadRequest('Bad host name')
