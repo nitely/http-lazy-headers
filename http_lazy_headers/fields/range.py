@@ -1,29 +1,22 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.generic import cleaners
 from .. import exceptions
 from ..shared import bases
-from ..shared import cleaners
-from ..shared import parameters
+from ..shared.utils import assertions
+from ..shared.utils import constraints
+from ..shared.utils import checkers
 from ..shared.values import ranges
 
 
 def range_bytes(sub_ranges):
     assert sub_ranges
     assert all(
-        1 <= len(sr) <= 2
+        len(sr) == 2
         for sr in sub_ranges)
-    assert all(
-        all(
-            isinstance(r, int)
-            for r in sr)
-        for sr in sub_ranges)
-    assert all(
-        sr[0] <= sr[1]
-        for sr in sub_ranges
-        if len(sr) == 2)
 
-    return parameters.Params((
-        (ranges.RangesOptions.bytes, tuple(sub_ranges)),))
+    return (
+        (ranges.RangesOptions.bytes, tuple(sub_ranges)),)
 
 
 class Range(bases.SingleHeaderBase):
@@ -50,21 +43,15 @@ class Range(bases.SingleHeaderBase):
         ])
 
         Range([
-            Params([
-                (Ranges.bytes, ((0, 499),))
-            ])
+            (Ranges.bytes, ((0, 499),))
         ])
 
         Range([
-            Params([
-                (Ranges.bytes, ((0, 499), (500, 999)))
-            ])
+            (Ranges.bytes, ((0, 499), (500, 999)))
         ])
 
         Range([
-            Params([
-                ('my_unit', 'my_sub_range')
-            ])
+            ('my_unit', 'my_sub_range')
         ])
 
     `Ref. <http://httpwg.org/specs/rfc7233.html#header.range>`_
@@ -72,32 +59,37 @@ class Range(bases.SingleHeaderBase):
 
     name = 'range'
 
-    def __init__(
-            self,
-            values=None,
-            raw_values_collection=None):
-        super().__init__(values, raw_values_collection)
-        assert (
-            self._values is None or
-            isinstance(self._values[0], parameters.Params))
-        assert (
-            self._values is None or
-            len(self._values[0]) == 1)
+    def check_value(self, value):
+        unit, unit_range = value
+
+        if unit != ranges.RangesOptions.bytes:
+            assertions.must_be_token(unit)
+            assertions.must_be_visible_chars(unit_range)
+            return
+
+        assertions.must_be_instance_of(unit_range, tuple)
+        assertions.assertion(
+            ((isinstance(r, tuple) and
+              len(r) == 2 and
+              (r[0] is None or isinstance(r[0], int)) and
+              (r[1] is None or isinstance(r[1], int)))
+             for r in unit_range),
+            '"{}" received, a tuple of tuples of 2 '
+            'ints were expected'.format(unit_range))
 
     def values_str(self, values):
-        params = values[0]
+        unit, unit_range = values[0]
 
-        if ranges.RangesOptions.bytes not in params:
-            return '{}={}'.format(
-                *next(params.items()))
+        if unit != ranges.RangesOptions.bytes:
+            return '{}={}'.format(unit, unit_range)
 
         return '{}={}'.format(
-            ranges.RangesOptions.bytes,
-            ', '.join(
+            unit,
+            ','.join(
                 '{}-{}'.format(
                     start if start is not None else '',
                     end if end is not None else '')
-                for start, end in params[ranges.RangesOptions.bytes]))
+                for start, end in unit_range))
 
     def clean_value(self, raw_value):
         try:
@@ -107,11 +99,16 @@ class Range(bases.SingleHeaderBase):
                 'Value must have "name=param" format')
 
         if name != ranges.RangesOptions.bytes:
-            return cleaners.clean_params((raw_value,))
+            constraints.must_be_token(name)
+            constraints.constraint(
+                checkers.is_visible_chars(raw_param_value),
+                'Value must contain 1 or '
+                'more visible chars')
+            return name, raw_param_value
 
         # todo: setting.BYTES_RANGES_LIMIT
-        return parameters.ParamsCI((
-            (ranges.RangesOptions.bytes,
-             tuple(
-                 cleaners.clean_bytes_range(rp)
-                 for rp in raw_param_value.split(',', 20))),))
+        return (
+            ranges.RangesOptions.bytes,
+            tuple(
+                cleaners.clean_bytes_range(rp)
+                for rp in raw_param_value.split(',', 20)),)

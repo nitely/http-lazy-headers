@@ -14,8 +14,7 @@ def media_type(
     assert sub_level in _SUB_LEVEL_VALUES
     assert (
         quality is None or
-        (isinstance(quality, (int, float)) and
-         0 <= quality <= 1))
+        0 <= quality <= 1)
     assert(
         charset is None or
         charset in charsets.CHARSET_VALUES)

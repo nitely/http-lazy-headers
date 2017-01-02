@@ -3,12 +3,12 @@
 import itertools
 import urllib.parse
 
-from ..settings import settings
-from . import checkers
-from . import constraints
-from . import parameters
-from . import parsers
-from .. import exceptions
+from ..utils import constraints
+from ..utils import parsers
+from ..utils import checkers
+from .. import parameters
+from ... import exceptions
+from ...settings import settings
 
 
 def clean_token(raw_token):
@@ -51,6 +51,7 @@ def clean_params(raw_params):
 def clean_extended_param(raw_param):
     # https://tools.ietf.org/html/rfc5987#section-3.2.1
 
+    # todo: check param_name is a attr-char
     param_name, param_value = clean_param(raw_param)
 
     if not param_name.endswith('*'):
@@ -71,7 +72,7 @@ def clean_extended_param(raw_param):
         checkers.is_mime_charset(charset),
         'Invalid charset')
     constraints.constraint(
-        not lang or checkers.is_lang_value(charset),
+        not lang or checkers.is_lang_value(lang),
         'Invalid language')
     constraints.constraint(
         checkers.is_mime_charset_value(value),
@@ -122,74 +123,42 @@ def clean_quality(params):
     return params.merge({'q': quality})
 
 
-def clean_weight(raw_params):
+def clean_weight(raw_weight):
     """
     Use on headers that only allow\
     quality parameters.
 
-    :param raw_params:
+    :param raw_weight:
     :return:
     """
-    params = parameters.ParamsCI(
-        clean_param(p)
-        for p in itertools.islice(raw_params, 2))
+    param_name, param_value = clean_param(raw_weight)
 
     constraints.constraint(
-        len(params) <= 1,
-        'Only weight is allowed')
-    constraints.constraint(
-        not params or 'q' in params,
+        param_name == 'q',
         'Weight must be in "q=value" format')
 
-    return clean_quality(params)
+    if param_value in {'0', '1'}:
+        return float(param_value)
 
+    weight = clean_float(
+        param_value,
+        exponent_max_len=1,
+        fraction_max_len=3)
 
-def clean_media_type(raw_value):
-    """
-    MediaType item. For Content-Type and Accept headers.
+    constraints.constraint(
+        0 <= weight <= 1,
+        'q value must be equal/greater '
+        'than 0 and equal/lesser than 1')
 
-    The type, subtype, and parameter name are case-insensitive.\
-    Parameter values might be case-sensitive,\
-    depending on the semantics of the parameter name.
-
-    text/html;foo=bar;bar="foo\;bar"
-
-    `Ref. <http://httpwg.org/specs/rfc7231.html#media.type>`_
-    """
-    raw_value, raw_params = parsers.from_raw_value_with_params(raw_value)
-
-    try:
-        type_, subtype = raw_value.split('/', 1)
-    except ValueError:
-        raise exceptions.BadRequest(
-            'Expected "type/subtype" format')
-
-    constraints.must_be_token(type_)
-    constraints.must_be_token(subtype)
-
-    return (
-        (type_, subtype),
-        clean_params(raw_params))
+    return weight
 
 
 def clean_accept_some(raw_value):
-    value, raw_params = parsers.from_raw_value_with_params(raw_value)
+    value, raw_weight = parsers.from_raw_value_with_weight(raw_value)
 
     constraints.must_be_token(value)
 
-    return value.lower(), clean_weight(raw_params)
-
-
-def clean_etag(raw_value):
-    is_weak = False
-
-    if raw_value.startswith('W/'):
-        raw_value = raw_value[len('W/'):]
-        is_weak = True
-
-    constraints.must_be_etag(raw_value)
-
-    return raw_value[1:-1], is_weak
+    return value.lower(), clean_weight(raw_weight)
 
 
 def clean_bytes_range(raw_bytes):

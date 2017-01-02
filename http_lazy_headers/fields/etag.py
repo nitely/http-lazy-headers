@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.common import entity_tags
+from ..shared.generic import formatters
+from ..shared.generic import cleaners
 from ..shared import bases
-from ..shared import cleaners
-from ..shared import helpers
+from ..shared.utils import assertions
+from ..shared.utils import checkers
 
 
-def entity_tag(etag, is_weak=False):
-    assert etag and isinstance(etag, str)
-
-    return etag, is_weak
+entity_tag = entity_tags.entity_tag
 
 
 class ETag(bases.SingleHeaderBase):
@@ -44,8 +44,11 @@ class ETag(bases.SingleHeaderBase):
 
     name = 'etag'
 
+    def check_value(self, value):
+        entity_tags.check_etag(value)
+
     def values_str(self, values):
-        return next(helpers.format_etag_values(values))
+        return next(entity_tags.format_etags(values))
 
     def clean_value(self, raw_value):
-        return cleaners.clean_etag(raw_value)
+        return entity_tags.clean_etag(raw_value)

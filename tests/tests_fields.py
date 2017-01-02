@@ -51,15 +51,15 @@ class AcceptCharsetTest(FieldTestCase):
         self.assertFieldRawEqual(
             ['iso-8859-5, unicode-1-1;q=0.8', 'utf-8'],
             (
-                ('iso-8859-5', parameters.ParamsCI([('q', 1)])),
-                ('utf-8', parameters.ParamsCI([('q', 1)])),
-                ('unicode-1-1', parameters.ParamsCI([('q', 0.8)]))))
+                ('iso-8859-5', 1.0),
+                ('utf-8', 1.0),
+                ('unicode-1-1', 0.8)))
 
     def test_str(self):
         self.assertFieldStrEqual(
             (
-                ('iso-8859-5', parameters.ParamsCI()),
-                ('unicode-1-1', parameters.ParamsCI([('q', 0.8)]))),
+                ('iso-8859-5', None),
+                ('unicode-1-1', 0.8)),
             'accept-charset: iso-8859-5, unicode-1-1;q=0.8')
 
 
@@ -71,17 +71,17 @@ class AcceptEncodingTest(FieldTestCase):
         self.assertFieldRawEqual(
             ['gzip;q=1.0, identity; q=0.5', '*;q=0'],
             (
-                ('gzip', parameters.ParamsCI([('q', 1)])),
-                ('identity', parameters.ParamsCI([('q', 0.5)])),
-                ('*', parameters.ParamsCI([('q', 0)]))))
+                ('gzip', 1),
+                ('identity', 0.5),
+                ('*', 0)))
 
     def test_str(self):
         self.assertFieldStrEqual(
             (
-                ('gzip', parameters.ParamsCI([('q', 1.0)])),
-                ('identity', parameters.ParamsCI([('q', 0.5)])),
-                ('*', parameters.ParamsCI([('q', 0)]))),
-            'accept-encoding: gzip;q=1.0, identity;q=0.5, *;q=0')
+                ('gzip', 1.0),
+                ('identity', 0.5),
+                ('*', 0)),
+            'accept-encoding: gzip, identity;q=0.5, *;q=0')
 
 
 class AcceptLanguageTest(FieldTestCase):
@@ -92,22 +92,16 @@ class AcceptLanguageTest(FieldTestCase):
         self.assertFieldRawEqual(
             ['da, en-gb;q=0.8', 'en;q=0.7'],
             (
-                (('da', (), None, None, (), (), (), None),
-                 parameters.ParamsCI([('q', 1)])),
-                (('en', (), None, 'gb', (), (), (), None),
-                 parameters.ParamsCI([('q', 0.8)])),
-                (('en', (), None, None, (), (), (), None),
-                 parameters.ParamsCI([('q', 0.7)]))))
+                (('da', (), None, None, (), (), (), None), 1),
+                (('en', (), None, 'gb', (), (), (), None), 0.8),
+                (('en', (), None, None, (), (), (), None), 0.7)))
 
     def test_str(self):
         self.assertFieldStrEqual(
             (
-                (('da', (), None, None, (), (), (), None),
-                 parameters.ParamsCI()),
-                (('en', (), None, 'gb', (), (), (), None),
-                 parameters.ParamsCI([('q', 0.8)])),
-                (('en', (), None, None, (), (), (), None),
-                 parameters.ParamsCI([('q', 0.7)]))),
+                (('da', (), None, None, (), (), (), None), None),
+                (('en', (), None, 'gb', (), (), (), None), 0.8),
+                (('en', (), None, None, (), (), (), None), 0.7)),
             'accept-language: da, en-gb;q=0.8, en;q=0.7')
 
 
@@ -664,13 +658,11 @@ class RangeTest(FieldTestCase):
     def test_raw_values(self):
         self.assertFieldRawEqual(
             ['bytes=0-499'],
-            (parameters.ParamsCI([
-                ('bytes', ((0, 499),))]),))
+            (('bytes', ((0, 499),)),))
 
     def test_str(self):
         self.assertFieldStrEqual(
-            (parameters.ParamsCI([
-                ('bytes', ((0, 499),))]),),
+            (('bytes', ((0, 499),)),),
             'range: bytes=0-499')
 
 
@@ -865,13 +857,27 @@ class ViaTest(FieldTestCase):
         self.assertFieldRawEqual(
             ['1.0 fred (middle man), 1.1 p.example.net', '2.0 foo'],
             (
-                ('1.0', 'fred', 'middle man'),
-                ('1.1', 'p.example.net', None),
-                ('2.0', 'foo', None)))
+                (
+                    (None, '1.0'),
+                    ((None, None, None, None, None, None), 'fred'),
+                    'middle man'),
+                (
+                    (None, '1.1'),
+                    (('p.example.net', None, None, None, None, None), None),
+                    None),
+                (
+                    (None, '2.0'),
+                    ((None, None, None, None, None, None), 'foo'),
+                    None)))
 
     def test_str(self):
         self.assertFieldStrEqual(
-            (('1.0', 'fred', 'middle man'), ('1.1', 'p.example.net', None)),
+            (((None, '1.0'),
+              ((None, None, None, None, None, None), 'fred'),
+              'middle man'),
+             ((None, '1.1'),
+              (('p.example.net', None, None, None, None, None), None),
+              None)),
             'via: 1.0 fred (middle man), 1.1 p.example.net')
 
 
@@ -892,16 +898,34 @@ class WarningTest(FieldTestCase):
                 '112 - "network down" "Sat, 25 Aug 2012 23:34:45 GMT", 112 - "err"',
                 '112 - "foo"'],
             (
-                (112, '-', 'network down', self.date),
-                (112, '-', 'err', None),
-                (112, '-', 'foo', None)))
+                (112,
+                 ((None, None, None, None, None, None), '-'),
+                 'network down',
+                 self.date),
+                (112,
+                 ((None, None, None, None, None, None), '-'),
+                 'err',
+                 None),
+                (112,
+                 ((None, None, None, None, None, None), '-'),
+                 'foo',
+                 None)))
 
     def test_str(self):
         self.assertFieldStrEqual(
             (
-                (112, '-', 'network down', self.date),
-                (112, '-', 'err', None),
-                (112, '-', 'foo', None)),
+                (112,
+                 ((None, None, None, None, None, None), '-'),
+                 'network down',
+                 self.date),
+                (112,
+                 ((None, None, None, None, None, None), '-'),
+                 'err',
+                 None),
+                (112,
+                 ((None, None, None, None, None, None), '-'),
+                 'foo',
+                 None)),
             'warning: 112 - "network down" "Sat, 25 Aug 2012 23:34:45 GMT", '
             '112 - "err", 112 - "foo"')
 
@@ -984,7 +1008,7 @@ class CookieTest(FieldTestCase):
             'cookie: SID=31d4d96e407aad42; lang=en-US')
 
 
-from http_lazy_headers.fields.set_cookie import cookie_pair
+from http_lazy_headers.fields.set_cookie import CookiePair
 
 
 class SetCookieTest(FieldTestCase):
@@ -992,32 +1016,37 @@ class SetCookieTest(FieldTestCase):
     field = fields.SetCookie
 
     def test_raw_values(self):
-        self.assertFieldRawEqual(
-            [
+        values = self.field(
+            raw_values_collection=[
                 'SID=31d4d96e407aad42; Path=/; Domain=example.com',
-                'SID2=foobar; Path=/foo; Secure; HttpOnly'],
+                'SID2=foobar; Path=/foo; Secure; HttpOnly']).values()
+
+        self.assertEqual(
+            tuple(
+                v.__dict__
+                for v in values),
             (
-                cookie_pair(
+                CookiePair(
                     'SID',
                     '31d4d96e407aad42',
                     path='/',
-                    domain='example.com'),
-                cookie_pair(
+                    domain='example.com').__dict__,
+                CookiePair(
                     'SID2',
                     'foobar',
                     path='/foo',
                     secure=True,
-                    http_only=True)))
+                    http_only=True).__dict__))
 
     def test_str(self):
         self.assertFieldStrEqual(
             (
-                cookie_pair(
+                CookiePair(
                     'SID',
                     '31d4d96e407aad42',
                     path='/',
                     domain='example.com'),
-                cookie_pair(
+                CookiePair(
                     'SID2',
                     'foobar',
                     path='/foo',

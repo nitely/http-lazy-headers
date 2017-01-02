@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from ..shared.values import media_types
+from ..shared.common import media_ranges
 from ..shared import bases
-from ..shared import cleaners
-from ..shared import helpers
+from ..shared.values import media_types
+from ..shared.utils import assertions
 
 
 def content_type(
@@ -49,11 +49,14 @@ class ContentType(bases.SingleHeaderBase):
 
     name = 'content-type'
 
+    def check_value(self, value):
+        media_ranges.check_value(value)
+        _, params = value
+        assertions.must_be_ascii_params(params)
+
     def values_str(self, values):
         return next(
-            helpers.format_values_with_params(
-                ('/'.join(mime), params)
-                for mime, params in values))
+            media_ranges.format_media_ranges(values))
 
     def clean_value(self, value):
-        return cleaners.clean_media_type(value)
+        return media_ranges.clean_media_type(value)

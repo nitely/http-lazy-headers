@@ -1,22 +1,22 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.generic import formatters
+from ..shared.generic import cleaners
+from ..shared.generic import quality
+from ..shared.generic import preparers
+from ..shared.utils import constraints
+from ..shared.utils import parsers
+from ..shared.utils import assertions
 from ..shared import bases
-from ..shared import helpers
-from ..shared import cleaners
-from ..shared import quality
-from ..shared import parsers
-from ..shared import constraints
 from ..shared import parameters
 from ..shared.values import encodings
 
 
 def te(encoding, quality=None):
     assert (
-        encoding == TEncodings.trailers or
+        (encoding == TEncodings.trailers and
+         quality is None) or
         encoding in encodings.ENCODING_VALUES)
-    assert (
-        encoding != TEncodings.trailers or
-        quality is None)
     assert (
         quality is None or
         isinstance(quality, int))
@@ -71,24 +71,23 @@ class TE(bases.HeaderBase):
     """
 
     name = 'te'
-    codings = frozenset((
-        'chunked',
-        'compress',
-        'deflate',
-        'gzip',
-        'trailers'))
+
+    def check_values(self, values):
+        for v in values:
+            assertions.must_be_tuple_of(v, 2)
+            encoding, params = v
+            assertions.must_be_token(encoding)
+            assertions.must_be_quality(params)
 
     def values_str(self, values):
         # todo: remove the q=1 in trailers (from str values)
         return ', '.join(
-            helpers.format_values_with_params(values))
+            formatters.format_values_with_params(values))
 
     def prepare_raw_values(self, raw_values_collection):
-        return helpers.prepare_multi_raw_values(raw_values_collection)
+        return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_value(self, raw_value):
-        # todo: don't allow params in "trailers"
-
         value, raw_params = parsers.from_raw_value_with_params(raw_value)
         constraints.must_be_token(value)
         return (

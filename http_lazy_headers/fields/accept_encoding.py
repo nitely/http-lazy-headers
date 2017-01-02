@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.generic import quality
 from ..shared import bases
-from ..shared import quality
 from ..shared import parameters
 from ..shared.values import encodings
+from ..shared.utils import assertions
 
 
 def accept_encoding(encoding, quality=None):
@@ -14,12 +15,7 @@ def accept_encoding(encoding, quality=None):
         quality is None or
         0 <= quality <= 1)
 
-    params = ()
-
-    if quality is not None:
-        params = (('q', quality),)
-
-    return encoding, parameters.ParamsCI(params)
+    return encoding, quality
 
 
 class AcceptEncoding(bases.AcceptSomeBase):
@@ -53,9 +49,9 @@ class AcceptEncoding(bases.AcceptSomeBase):
         ])
 
         AcceptEncoding([
-            (Encodings.gzip, Params({'q': 1})),
-            (Encodings.identity, Params({'q': 0.5})),
-            ('*', Params({'q': 0.1}))
+            (Encodings.gzip, 1),
+            (Encodings.identity, 0.5),
+            ('*', 0.1)
         ])
 
     `Ref. <http://httpwg.org/specs/rfc7231.html#header.accept-encoding>`_
@@ -63,10 +59,19 @@ class AcceptEncoding(bases.AcceptSomeBase):
 
     name = 'accept-encoding'
 
+    def check_values(self, values):
+        for v in values:
+            assertions.must_be_tuple_of(v, 2)
+
+            encoding, weight = v
+
+            assertions.must_be_token(encoding)
+            assertions.must_be_weight(weight)
+
     def clean(self, raw_values):
         # Allow empty value
         return tuple(sorted(
             (
                 self.clean_value(raw_value)
                 for raw_value in raw_values),
-            key=quality.quality_sort_key))
+            key=quality.weight_sort_key))

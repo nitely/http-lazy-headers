@@ -2,7 +2,7 @@
 
 import collections
 
-from . import parsers
+from .utils import parsers
 
 
 class Params:
@@ -52,6 +52,11 @@ class Params:
 
     def items(self):
         return self._params.items()
+
+    def get(self, param, *args):
+        assert isinstance(param, str)
+
+        return self._params.get(param, *args)
 
     def merge(self, other):
         """

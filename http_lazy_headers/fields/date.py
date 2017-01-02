@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.common import dates
 from ..shared import bases
-from ..shared import dates
 
 
 class Date(bases.SingleHeaderBase):
@@ -19,6 +19,9 @@ class Date(bases.SingleHeaderBase):
     """
 
     name = 'date'
+
+    def check_value(self, value):
+        dates.check_date(value)
 
     def values_str(self, values):
         return dates.format_date(values[0])

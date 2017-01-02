@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from ..shared import ascii_tools
+from . import ascii_tools
 
 
 # 0-9 / A-Z / a-z
@@ -30,6 +30,17 @@ _LANG_CHARS = frozenset('-') | _ALPHA_NUM
 
 _DIGIT_CHARS = frozenset(
     ascii_tools.ascii_chars((0x30, 0x39)))
+
+# HTAB / SP / VCHAR
+_ASCII_CHARS = frozenset(
+    ascii_tools.ascii_chars(0x09, (0x20, 0x7E)))
+
+# Token chars except "*" / "'" / "%"
+_EXT_TOKEN = _TOKEN_CHARS - frozenset('*\'%')
+
+# VCHAR
+_VISIBLE_CHARS = frozenset(
+    ascii_tools.ascii_chars((0x21, 0x7E)))
 
 
 def is_token(txt):
@@ -150,3 +161,30 @@ def is_number(txt):
         return False
 
     return set(txt).issubset(_DIGIT_CHARS)
+
+
+def is_ascii(txt):
+    assert isinstance(txt, str)
+
+    if not txt:
+        return False
+
+    return set(txt).issubset(_ASCII_CHARS)
+
+
+def is_ext_token(txt):
+    assert isinstance(txt, str)
+
+    if not txt:
+        return False
+
+    return set(txt).issubset(_EXT_TOKEN)
+
+
+def is_visible_chars(txt):
+    assert isinstance(txt, str)
+
+    if not txt:
+        return False
+
+    return set(txt).issubset(_VISIBLE_CHARS)

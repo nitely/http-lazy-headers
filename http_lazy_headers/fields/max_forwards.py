@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.utils import assertions
+from ..shared.generic import cleaners
 from ..shared import bases
-from ..shared import cleaners
 
 
 class MaxForwards(bases.SingleHeaderBase):
@@ -24,6 +25,9 @@ class MaxForwards(bases.SingleHeaderBase):
     """
 
     name = 'max-forwards'
+
+    def check_value(self, value):
+        assertions.must_be_int(value)
 
     def values_str(self, values):
         return str(values[0])

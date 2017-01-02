@@ -2,13 +2,14 @@
 
 import base64
 
+from ..shared.generic import formatters
+from ..shared.generic import cleaners
+from ..shared.utils import checkers
+from ..shared.utils import constraints
+from ..shared.utils import parsers
 from ..shared import bases
-from ..shared import cleaners
-from ..shared import helpers
-from ..shared import constraints
-from ..shared import checkers
 from ..shared import parameters
-from ..shared import parsers
+from ..shared.utils import assertions
 
 
 def authorization_basic(username, password):
@@ -71,8 +72,21 @@ class Authorization(bases.SingleHeaderBase):
 
     name = 'authorization'
 
+    def check_value(self, value):
+        schema, token, params = value
+        assertions.must_be_token(schema)
+        assertions.assertion(
+            not token or
+            (isinstance(token, str) and
+             checkers.is_token68(token)),
+            'Token must be a str token68')
+        assertions.must_be_params(params)
+        assertions.assertion(
+            not (token and params),
+            'Expected either a token, params')
+
     def values_str(self, values):
-        return next(helpers.format_auth_values(values))
+        return next(formatters.format_auth_values(values))
 
     def clean_value(self, raw_value):
         try:

@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.generic import formatters
+from ..shared.generic import cleaners
+from ..shared.generic import preparers
+from ..shared.utils import checkers
+from ..shared.utils import constraints
+from ..shared.utils import assertions
 from ..shared import bases
-from ..shared import helpers
-from ..shared import checkers
-from ..shared import constraints
-from ..shared import cleaners
 from ..shared import parameters
 
 
@@ -86,12 +88,27 @@ class WWWAuthenticate(bases.HeaderBase):
 
     name = 'www-authenticate'
 
+    def check_values(self, values):
+        assertions.must_not_be_empty(values)
+
+        for v in values:
+            assertions.must_be_tuple_of(v, 3)
+            scheme, token, params = v
+            assertions.must_be_token(scheme)
+            token is None or assertions.must_be_token68(token)
+            assertions.must_be_ascii_params(params)
+            assertions.assertion(
+                not (token and params),
+                '"{}" and "{}" received, either '
+                'token or params was expected'
+                .format(token, params))
+
     def values_str(self, values):
         return ', '.join(
-            helpers.format_auth_values(values))
+            formatters.format_auth_values(values))
 
     def prepare_raw_values(self, raw_values_collection):
-        return helpers.prepare_multi_raw_values(raw_values_collection)
+        return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_challenge(self, raw_challenge):
         scheme, *token_or_params = raw_challenge
@@ -101,16 +118,23 @@ class WWWAuthenticate(bases.HeaderBase):
         scheme = scheme.lower()
 
         if not token_or_params:
-            return scheme, None, parameters.ParamsCI()
+            return (
+                scheme,
+                None,
+                parameters.ParamsCI())
 
         if (len(token_or_params) == 1 and
                 checkers.is_token68(token_or_params[0])):
-            return scheme, token_or_params[0], parameters.ParamsCI()
+            return (
+                scheme,
+                token_or_params[0],
+                parameters.ParamsCI())
 
-        return (scheme,
-                None,
-                cleaners.clean_params(
-                    token_or_params))
+        return (
+            scheme,
+            None,
+            cleaners.clean_params(
+                token_or_params))
 
     def clean(self, raw_values):
         values = tuple(

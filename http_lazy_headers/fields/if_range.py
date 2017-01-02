@@ -2,11 +2,12 @@
 
 import datetime
 
-from ..shared import bases
-from ..shared import checkers
-from ..shared import helpers
-from ..shared import dates
+from ..shared.common import entity_tags
+from ..shared.common import dates
+from ..shared.utils import checkers
 from . import etag as etag_field
+from ..shared import bases
+from ..shared.utils import assertions
 
 
 def entity_tag(etag):
@@ -52,13 +53,20 @@ class IfRange(bases.SingleHeaderBase):
 
     name = 'if-range'
 
+    def check_value(self, value):
+        assertions.must_be_instance_of(
+            value, (tuple, datetime.datetime))
+
+        (isinstance(value, datetime.datetime) or
+         entity_tags.check_etag(value))
+
     def values_str(self, values):
         value = values[0]
 
         if isinstance(value, datetime.datetime):
             return dates.format_date(value)
         else:  # e-tag
-            return next(helpers.format_etag_values(values))
+            return next(entity_tags.format_etags(values))
 
     def clean_value(self, raw_value):
         # Can't be weak

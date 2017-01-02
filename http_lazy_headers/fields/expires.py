@@ -2,8 +2,8 @@
 
 import datetime
 
+from ..shared.common import dates
 from ..shared import bases
-from ..shared import dates
 
 
 class Expires(bases.SingleHeaderBase):
@@ -28,6 +28,12 @@ class Expires(bases.SingleHeaderBase):
     """
 
     name = 'expires'
+
+    def check_value(self, value):
+        if value == 0:
+            return
+
+        dates.check_date(value)
 
     def values_str(self, values):
         value = values[0]

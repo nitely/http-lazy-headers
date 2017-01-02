@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.generic import cleaners
+from ..shared.generic import preparers
+from ..shared.utils import checkers
+from ..shared.utils import constraints
+from ..shared.utils import parsers
 from ..shared import bases
-from ..shared import helpers
-from ..shared import parsers
-from ..shared import cleaners
-from ..shared import constraints
 from ..shared import parameters
-from ..shared import checkers
+from ..shared.utils import assertions
 
 
 def cache_control(
@@ -18,7 +19,7 @@ def cache_control(
         s_maxage=None):
     assert any(
         v is not None
-        for v in locals())
+        for v in locals().values())
     assert all(
         isinstance(v, (bool, tuple, list, set))
         for v in (
@@ -47,7 +48,10 @@ def cache_control(
             continue
 
         if isinstance(param_value, bool):
-            param_value = ()
+            if param_value:
+                param_value = ()
+            else:
+                continue
 
         if isinstance(param_value, (list, set)):
             param_value = tuple(param_value)
@@ -111,6 +115,39 @@ class CacheControl(bases.HeaderBase):
         'no-cache',
         'private'))
 
+    def check_value(self, value):
+        param_name, param_value = value
+        assertions.must_be_token(param_name)
+        param_name = param_name.lower()
+
+        if param_name in self.directives_with_header_values:
+            assertions.must_be_instance_of(param_value, tuple)
+
+            for t in param_value:
+                assertions.must_be_token(t)
+
+            return
+
+        if param_name in self.directives_with_delta_secs:
+            assertions.must_be_instance_of(param_value, int)
+            return
+
+        if isinstance(param_value, tuple):
+            for v in param_value:
+                assertions.must_be_ascii(v)
+
+            return
+
+        assertions.must_be_ascii(param_value)
+
+    def check_values(self, values):
+        assertions.must_have_one_value(values)
+        value = values[0]
+        assertions.must_be_params(value)
+
+        for item in value.items():
+            self.check_value(item)
+
     def value_str(self, value):
         param_name, param_value = value
 
@@ -140,7 +177,7 @@ class CacheControl(bases.HeaderBase):
             for p in params.items())
 
     def prepare_raw_values(self, raw_values_collection):
-        return helpers.prepare_multi_raw_values(raw_values_collection)
+        return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_value(self, raw_value):
         # Directives with delta secs

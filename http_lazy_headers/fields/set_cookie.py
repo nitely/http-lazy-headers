@@ -3,14 +3,15 @@
 import collections
 import encodings.idna
 
-from ..shared import ascii_tools
+from ..shared.common import cookies
+from ..shared.common import dates
+from ..shared.generic import cleaners
+from ..shared.utils import ascii_tools
+from ..shared.utils import constraints
+from ..shared.utils import parsers
+from ..shared.utils import assertions
 from .. import exceptions
 from ..shared import bases
-from ..shared import cleaners
-from ..shared import constraints
-from ..shared import cookies
-from ..shared import dates
-from ..shared import parsers
 
 
 # 0x20-0x7E (except ";")
@@ -19,43 +20,36 @@ _COOKIE_CHARS = (
     frozenset(';'))
 
 
-CookiePair = collections.namedtuple(
-    'CookiePair',
-    [
-        'name',
-        'value',
-        'expires',
-        'max_age',
-        'domain',
-        'path',
-        'extension',
-        'secure',
-        'http_only'])
-CookiePair.__doc__ = (
-    """
-    """)
+class CookiePair:
 
+    def __init__(
+            self,
+            name,
+            value,
+            expires=None,
+            max_age=None,
+            domain=None,
+            path=None,
+            extension=None,
+            secure=False,
+            http_only=False):
+        assert (
+            extension is None or
+            isinstance(
+                extension, (tuple, list)))
 
-def cookie_pair(
-        name,
-        value,
-        expires=None,
-        max_age=None,
-        domain=None,
-        path=None,
-        extension=None,
-        secure=False,
-        http_only=False):
-    return CookiePair(
-        name,
-        value,
-        expires=expires,
-        max_age=max_age,
-        domain=domain,
-        path=path,
-        extension=extension,
-        secure=secure,
-        http_only=http_only)
+        if extension is not None:
+            extension = tuple(extension)
+
+        self.name = name
+        self.value = value
+        self.expires = expires
+        self.max_age = max_age
+        self.domain = domain
+        self.path = path
+        self.extension = extension
+        self.secure = secure
+        self.http_only = http_only
 
 
 def clean_expires(raw_expires):
@@ -163,7 +157,7 @@ def clean_attrs(raw_attrs):
 def clean(raw_values):
     raw_values = parsers.from_tokens(raw_values, ';')
 
-    return cookie_pair(
+    return CookiePair(
         *cookies.clean_cookie_pair(next(raw_values)),
         **dict(clean_attrs(raw_values)))
 
@@ -206,6 +200,36 @@ class SetCookie(bases.HeaderBase):
                 self.name,
                 self.cookie_str(cookie))
             for cookie in self.values())
+
+    def check_values(self, values):
+        for c in values:
+            assertions.must_be_instance_of(c, CookiePair)
+
+        cookies.check_cookie(tuple(
+            (c.name, c.value)
+            for c in values))
+
+        for c in values:
+            c.expires is None or dates.check_date(c.expires)
+            c.max_age is None or assertions.must_be_int(c.max_age)
+            c.domain is None or assertions.assertion(
+                isinstance(c.domain, str) and
+                cookies.is_domain(c.domain),
+                '"{}" received, a valid '
+                'domain was expected'.format(c.domain))
+            c.path is None or assertions.assertion(
+                isinstance(c.path, str) and
+                is_path(c.path),
+                '"{}" received, a valid '
+                'path was expected'.format(c.path))
+            c.extension is None or assertions.assertion(
+                isinstance(c.path, tuple) and
+                all(is_extension(e)
+                    for e in c.extension),
+                '"{}" received, a valid '
+                'extension was expected'.format(c.extension))
+            assertions.must_be_instance_of(c.secure, bool)
+            assertions.must_be_instance_of(c.http_only, bool)
 
     def _cookie_str(self, cookie):
         yield '{}={}'.format(cookie.name, cookie.value)

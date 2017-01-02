@@ -1,14 +1,26 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.common import hosts
+from ..shared.utils import assertions
+from ..shared.utils import constraints
+from ..shared.utils import parsers
 from .. import exceptions
 from ..shared import bases
-from ..shared import checkers
-from ..shared import constraints
-from ..shared import parsers
 
 
-def via(received_protocol, received_by, comment=None):
-    return received_protocol, received_by, comment
+def via(
+        version,
+        protocol=None,
+        host=None,
+        pseudonym=None,
+        comment=None):
+    assert host or pseudonym
+    assert not (host and pseudonym)
+
+    return (
+        (protocol, version),
+        (host or hosts.host(), pseudonym),
+        comment)
 
 
 class Via(bases.MultiHeaderBase):
@@ -28,29 +40,58 @@ class Via(bases.MultiHeaderBase):
 
         Vary([
             via(
-                received_protocol='1.0',
-                received_by='fred',
+                version='1.0',
+                pseudonym='fred',
                 comment='middle man'),
             via(
-                received_protocol='1.1',
-                received_by='p.example.net'])
+                version='1.1',
+                host=host('p.example.net')])
 
     `Ref. <http://httpwg.org/specs/rfc7230.html#header.via>`_
     """
 
     name = 'via'
 
+    def check_value(self, value):
+        assertions.must_be_tuple_of(value, 3)
+        assertions.must_be_tuple_of(value[0], 2)
+        assertions.must_be_tuple_of(value[1], 2)
+
+        (protocol, version), (host, pseudonym), comment = value
+
+        protocol is None or assertions.must_be_token(protocol)
+        assertions.must_be_token(version)
+        assertions.assertion(
+            (pseudonym and
+             host == hosts.host()) or
+            (not pseudonym and
+             host != hosts.host()),
+            '"{}" and "{}" received, either '
+            'pseudonym or host was expected'
+            .format(pseudonym, host))
+        pseudonym is None or assertions.must_be_token(pseudonym)
+        hosts.check_host(host)
+        comment is None or assertions.must_be_ascii(comment)
+
     def value_str(self, value):
-        protocol, received_by, comment = value
+        (protocol, version), (host, pseudonym), comment = value
+
+        proto = version
+
+        if protocol is not None:
+            proto = '/'.join((
+                protocol, version))
+
+        received_by = pseudonym or hosts.format_host(host)
 
         if comment is not None:
             return "{} {} {}".format(
-                protocol,
+                proto,
                 received_by,
                 parsers.quote_comment(comment))
         else:
             return "{} {}".format(
-                protocol,
+                proto,
                 received_by)
 
     def values_str(self, values):
@@ -60,18 +101,19 @@ class Via(bases.MultiHeaderBase):
 
     def clean_value(self, raw_value):
         try:
-            protocol, received_by = raw_value.split(' ', 1)
+            version, received_by = raw_value.split(' ', 1)
         except ValueError:
             raise exceptions.BadRequest(
                 'Expected "protocol received_by" format')
 
         try:
-            protocol_name, protocol_version = raw_value.split('/', 1)
+            protocol, version = version.split('/', 1)
         except ValueError:
-            constraints.must_be_token(protocol)  # Just version
+            protocol = None
         else:
-            constraints.must_be_token(protocol_name)
-            constraints.must_be_token(protocol_version)
+            constraints.must_be_token(protocol)
+
+        constraints.must_be_token(version)
 
         try:
             received_by, comment = received_by.split(' ', 1)
@@ -81,9 +123,16 @@ class Via(bases.MultiHeaderBase):
             constraints.must_be_comment(comment)
             comment = parsers.dequote_comment(comment)
 
-        constraints.constraint(
-            (checkers.is_uri(received_by) or
-             checkers.is_token(received_by)),
-            'The receiver value is not valid')
+        try:
+            host = hosts.clean_host(received_by)
+        except exceptions.HeaderError:
+            constraints.must_be_token(received_by)
+            pseudonym = received_by
+            host = hosts.host()
+        else:
+            pseudonym = None
 
-        return protocol, received_by, comment
+        return (
+            (protocol, version),
+            (host, pseudonym),
+            comment)

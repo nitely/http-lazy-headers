@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.common import language_tags
 from ..shared import bases
-from ..shared import language_tags
+from ..shared.utils import assertions
 
 
 # todo: this is basically the same as accept_language
@@ -58,6 +59,9 @@ class ContentLanguage(bases.TokensHeaderBase):
     """
 
     name = 'content-language'
+
+    def check_value(self, value):
+        language_tags.check_language_tag(value)
 
     def values_str(self, values):
         return ', '.join(

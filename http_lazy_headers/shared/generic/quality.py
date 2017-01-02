@@ -42,6 +42,22 @@ def quality_mime_sort_key(qmt):
         len(params) * -1)
 
 
+def weight_sort_key(wmt):
+    """
+    Weight of the field.
+
+    :param wmt:
+    :return:
+    """
+    _, weight = wmt
+
+    if weight is None:
+        weight = 1
+
+    # * -1 otherwise result is reversed
+    return weight * -1
+
+
 def quality_sort_key(qmt):
     """
     Quality of the field.
@@ -51,8 +67,8 @@ def quality_sort_key(qmt):
     """
     _, params = qmt
 
-    # * -1 otherwise result is reversed
-    return params['q'] * -1
+    return weight_sort_key(
+        (_, params['q']))
 
 
 def first_of(field_values, values):

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.common import dates
 from ..shared import bases
-from ..shared import dates
 
 
 class LastModified(bases.SingleHeaderBase):
@@ -25,6 +25,9 @@ class LastModified(bases.SingleHeaderBase):
     """
 
     name = 'last-modified'
+
+    def check_value(self, value):
+        dates.check_date(value)
 
     def values_str(self, values):
         return dates.format_date(values[0])

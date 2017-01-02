@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.utils import constraints
+from ..shared.utils import assertions
 from ..shared import bases
-from ..shared import constraints
 
 
 def upgrade(name, version=None):
@@ -55,6 +56,12 @@ class Upgrade(bases.MultiHeaderBase):
     """
 
     name = 'upgrade'
+
+    def check_value(self, value):
+        assertions.must_be_tuple_of(value, 2)
+        protocol, version = value
+        assertions.must_be_token(protocol)
+        version is None or assertions.must_be_token(version)
 
     def value_str(self, value):
         protocol, version = value

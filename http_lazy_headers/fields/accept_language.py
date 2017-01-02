@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.generic import formatters
+from ..shared.common import language_tags
+from ..shared.generic import cleaners
+from ..shared.generic import quality
+from ..shared.utils import constraints
+from ..shared.utils import parsers
 from ..shared import bases
-from ..shared import constraints
-from ..shared import quality
-from ..shared import helpers
-from ..shared import cleaners
-from ..shared import parsers
-from ..shared import language_tags
 from ..shared import parameters
+from ..shared.utils import assertions
 
 
 def accept_language(
@@ -36,11 +37,6 @@ def accept_language(
         quality is None or
         0 <= quality <= 1)
 
-    params = ()
-
-    if quality is not None:
-        params = (('q', quality),)
-
     return (
         (lang,
          ext_lang,
@@ -50,7 +46,7 @@ def accept_language(
          extension,
          private_use,
          grandfathered),
-        parameters.Params(params))
+        quality)
 
 
 class AcceptLanguage(bases.TokensHeaderBase):
@@ -74,31 +70,39 @@ class AcceptLanguage(bases.TokensHeaderBase):
 
     name = 'accept-language'
 
+    def check_value(self, value):
+        assertions.must_be_tuple_of(value, 2)
+
+        sub_tags, weight = value
+
+        language_tags.check_language_tag(sub_tags)
+        assertions.must_be_weight(weight)
+
     def values_str(self, values):
         return ', '.join(
-            helpers.format_values_with_params(
+            formatters.format_values_with_weight(
                 (language_tags.format_language_tag(*value),
-                 params)
-                for value, params in values))
+                 weight)
+                for value, weight in values))
 
     def clean_value(self, raw_value):
-        raw_value, raw_params = parsers.from_raw_value_with_params(raw_value)
+        raw_value, raw_weight = parsers.from_raw_value_with_weight(raw_value)
 
         if raw_value == '*':
             return (
                 language_tags.accept_language_value(raw_value),
-                cleaners.clean_weight(raw_params))
+                cleaners.clean_weight(raw_weight))
 
         return (
             language_tags.clean_language_tag(raw_value),
-            cleaners.clean_weight(raw_params))
+            cleaners.clean_weight(raw_weight))
 
     def clean(self, raw_values):
         values = tuple(sorted(
             (
                 self.clean_value(raw_value)
                 for raw_value in raw_values),
-            key=quality.quality_sort_key))
+            key=quality.weight_sort_key))
 
         constraints.must_not_be_empty(values)
 

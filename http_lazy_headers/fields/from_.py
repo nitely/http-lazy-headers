@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from ..shared import bases
+from ..shared.utils import assertions
 
 
 def from_(addr, name=None):
@@ -36,6 +37,9 @@ class From(bases.SingleHeaderBase):
     # todo: parse the value!
 
     name = 'from'
+
+    def check_value(self, value):
+        assertions.must_be_ascii(value)
 
     def clean_value(self, raw_value):
         return raw_value

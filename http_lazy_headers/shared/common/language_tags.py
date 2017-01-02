@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from .. import exceptions
-from ..shared import constraints
-from ..shared import checkers
+from ..utils import constraints
+from ..utils import checkers
+from ..utils import assertions
+from ... import exceptions
 
 
 (LANG,
@@ -46,12 +47,117 @@ _GRANDFATHERED_MAP = {
     'zh-xiang': 'hsn'}
 
 
+# todo: do!
 def is_alphanum(txt):
     return True
 
 
+# todo: do!
 def is_alpha(txt):
     return True
+
+
+# todo: use
+def is_sub_tag(txt):
+    assert isinstance(txt, str)
+
+    return len(txt) <= 8 and is_alphanum(txt)
+
+
+def check_language_tag(value):
+    assertions.must_be_tuple_of(value, 8)
+
+    (lang,
+     ext_lang,
+     script,
+     region,
+     variant,
+     extension,
+     private_use,
+     grandfathered) = value
+
+    assertions.assertion(
+        lang or private_use or grandfathered)
+
+    (lang is None or
+     assertions.must_be_instance_of(lang, str))
+    (lang is None or
+     assertions.assertion(
+         2 <= len(lang) <= 8 and
+         is_alpha(lang),
+         'Lang must have 8 or less chars'))
+
+    assertions.assertion(
+        isinstance(ext_lang, tuple) and
+        len(ext_lang) <= 3)
+    assertions.assertion(
+        all(isinstance(lang, str) and
+            len(lang) <= 8 and
+            is_alpha(st)
+            for st in ext_lang))
+
+    (script is None or
+     assertions.must_be_instance_of(script, str))
+    (script is None or
+     assertions.assertion(
+         len(script) == 4 and
+         is_alpha(script)))
+
+    (region is None or
+     assertions.must_be_instance_of(region, str))
+    (region is None or
+     assertions.assertion(
+         (len(region) == 2 and
+          is_alpha(region)) or
+         (len(region) == 3 and
+          checkers.is_number(region))))
+
+    assertions.must_be_instance_of(variant, tuple)
+    assertions.assertion(
+        all((isinstance(st, str) and
+             is_alphanum(st)) and
+            (5 <= len(st) <= 8 or
+             (len(st) == 4 and
+              checkers.is_number(st[0])))
+            for st in variant))
+
+    assertions.must_be_instance_of(extension, tuple)
+
+    for ext in extension:
+        assertions.must_be_tuple_of(ext, 2)
+
+        st, sts = ext
+
+        assertions.assertion(
+            isinstance(st, str) and
+            len(st) == 1 and
+            is_alphanum(st))
+
+        assertions.assertion(
+            isinstance(sts, str) and
+            2 <= len(sts) <= 8 and
+            is_alphanum(sts))
+
+    assertions.assertion(
+        len(extension) == len(set(
+            dict(extension).keys())))
+
+    assertions.must_be_instance_of(private_use, tuple)
+    not private_use or assertions.assertion(
+        len(private_use) > 1 and
+        isinstance(private_use[0], str) and
+        private_use[0].lower() == 'x')
+    assertions.assertion(
+        all(isinstance(st, str) and
+            st <= 8 and
+            is_alphanum(st)
+            for st in private_use))
+
+    (grandfathered is None or
+     assertions.must_be_instance_of(grandfathered, str))
+    (grandfathered is None or
+     assertions.assertion(
+         grandfathered in _GRANDFATHERED_MAP))
 
 
 def format_language_tag(
@@ -94,7 +200,7 @@ def accept_language_value(
         extension=(),
         private_use=(),
         grandfathered=None):
-    assert any(locals())
+    assert any(locals().values())
 
     return (
         lang,

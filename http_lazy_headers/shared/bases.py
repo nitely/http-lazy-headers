@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from ..shared import ascii_tools
-from . import checkers
-from . import cleaners
-from . import constraints
-from . import helpers
-from . import parsers
-from . import quality
+from .common import entity_tags
+from .generic import formatters
+from .generic import cleaners
+from .generic import quality
+from .generic import preparers
+from .utils import ascii_tools
+from .utils import parsers
+from .utils import constraints
+from .utils import checkers
+from .utils import assertions
 from .. import exceptions
 from ..settings import settings
 
@@ -75,6 +78,10 @@ class HeaderBase:
         if values is not None:
             values = tuple(values)
 
+        if (settings.DEBUG and
+                values is not None):
+            self.check_values(values)
+
         self._values = values
         self._raw_values_collection = raw_values_collection
 
@@ -114,9 +121,6 @@ class HeaderBase:
 
         self._raw_values_collection = None
 
-    def check_values(self, values):
-        raise NotImplementedError
-
     def values_str(self, values):
         raise NotImplementedError
 
@@ -126,14 +130,28 @@ class HeaderBase:
     def clean(self, raw_values):
         raise NotImplementedError
 
+    def check_values(self, values):
+        # todo: raise NotImplementedError
+        pass
+
 
 class MultiHeaderBase(HeaderBase):
+
+    def check_value(self, value):
+        # todo: raise NotImplementedError
+        pass
+
+    def check_values(self, values):
+        assertions.must_not_be_empty(values)
+
+        for v in values:
+            self.check_value(v)
 
     def values_str(self, values):
         return ', '.join(values)
 
     def prepare_raw_values(self, raw_values_collection):
-        return helpers.prepare_multi_raw_values(raw_values_collection)
+        return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_value(self, raw_value):
         raise NotImplementedError
@@ -151,20 +169,19 @@ class SingleHeaderBase(HeaderBase):
     Single Value Header
     """
 
-    def __init__(
-            self,
-            values=None,
-            raw_values_collection=None):
-        super().__init__(values, raw_values_collection)
-        assert (
-            self._values is None or
-            len(self._values) == 1)
+    def check_value(self, value):
+        # todo: raise NotImplementedError
+        pass
+
+    def check_values(self, values):
+        assertions.must_have_one_value(values)
+        self.check_value(values[0])
 
     def values_str(self, values):
         return values[0]
 
     def prepare_raw_values(self, raw_values_collection):
-        return helpers.prepare_single_raw_values(raw_values_collection)
+        return preparers.prepare_single_raw_values(raw_values_collection)
 
     def clean_value(self, raw_value):
         raise NotImplementedError
@@ -178,6 +195,9 @@ class SingleHeaderBase(HeaderBase):
 
 class URIHeaderBase(SingleHeaderBase):
 
+    def check_value(self, value):
+        assertions.must_be_uri(value)
+
     def clean_value(self, raw_value):
         constraints.must_be_uri(raw_value)
         return raw_value
@@ -185,8 +205,11 @@ class URIHeaderBase(SingleHeaderBase):
 
 class TokensHeaderBase(MultiHeaderBase):
 
+    def check_value(self, value):
+        assertions.must_be_token(value)
+
     def prepare_raw_values(self, raw_values_collection):
-        return helpers.prepare_tokens(raw_values_collection)
+        return preparers.prepare_tokens(raw_values_collection)
 
     def clean_value(self, raw_value):
         constraints.must_be_token(raw_value)
@@ -204,13 +227,16 @@ class IfMatchSomeBase(MultiHeaderBase):
 
     """
 
+    def check_value(self, value):
+        entity_tags.check_etag(value)
+
     def values_str(self, values):
         etag, is_weak = values[0]
 
         if etag == '*':
             return etag
 
-        return ', '.join(helpers.format_etag_values(values))
+        return ', '.join(entity_tags.format_etags(values))
 
     def clean_value(self, raw_value):
         # todo: validate is single value when value is "*"
@@ -218,7 +244,7 @@ class IfMatchSomeBase(MultiHeaderBase):
         if raw_value == '*':
             return raw_value, False
 
-        return cleaners.clean_etag(raw_value)
+        return entity_tags.clean_etag(raw_value)
 
     def match(self, etag, is_weak=False):
         values = set(self.values())
@@ -230,12 +256,23 @@ class AcceptSomeBase(HeaderBase):
 
     # todo: remove, no header use this as is (well just one)
 
+    def check_values(self, values):
+        assertions.must_not_be_empty(values)
+
+        for v in values:
+            assertions.must_be_tuple_of(v, 2)
+
+            value, weight = v
+
+            assertions.must_be_token(value)
+            assertions.must_be_weight(weight)
+
     def values_str(self, values):
         return ', '.join(
-            helpers.format_values_with_params(values))
+            formatters.format_values_with_weight(values))
 
     def prepare_raw_values(self, raw_values_collection):
-        return helpers.prepare_tokens(raw_values_collection)
+        return preparers.prepare_tokens(raw_values_collection)
 
     def clean_value(self, value):
         return cleaners.clean_accept_some(value)
@@ -245,20 +282,32 @@ class AcceptSomeBase(HeaderBase):
             (
                 self.clean_value(raw_value)
                 for raw_value in raw_values),
-            key=quality.quality_sort_key))
+            key=quality.weight_sort_key))
 
         constraints.must_not_be_empty(values)
 
         return values
 
-    def first_of(self, values):
-        return quality.first_of(self.values(), values)
-
-    def best_of(self, values):
-        return quality.best_of(self.values(), values)
-
 
 class LibsHeaderBase(HeaderBase):
+
+    def check_value(self, value):
+        assertions.must_be_tuple_of(value, 3)
+
+        lib, version, comments = value
+
+        assertions.must_be_token(lib)
+        (not version or
+         assertions.must_be_token(version))
+        (not comments or
+         assertions.must_be_instance_of(comments, tuple))
+
+        for c in comments or ():
+            assertions.must_be_ascii(c)
+
+    def check_values(self, values):
+        for v in values:
+            self.check_value(v)
 
     def value_str(self, value):
         lib, version, comments = value
@@ -283,7 +332,7 @@ class LibsHeaderBase(HeaderBase):
             for v in values)
 
     def prepare_raw_values(self, raw_values_collection):
-        raw_values_collection = helpers.prepare_single_raw_values(
+        raw_values_collection = preparers.prepare_single_raw_values(
             raw_values_collection)
         return parsers.from_raw_values(
             raw_values_collection[0],

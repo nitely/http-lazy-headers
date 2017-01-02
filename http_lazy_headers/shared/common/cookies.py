@@ -2,9 +2,10 @@
 
 import encodings.idna
 
-from ..shared import ascii_tools
-from .. import exceptions
-from ..shared import constraints
+from ..utils import ascii_tools
+from ..utils import constraints
+from ..utils import assertions
+from ... import exceptions
 
 
 # %x21 / %x23-2B / %x2D-3A / %x3C-5B / %x5D-7E
@@ -61,7 +62,7 @@ def is_quoted_cookie_octets(txt):
     return is_cookie_octets(txt[1:-1])
 
 
-def must_be_cookie_token(txt):
+def is_cookie_token(txt):
     if not txt:
         return False
 
@@ -81,7 +82,9 @@ def clean_cookie_pair(raw_cookie_pair):
     name = name.strip()
     value = value.strip()
 
-    must_be_cookie_token(name)
+    constraints.constraint(
+        is_cookie_token(name),
+        'Cookie name is not a token')
     constraints.constraint(
         not value or
         is_cookie_octets(value) or
@@ -151,3 +154,24 @@ def clean_domain(raw_domain):
             'Invalid IDN label')
 
     return raw_domain.lower()
+
+
+def check_cookie(cookies):
+    assertions.must_not_be_empty(cookies)
+
+    for v in cookies:
+        assertions.must_be_tuple_of(v, 2)
+
+        name, value = v
+
+        assertions.must_be_instance_of(name, str)
+        assertions.must_be_instance_of(value, str)
+        assertions.assertion(
+            is_cookie_token(name),
+            '"{}" received, a token '
+            'was expected'.format(name))
+        assertions.assertion(
+            not value or
+            is_cookie_octets(value),
+            '"{}" received, a token or '
+            'empty value was expected'.format(value))

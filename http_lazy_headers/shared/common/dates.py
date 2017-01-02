@@ -2,9 +2,10 @@
 
 import datetime
 
-from .. import exceptions
-from . import cleaners
-from . import constraints
+from ..generic import cleaners
+from ..utils import constraints
+from ..utils import assertions
+from ... import exceptions
 
 
 _DAYS = (
@@ -316,3 +317,8 @@ def format_date(date_time):
             hour=date_time.hour,
             minute=date_time.minute,
             second=date_time.second))
+
+
+def check_date(date_time):
+    assertions.must_be_instance_of(
+        date_time, datetime.datetime)
