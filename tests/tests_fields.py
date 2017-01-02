@@ -898,16 +898,34 @@ class WarningTest(FieldTestCase):
                 '112 - "network down" "Sat, 25 Aug 2012 23:34:45 GMT", 112 - "err"',
                 '112 - "foo"'],
             (
-                (112, ('-', None), 'network down', self.date),
-                (112, ('-', None), 'err', None),
-                (112, ('-', None), 'foo', None)))
+                (112,
+                 ((None, None, None, None, None, None), '-'),
+                 'network down',
+                 self.date),
+                (112,
+                 ((None, None, None, None, None, None), '-'),
+                 'err',
+                 None),
+                (112,
+                 ((None, None, None, None, None, None), '-'),
+                 'foo',
+                 None)))
 
     def test_str(self):
         self.assertFieldStrEqual(
             (
-                (112, ('-', None), 'network down', self.date),
-                (112, ('-', None), 'err', None),
-                (112, ('-', None), 'foo', None)),
+                (112,
+                 ((None, None, None, None, None, None), '-'),
+                 'network down',
+                 self.date),
+                (112,
+                 ((None, None, None, None, None, None), '-'),
+                 'err',
+                 None),
+                (112,
+                 ((None, None, None, None, None, None), '-'),
+                 'foo',
+                 None)),
             'warning: 112 - "network down" "Sat, 25 Aug 2012 23:34:45 GMT", '
             '112 - "err", 112 - "foo"')
 
