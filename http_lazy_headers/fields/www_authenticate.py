@@ -118,16 +118,23 @@ class WWWAuthenticate(bases.HeaderBase):
         scheme = scheme.lower()
 
         if not token_or_params:
-            return scheme, None, parameters.ParamsCI()
+            return (
+                scheme,
+                None,
+                parameters.ParamsCI())
 
         if (len(token_or_params) == 1 and
                 checkers.is_token68(token_or_params[0])):
-            return scheme, token_or_params[0], parameters.ParamsCI()
+            return (
+                scheme,
+                token_or_params[0],
+                parameters.ParamsCI())
 
-        return (scheme,
-                None,
-                cleaners.clean_params(
-                    token_or_params))
+        return (
+            scheme,
+            None,
+            cleaners.clean_params(
+                token_or_params))
 
     def clean(self, raw_values):
         values = tuple(

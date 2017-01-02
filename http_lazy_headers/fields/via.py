@@ -2,7 +2,6 @@
 
 from ..shared.common import hosts
 from ..shared.utils import assertions
-from ..shared.utils import checkers
 from ..shared.utils import constraints
 from ..shared.utils import parsers
 from .. import exceptions
@@ -63,12 +62,10 @@ class Via(bases.MultiHeaderBase):
         protocol is None or assertions.must_be_token(protocol)
         assertions.must_be_token(version)
         assertions.assertion(
-            (pseudonym and not any(
-                h is not None
-                for h in host)) or
-            (not pseudonym and any(
-                h is not None
-                for h in host)),
+            (pseudonym and
+             host == hosts.host()) or
+            (not pseudonym and
+             host != hosts.host()),
             '"{}" and "{}" received, either '
             'pseudonym or host was expected'
             .format(pseudonym, host))
