@@ -2,41 +2,9 @@
 
 from ..shared.common import language_tags
 from ..shared import bases
-from ..shared.utils import assertions
 
 
-# todo: this is basically the same as accept_language
-def content_language(
-        lang=None,
-        ext_lang=(),
-        script=None,
-        region=None,
-        variant=(),
-        extension=(),
-        private_use=(),
-        grandfathered=None):
-    assert lang or private_use or grandfathered
-    assert (
-        not private_use or
-        (len(private_use) > 1 and
-         private_use[0].lower() == 'x'))
-    assert all(
-        s and ext
-        for s, ext in extension)
-    assert all(private_use)
-    assert all(variant)
-    assert all(ext_lang)
-    assert len(ext_lang) <= 3
-
-    return (
-        lang,
-        ext_lang,
-        script,
-        region,
-        variant,
-        extension,
-        private_use,
-        grandfathered)
+content_language = language_tags.language_tag
 
 
 class ContentLanguage(bases.TokensHeaderBase):

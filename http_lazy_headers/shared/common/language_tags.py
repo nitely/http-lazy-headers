@@ -191,7 +191,7 @@ def format_language_tag(
         if sub_tag)
 
 
-def accept_language_value(
+def language_tag(
         lang=None,
         ext_lang=(),
         script=None,
@@ -225,7 +225,7 @@ def clean_language_tag(raw_language_tag):
         raw_language_tag.lower())
 
     if raw_language_tag in _GRANDFATHERED_MAP:
-        return accept_language_value(
+        return language_tag(
             grandfathered=raw_language_tag)
 
     curr = LANG
@@ -346,4 +346,4 @@ def clean_language_tag(raw_language_tag):
         for ext in extensions)
     lang_tag[PRIVATE_USE] = tuple(privates)
 
-    return accept_language_value(*lang_tag)
+    return language_tag(*lang_tag)

@@ -202,14 +202,10 @@ class SetCookie(bases.HeaderBase):
             for cookie in self.values())
 
     def check_values(self, values):
+        assertions.must_not_be_empty(values)
+
         for c in values:
             assertions.must_be_instance_of(c, CookiePair)
-
-        cookies.check_cookie(tuple(
-            (c.name, c.value)
-            for c in values))
-
-        for c in values:
             c.expires is None or dates.check_date(c.expires)
             c.max_age is None or assertions.must_be_int(c.max_age)
             c.domain is None or assertions.assertion(
@@ -230,6 +226,10 @@ class SetCookie(bases.HeaderBase):
                 'extension was expected'.format(c.extension))
             assertions.must_be_instance_of(c.secure, bool)
             assertions.must_be_instance_of(c.http_only, bool)
+
+        cookies.check_cookie(tuple(
+            (c.name, c.value)
+            for c in values))
 
     def _cookie_str(self, cookie):
         yield '{}={}'.format(cookie.name, cookie.value)

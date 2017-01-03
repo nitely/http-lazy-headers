@@ -116,11 +116,11 @@ class Warning(bases.MultiHeaderBase):
                     agent=agent,
                     message=parsers.quote(message),
                     date_time=dates.format_date(date_time)))
-        else:
-            return '{code} {agent} {message}'.format(
-                code=code,
-                agent=agent,
-                message=parsers.quote(message))
+
+        return '{code} {agent} {message}'.format(
+            code=code,
+            agent=agent,
+            message=parsers.quote(message))
 
     def values_str(self, values):
         return ', '.join(

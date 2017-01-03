@@ -161,9 +161,7 @@ def check_cookie(cookies):
 
     for v in cookies:
         assertions.must_be_tuple_of(v, 2)
-
         name, value = v
-
         assertions.must_be_instance_of(name, str)
         assertions.must_be_instance_of(value, str)
         assertions.assertion(

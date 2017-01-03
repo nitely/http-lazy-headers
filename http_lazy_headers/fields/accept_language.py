@@ -21,22 +21,6 @@ def accept_language(
         private_use=(),
         grandfathered=None,
         quality=None):
-    assert lang or private_use or grandfathered
-    assert (
-        not private_use or
-        (len(private_use) > 1 and
-         private_use[0].lower() == 'x'))
-    assert all(
-        s and ext
-        for s, ext in extension)
-    assert all(private_use)
-    assert all(variant)
-    assert all(ext_lang)
-    assert len(ext_lang) <= 3
-    assert (
-        quality is None or
-        0 <= quality <= 1)
-
     return (
         (lang,
          ext_lang,
@@ -90,7 +74,7 @@ class AcceptLanguage(bases.TokensHeaderBase):
 
         if raw_value == '*':
             return (
-                language_tags.accept_language_value(raw_value),
+                language_tags.language_tag(raw_value),
                 cleaners.clean_weight(raw_weight))
 
         return (
