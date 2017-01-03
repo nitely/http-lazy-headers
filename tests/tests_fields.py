@@ -12,16 +12,10 @@ class FieldTestCase(unittest.TestCase):
     field = None
 
     def assertFieldRawEqual(self, raw_values, expected):
-        values = self.field(
-            raw_values_collection=raw_values).values()
         self.assertEqual(
-            values,
+            self.field(
+                raw_values_collection=raw_values).values(),
             expected)
-
-        # Inception
-        self.assertFieldStrEqual(
-            expected,
-            str(self.field(values)))
 
     def assertFieldStrEqual(self, values, expected):
         self.assertEqual(
