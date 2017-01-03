@@ -23,26 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class AcceptTest(FieldTestCase):
-
-    field = fields.Accept
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['text/html, foo/bar;baz=qux', '*/*;q=0.5'],
-            (
-                (('foo', 'bar'), parameters.ParamsCI([('baz', 'qux'), ('q', 1)])),
-                (('text', 'html'), parameters.ParamsCI([('q', 1)])),
-                (('*', '*'), parameters.ParamsCI([('q', 0.5)]))))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                (('foo', 'bar'), parameters.ParamsCI([('baz', 'qux')])),
-                (('*', '*'), parameters.ParamsCI([('q', 0.5)]))),
-            'accept: foo/bar;baz=qux, */*;q=0.5')
-
-
 class AcceptCharsetTest(FieldTestCase):
 
     field = fields.AcceptCharset
