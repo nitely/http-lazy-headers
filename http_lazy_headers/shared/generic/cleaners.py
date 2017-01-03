@@ -220,7 +220,7 @@ def clean_float(
         len(fraction) <= fraction_max_len,
         'Fraction part contains too many digits')
     constraints.must_be_number(exponent)
-    constraints.must_be_number(fraction)
+    not fraction or constraints.must_be_number(fraction)
 
     try:
         return float(raw_float)

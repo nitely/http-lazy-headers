@@ -17,12 +17,18 @@ def format_values_with_params(values, separator=';'):
 
 def format_values_with_weight(values, separator=';'):
     for value, weight in values:
-        if weight is not None and weight < 1:
-            yield separator.join((
-                value,
-                'q={}'.format(weight)))
-        else:
+        if weight is None or weight == 1:
             yield value
+            continue
+
+        if isinstance(weight, float):
+            q = '{:.4}'.format(weight)
+        else:
+            q = '{}'.format(weight)
+
+        yield separator.join((
+            value,
+            'q={}'.format(q)))
 
 
 def format_auth_values(values):
