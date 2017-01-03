@@ -73,17 +73,18 @@ class Authorization(bases.SingleHeaderBase):
     name = 'authorization'
 
     def check_value(self, value):
+        assertions.must_be_tuple_of(value, 3)
+
         schema, token, params = value
+
         assertions.must_be_token(schema)
-        assertions.assertion(
-            not token or
-            (isinstance(token, str) and
-             checkers.is_token68(token)),
-            'Token must be a str token68')
+        not token or assertions.must_be_token68(token)
         assertions.must_be_params(params)
         assertions.assertion(
             not (token and params),
-            'Expected either a token, params')
+            '"{}" and "{}" received, either '
+            'token or params was expected'
+            .format(token, params))
 
     def values_str(self, values):
         return next(formatters.format_auth_values(values))
@@ -97,19 +98,21 @@ class Authorization(bases.SingleHeaderBase):
 
         constraints.must_be_token(auth_schema)
 
+        auth_schema = auth_schema.lower()
+
         if params_or_token is None:
             return (
-                auth_schema.lower(),
+                auth_schema,
                 None,
                 parameters.ParamsCI())
         elif checkers.is_token68(params_or_token):
             return (
-                auth_schema.lower(),
+                auth_schema,
                 params_or_token,
                 parameters.ParamsCI())
         else:
             return (
-                auth_schema.lower(),
+                auth_schema,
                 None,
                 cleaners.clean_params(
                     parsers.from_raw_params(

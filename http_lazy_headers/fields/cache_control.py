@@ -21,19 +21,17 @@ def cache_control(
         v is not None
         for v in locals().values())
     assert all(
-        isinstance(v, (bool, tuple, list, set))
-        for v in (
-            no_cache,
-            private)
-        if v is not None)
+        (v is None or
+         isinstance(v, (bool, tuple, list, set)))
+        for v in (no_cache, private))
     assert all(
-        isinstance(v, int)
+        (v is None or
+         isinstance(v, int))
         for v in (
             max_age,
             max_stale,
             min_fresh,
-            s_maxage)
-        if v is not None)
+            s_maxage))
 
     params = []
 
@@ -116,6 +114,7 @@ class CacheControl(bases.HeaderBase):
         'private'))
 
     def check_value(self, value):
+        assertions.must_be_tuple_of(value, 2)
         param_name, param_value = value
         assertions.must_be_token(param_name)
         param_name = param_name.lower()

@@ -13,9 +13,7 @@ def entity_tag(etag, is_weak=False):
 
 def check_etag(etag_value):
     assertions.must_be_tuple_of(etag_value, 2)
-
     etag, is_weak = etag_value
-
     assertions.must_be_instance_of(etag, str)
     assertions.assertion(
         checkers.is_etag('"{}"'.format(etag)),

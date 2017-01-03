@@ -22,7 +22,8 @@ def te(encoding, quality=None):
         isinstance(quality, int))
     assert (
         quality is None or
-        0 <= quality <= 1)
+        (isinstance(quality, int) and
+         0 <= quality <= 1))
 
     params = ()
 

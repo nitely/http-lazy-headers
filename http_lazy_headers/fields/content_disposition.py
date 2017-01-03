@@ -83,7 +83,10 @@ class ContentDisposition(bases.SingleHeaderBase):
     name = 'content-disposition'
 
     def check_value(self, value):
+        assertions.must_be_tuple_of(value, 2)
+
         disposition_type, params = value
+
         assertions.must_be_token(disposition_type)
         assertions.must_be_params(params)
 
@@ -110,6 +113,8 @@ class ContentDisposition(bases.SingleHeaderBase):
                 len(v) == 3,
                 '"{}" has {} items, 3 items '
                 'were expected'.format(v, len(v)))
+
+            assertions.must_be_tuple_of(v, 3)
 
             charset, lang, mime_value = v
 

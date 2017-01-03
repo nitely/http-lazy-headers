@@ -131,15 +131,13 @@ class HeaderBase:
         raise NotImplementedError
 
     def check_values(self, values):
-        # todo: raise NotImplementedError
-        pass
+        raise NotImplementedError
 
 
 class MultiHeaderBase(HeaderBase):
 
     def check_value(self, value):
-        # todo: raise NotImplementedError
-        pass
+        raise NotImplementedError
 
     def check_values(self, values):
         assertions.must_not_be_empty(values)
@@ -170,8 +168,7 @@ class SingleHeaderBase(HeaderBase):
     """
 
     def check_value(self, value):
-        # todo: raise NotImplementedError
-        pass
+        raise NotImplementedError
 
     def check_values(self, values):
         assertions.must_have_one_value(values)
