@@ -67,7 +67,7 @@ class Accept(bases.HeaderBase):
             # we don't allow it
             assertions.must_be_quality(params)
             assertions.must_be_token(
-                params.get('charset', 'token'))
+                params.get('charset', 'dummy'))
             assertions.assertion(
                 all(isinstance(v, str)
                     for p, v in params.items()

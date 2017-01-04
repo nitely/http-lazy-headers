@@ -5,7 +5,7 @@ import urllib.parse
 from ..utils import parsers
 
 
-def format_values_with_params(values, separator=';'):
+def format_values_with_params(values, separator='; '):
     for value, params in values:
         if params:
             yield separator.join((
@@ -15,7 +15,7 @@ def format_values_with_params(values, separator=';'):
             yield value
 
 
-def format_values_with_weight(values, separator=';'):
+def format_values_with_weight(values, separator='; '):
     for value, weight in values:
         if weight is None or weight == 1:
             yield value
