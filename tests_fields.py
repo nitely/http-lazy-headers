@@ -40,7 +40,7 @@ class AcceptCharsetTest(FieldTestCase):
             (
                 ('iso-8859-5', None),
                 ('unicode-1-1', 0.8)),
-            'accept-charset: iso-8859-5, unicode-1-1;q=0.8')
+            'accept-charset: iso-8859-5, unicode-1-1; q=0.8')
 
 
 class AcceptEncodingTest(FieldTestCase):
@@ -61,7 +61,7 @@ class AcceptEncodingTest(FieldTestCase):
                 ('gzip', 1.0),
                 ('identity', 0.5),
                 ('*', 0)),
-            'accept-encoding: gzip, identity;q=0.5, *;q=0')
+            'accept-encoding: gzip, identity; q=0.5, *; q=0')
 
 
 class AcceptLanguageTest(FieldTestCase):
@@ -82,7 +82,7 @@ class AcceptLanguageTest(FieldTestCase):
                 (('da', (), None, None, (), (), (), None), None),
                 (('en', (), None, 'gb', (), (), (), None), 0.8),
                 (('en', (), None, None, (), (), (), None), 0.7)),
-            'accept-language: da, en-gb;q=0.8, en;q=0.7')
+            'accept-language: da, en-gb; q=0.8, en; q=0.7')
 
 
 class AcceptRangesTest(FieldTestCase):
@@ -289,7 +289,7 @@ class ContentTypeTest(FieldTestCase):
                 (('text', 'html'),
                  parameters.ParamsCI([
                      ('charset', 'ISO-8859-4')])),),
-            'content-type: text/html;charset=ISO-8859-4')
+            'content-type: text/html; charset=ISO-8859-4')
 
 
 class CustomTestCase(unittest.TestCase):
@@ -729,7 +729,7 @@ class TETest(FieldTestCase):
                 ('gzip', parameters.ParamsCI([('q', 1)])),
                 ('compress', parameters.ParamsCI([('q', 1)])),
                 ('deflate', parameters.ParamsCI([('q', 0.5)]))),
-            'te: gzip;q=1, compress;q=1, deflate;q=0.5')
+            'te: gzip; q=1, compress; q=1, deflate; q=0.5')
 
 
 class TrailerTest(FieldTestCase):
@@ -765,7 +765,7 @@ class TransferEncodingTest(FieldTestCase):
                 ('gzip', parameters.ParamsCI()),
                 ('chunked', parameters.ParamsCI()),
                 ('foobar', parameters.ParamsCI([('bar', 'qux')]))),
-            'transfer-encoding: gzip, chunked, foobar;bar=qux')
+            'transfer-encoding: gzip, chunked, foobar; bar=qux')
 
 
 class UpgradeTest(FieldTestCase):
