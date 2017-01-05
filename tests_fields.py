@@ -23,26 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class AcceptLanguageTest(FieldTestCase):
-
-    field = fields.AcceptLanguage
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['da, en-gb;q=0.8', 'en;q=0.7'],
-            (
-                (('da', (), None, None, (), (), (), None), 1),
-                (('en', (), None, 'gb', (), (), (), None), 0.8),
-                (('en', (), None, None, (), (), (), None), 0.7)))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                (('da', (), None, None, (), (), (), None), None),
-                (('en', (), None, 'gb', (), (), (), None), 0.8),
-                (('en', (), None, None, (), (), (), None), 0.7)),
-            'accept-language: da, en-gb; q=0.8, en; q=0.7')
-
 
 class AcceptRangesTest(FieldTestCase):
 
