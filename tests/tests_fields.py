@@ -947,7 +947,7 @@ class CookieTest(FieldTestCase):
             'cookie: SID=31d4d96e407aad42; lang=en-US')
 
 
-from http_lazy_headers.fields.set_cookie import CookiePair
+from http_lazy_headers.fields.set_cookie import cookie_pair
 
 
 class SetCookieTest(FieldTestCase):
@@ -955,37 +955,30 @@ class SetCookieTest(FieldTestCase):
     field = fields.SetCookie
 
     def test_raw_values(self):
-        values = self.field(
-            raw_values_collection=[
-                'SID=31d4d96e407aad42; Path=/; Domain=example.com',
-                'SID2=foobar; Path=/foo; Secure; HttpOnly']).values()
-
-        self.assertEqual(
-            tuple(
-                v.__dict__
-                for v in values),
-            (
-                CookiePair(
-                    'SID',
-                    '31d4d96e407aad42',
-                    path='/',
-                    domain='example.com').__dict__,
-                CookiePair(
-                    'SID2',
-                    'foobar',
-                    path='/foo',
-                    secure=True,
-                    http_only=True).__dict__))
+        self.assertFieldRawEqual(
+            ['SID=31d4d96e407aad42; Path=/; Domain=example.com',
+             'SID2=foobar; Path=/foo; Secure; HttpOnly'],
+            (cookie_pair(
+                'SID',
+                '31d4d96e407aad42',
+                path='/',
+                domain='example.com'),
+             cookie_pair(
+                 'SID2',
+                 'foobar',
+                 path='/foo',
+                 secure=True,
+                 http_only=True)))
 
     def test_str(self):
         self.assertFieldStrEqual(
             (
-                CookiePair(
+                cookie_pair(
                     'SID',
                     '31d4d96e407aad42',
                     path='/',
                     domain='example.com'),
-                CookiePair(
+                cookie_pair(
                     'SID2',
                     'foobar',
                     path='/foo',

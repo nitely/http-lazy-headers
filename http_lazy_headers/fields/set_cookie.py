@@ -20,36 +20,47 @@ _COOKIE_CHARS = (
     frozenset(';'))
 
 
-class CookiePair:
+CookiePair = collections.namedtuple(
+    'CookiePair',
+    ['name',
+     'value',
+     'expires',
+     'max_age',
+     'domain',
+     'path',
+     'extension',
+     'secure',
+     'http_only'])
 
-    def __init__(
-            self,
-            name,
-            value,
-            expires=None,
-            max_age=None,
-            domain=None,
-            path=None,
-            extension=None,
-            secure=False,
-            http_only=False):
-        assert (
-            extension is None or
-            isinstance(
-                extension, (tuple, list)))
 
-        if extension is not None:
-            extension = tuple(extension)
+def cookie_pair(
+        name,
+        value,
+        expires=None,
+        max_age=None,
+        domain=None,
+        path=None,
+        extension=None,
+        secure=False,
+        http_only=False):
+    assert (
+        extension is None or
+        isinstance(
+            extension, (tuple, list)))
 
-        self.name = name
-        self.value = value
-        self.expires = expires
-        self.max_age = max_age
-        self.domain = domain
-        self.path = path
-        self.extension = extension
-        self.secure = secure
-        self.http_only = http_only
+    if extension is not None:
+        extension = tuple(extension)
+
+    return CookiePair(
+        name=name,
+        value=value,
+        expires=expires,
+        max_age=max_age,
+        domain=domain,
+        path=path,
+        extension=extension,
+        secure=secure,
+        http_only=http_only)
 
 
 def clean_expires(raw_expires):
@@ -157,7 +168,7 @@ def clean_attrs(raw_attrs):
 def clean(raw_values):
     raw_values = parsers.from_tokens(raw_values, ';')
 
-    return CookiePair(
+    return cookie_pair(
         *cookies.clean_cookie_pair(next(raw_values)),
         **dict(clean_attrs(raw_values)))
 
@@ -205,7 +216,12 @@ class SetCookie(bases.HeaderBase):
         assertions.must_not_be_empty(values)
 
         for c in values:
-            assertions.must_be_instance_of(c, CookiePair)
+            assertions.assertion(
+                isinstance(c, CookiePair) and
+                hasattr(c, '_fields') and
+                c._fields == CookiePair._fields,
+                '"{}" received, a CookiePair '
+                'was expected'.format(c))
             c.expires is None or dates.check_date(c.expires)
             c.max_age is None or assertions.must_be_int(c.max_age)
             c.domain is None or assertions.assertion(
