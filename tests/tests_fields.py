@@ -23,26 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class AcceptCharsetTest(FieldTestCase):
-
-    field = fields.AcceptCharset
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['iso-8859-5, unicode-1-1;q=0.8', 'utf-8'],
-            (
-                ('iso-8859-5', 1.0),
-                ('utf-8', 1.0),
-                ('unicode-1-1', 0.8)))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                ('iso-8859-5', None),
-                ('unicode-1-1', 0.8)),
-            'accept-charset: iso-8859-5, unicode-1-1; q=0.8')
-
-
 class AcceptEncodingTest(FieldTestCase):
 
     field = fields.AcceptEncoding
