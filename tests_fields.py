@@ -23,22 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-
-class AcceptRangesTest(FieldTestCase):
-
-    field = fields.AcceptRanges
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['bytes'],
-            ('bytes',))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            ('bytes',),
-            'accept-ranges: bytes')
-
-
 class AgeTest(FieldTestCase):
 
     field = fields.Age

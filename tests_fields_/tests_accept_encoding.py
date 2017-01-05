@@ -90,3 +90,5 @@ class AcceptEncodingTest(utils.FieldTestCase):
             (good_encoding, good_encoding, good_encoding)])
         self.assertRaisesInternalError([(None, 5)])
         self.assertRaisesInternalError([(None, None)])
+        self.assertRaisesInternalError([(';', 1)])
+        self.assertRaisesInternalError([('(', 1)])
