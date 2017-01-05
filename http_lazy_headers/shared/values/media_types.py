@@ -80,10 +80,10 @@ class SubLevel:
 
 
 def _attr_values(klass):
-    return {
+    return frozenset((
         getattr(klass, attr)
         for attr in vars(klass)
-        if not attr.startswith('_')}
+        if not attr.startswith('_')))
 
 
 _TOP_LEVEL_VALUES = _attr_values(TopLevel)

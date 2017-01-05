@@ -33,8 +33,8 @@ class Charsets:
     utf_8 = 'UTF-8'
 
 
-CHARSET_VALUES = {
+CHARSET_VALUES = frozenset((
     getattr(Charsets, attr)
     for attr in vars(Charsets)
-    if not attr.startswith('_')}
+    if not attr.startswith('_')))
 

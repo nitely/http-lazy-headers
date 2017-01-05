@@ -33,7 +33,7 @@ class Encodings(CEncodings, TEncodings):
     """
 
 
-ENCODING_VALUES = {
+ENCODING_VALUES = frozenset((
     getattr(Encodings, attr)
     for attr in vars(Encodings)
-    if not attr.startswith('_')}
+    if not attr.startswith('_')))
