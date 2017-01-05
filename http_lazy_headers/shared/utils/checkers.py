@@ -188,3 +188,12 @@ def is_visible_chars(txt):
         return False
 
     return set(txt).issubset(_VISIBLE_CHARS)
+
+
+def is_alphanum(txt):
+    assert isinstance(txt, str)
+
+    if not txt:
+        return False
+
+    return set(txt).issubset(_ALPHA_NUM)
