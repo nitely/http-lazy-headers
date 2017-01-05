@@ -118,8 +118,9 @@ class AcceptTest(utils.FieldTestCase):
         """
         Should not allow bad values
         """
-        self.assertOK([(('text', 'plain'), hlh.ParamsCI())])
-        self.assertOK([(('text', 'plain'), hlh.ParamsCI([('q', 1)]))])
+        good_mime = ('text', 'plain')
+        self.assertOK([(good_mime, hlh.ParamsCI())])
+        self.assertOK([(good_mime, hlh.ParamsCI([('q', 1)]))])
         self.assertRaisesInternalError([(('text', ''), hlh.ParamsCI())])
         self.assertRaisesInternalError([(('', 'plain'), hlh.ParamsCI())])
         self.assertRaisesInternalError([(('', ''), hlh.ParamsCI())])
@@ -127,11 +128,13 @@ class AcceptTest(utils.FieldTestCase):
         self.assertRaisesInternalError([(('text', ';'), hlh.ParamsCI())])
         self.assertRaisesInternalError([((';', 'plain'), hlh.ParamsCI())])
         self.assertRaisesInternalError([(
-            ('text', 'plain'),
+            good_mime,
             hlh.ParamsCI([('', '')]))])
         self.assertRaisesInternalError([(
-            ('text', 'plain'),
+            good_mime,
             hlh.ParamsCI([('q', 'a')]))])
         self.assertRaisesInternalError([(
-            ('text', 'plain'),
+            good_mime,
             hlh.ParamsCI([('q', '5')]))])
+        self.assertRaisesInternalError([(good_mime,)])
+        self.assertRaisesInternalError([good_mime])
