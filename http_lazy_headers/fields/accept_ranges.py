@@ -22,6 +22,5 @@ class AcceptRanges(bases.TokensHeaderBase):
     """
 
     name = 'accept-ranges'
-    ranges = frozenset((
-        'bytes',
-        'none'))  # todo: warning if not one of these
+
+    # todo: validate is either just none or token list
