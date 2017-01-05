@@ -23,27 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class AcceptEncodingTest(FieldTestCase):
-
-    field = fields.AcceptEncoding
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['gzip;q=1.0, identity; q=0.5', '*;q=0'],
-            (
-                ('gzip', 1),
-                ('identity', 0.5),
-                ('*', 0)))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                ('gzip', 1.0),
-                ('identity', 0.5),
-                ('*', 0)),
-            'accept-encoding: gzip, identity; q=0.5, *; q=0')
-
-
 class AcceptLanguageTest(FieldTestCase):
 
     field = fields.AcceptLanguage
