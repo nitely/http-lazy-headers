@@ -23,22 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class AuthorizationTest(FieldTestCase):
-
-    field = fields.Authorization
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['Bearer foo'],
-            (
-                (('bearer', 'foo', parameters.ParamsCI()),)))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (('bearer', 'foo', parameters.ParamsCI()),),
-            'authorization: bearer foo')
-
-
 class CacheControlTest(FieldTestCase):
 
     field = fields.CacheControl
