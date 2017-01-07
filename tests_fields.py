@@ -23,21 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class ConnectionTest(FieldTestCase):
-
-    field = fields.Connection
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['keep-alive, upgrade', 'foo'],
-            ('keep-alive', 'upgrade', 'foo'))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            ('keep-alive', 'upgrade', 'foo'),
-            'connection: keep-alive, upgrade, foo')
-
-
 class ContentEncodingTest(FieldTestCase):
 
     field = fields.ContentEncoding
