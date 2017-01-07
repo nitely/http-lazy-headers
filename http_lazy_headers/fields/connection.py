@@ -7,6 +7,7 @@ class ConnectionOptions:
 
     keep_alive = 'keep-alive'
     close = 'close'
+    upgrade = 'upgrade'
 
 
 class Connection(bases.TokensHeaderBase):
