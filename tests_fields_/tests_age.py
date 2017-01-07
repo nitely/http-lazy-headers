@@ -27,7 +27,7 @@ class AgeTest(utils.FieldTestCase):
 
     def test_empty(self):
         """
-        Should allow empty value
+        Should NOT allow empty value
         """
         self.assertRaisesInternalError(())
 
@@ -36,6 +36,8 @@ class AgeTest(utils.FieldTestCase):
         Should not allow bad raw values
         """
         self.assertRawOK(['60'])
+        self.assertRawOK(['1' * 10])
+        self.assertRaisesHeaderError(['1' * 11])
         self.assertRaisesHeaderError(['60,60'])
         self.assertRaisesHeaderError(['60 60'])
         self.assertRaisesHeaderError(['60;60'])
