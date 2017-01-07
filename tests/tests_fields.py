@@ -23,31 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class CacheControlTest(FieldTestCase):
-
-    field = fields.CacheControl
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['no-cache, private', 'max-age=60, foo=bar'],
-            (
-                parameters.ParamsCI((
-                    ('no-cache', ()),
-                    ('private', ()),
-                    ('max-age', 60),
-                    ('foo', 'bar'))),))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                parameters.ParamsCI((
-                    ('no-cache', ()),
-                    ('private', ()),
-                    ('max-age', 60),
-                    ('foo', 'bar'))),),
-            'cache-control: no-cache, private, max-age=60, foo=bar')
-
-
 class ConnectionTest(FieldTestCase):
 
     field = fields.Connection

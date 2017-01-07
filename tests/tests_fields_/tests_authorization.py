@@ -94,4 +94,8 @@ class AuthorizationTest(utils.FieldTestCase):
         self.assertRaisesInternalError([(';', None, None)])
         self.assertRaisesInternalError([
             ('foo', 'token68==', hlh.ParamsCI([('foo', 'bar')]))])
-        self.assertRaisesInternalError([('', 'token68==', hlh.ParamsCI())])
+        self.assertRaisesInternalError([
+            ('', 'token68==', hlh.ParamsCI())])
+        self.assertRaisesInternalError([
+            ('foo', None, hlh.ParamsCI()),
+            ('bar', None, hlh.ParamsCI())])
