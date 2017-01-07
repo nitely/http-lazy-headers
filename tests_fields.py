@@ -23,21 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class AgeTest(FieldTestCase):
-
-    field = fields.Age
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['60'],
-            (60,))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (60,),
-            'age: 60')
-
-
 class AllowTest(FieldTestCase):
 
     field = fields.Allow
