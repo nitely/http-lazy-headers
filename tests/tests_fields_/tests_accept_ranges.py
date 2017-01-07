@@ -43,7 +43,7 @@ class AcceptRangesTest(utils.FieldTestCase):
 
     def test_empty(self):
         """
-        Should allow empty value
+        Should NOT allow empty value
         """
         self.assertRaisesInternalError(())
 

@@ -23,27 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class AllowTest(FieldTestCase):
-
-    field = fields.Allow
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['GET, POST', 'PATCH'],
-            (
-                'GET',
-                'POST',
-                'PATCH'))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                'GET',
-                'POST',
-                'PATCH'),
-            'allow: GET, POST, PATCH')
-
-
 class AuthorizationTest(FieldTestCase):
 
     field = fields.Authorization
