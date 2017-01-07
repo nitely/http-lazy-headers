@@ -23,21 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class ContentEncodingTest(FieldTestCase):
-
-    field = fields.ContentEncoding
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['compress', 'gzip, deflate'],
-            ('compress', 'gzip', 'deflate'))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            ('compress', 'gzip', 'deflate'),
-            'content-encoding: compress, gzip, deflate')
-
-
 class ContentLanguageTest(FieldTestCase):
 
     field = fields.ContentLanguage
