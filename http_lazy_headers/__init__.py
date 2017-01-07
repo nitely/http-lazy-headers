@@ -3,6 +3,7 @@
 from .fields import *
 from .shared.parameters import ParamsCI
 from .shared.values.attributes import Attributes
+from .shared.values.cache import CacheOptions
 from .shared.values.charsets import Charsets
 from .shared.values.disposition import Disposition
 from .shared.values.encodings import Encodings
