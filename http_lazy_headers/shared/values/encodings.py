@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from ..utils import misc
+
 
 class CEncodings:
 
@@ -33,7 +35,4 @@ class Encodings(CEncodings, TEncodings):
     """
 
 
-ENCODING_VALUES = frozenset((
-    getattr(Encodings, attr)
-    for attr in vars(Encodings)
-    if not attr.startswith('_')))
+ENCODING_VALUES = misc.vars_for(Encodings)
