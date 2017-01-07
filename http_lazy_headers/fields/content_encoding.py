@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from ..shared.utils import assertions
 from ..shared.utils import constraints
 from ..shared import bases
+from ..shared.values import encodings
 
 
 class ContentEncoding(bases.TokensHeaderBase):
@@ -32,21 +34,20 @@ class ContentEncoding(bases.TokensHeaderBase):
     """
 
     name = 'content-encoding'
-    encodings = frozenset((
-        'compress',
-        'x-compress',
-        'deflate',
-        'gzip',
-        'x-gzip',
-        'br',
-        'exi',
-        'pack200-gzip'))
+
+    def check_value(self, value):
+        assertions.must_be_token(value)
+        assertions.assertion(
+            value.lower() in encodings.CONTENT_ENCODING_VALUES,
+            '"{}" received, a value in {} '
+            'was expected'.format(
+                value, encodings.CONTENT_ENCODING_VALUES))
 
     def clean_value(self, raw_value):
         constraints.must_be_token(raw_value)
         raw_value = raw_value.lower()
         constraints.constraint(
-            raw_value in self.encodings,
+            raw_value in encodings.CONTENT_ENCODING_VALUES,
             '{} is not a valid encoding'
             .format(raw_value),
             status=415)

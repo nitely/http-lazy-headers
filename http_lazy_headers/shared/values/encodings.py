@@ -35,4 +35,5 @@ class Encodings(CEncodings, TEncodings):
     """
 
 
+CONTENT_ENCODING_VALUES = misc.vars_for(CEncodings)
 ENCODING_VALUES = misc.vars_for(Encodings)
