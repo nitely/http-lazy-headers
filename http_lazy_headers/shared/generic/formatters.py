@@ -36,12 +36,12 @@ def format_auth_values(values):
         if params:
             params = params.as_str(separator=', ')
 
-        if token and params:
-            yield '{} {} {}'.format(
-                auth_scheme,
-                token,
-                params)
-        elif token or params:
+        #if token and params:
+        #    yield '{} {} {}'.format(
+        #        auth_scheme,
+        #        token,
+        #        params)
+        if token or params:
             yield '{} {}'.format(
                 auth_scheme,
                 token or params)
