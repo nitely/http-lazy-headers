@@ -23,20 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class ContentLengthTest(FieldTestCase):
-
-    field = fields.ContentLength
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['3495'],
-            (3495,))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (3495,),
-            'content-length: 3495')
-
 
 class ContentLocationTest(FieldTestCase):
 
