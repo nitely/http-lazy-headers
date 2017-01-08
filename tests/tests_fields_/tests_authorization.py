@@ -12,26 +12,22 @@ class AuthorizationTest(utils.FieldTestCase):
     def test_raw_values(self):
         self.assertFieldRawEqual(
             ['Bearer foo'],
-            (
-                (('bearer', 'foo', hlh.ParamsCI()),)))
+            (('bearer', 'foo', hlh.ParamsCI()),))
 
         self.assertFieldRawEqual(
             ['Bearer token68=='],
-            (
-                (('bearer', 'token68==', hlh.ParamsCI()),)))
+            (('bearer', 'token68==', hlh.ParamsCI()),))
 
         self.assertFieldRawEqual(
             ['foo'],
-            (
-                (('foo', None, hlh.ParamsCI()),)))
+            (('foo', None, hlh.ParamsCI()),))
 
         self.assertFieldRawEqual(
             ['foo foo=bar, baz=qux, foobar="foo bar"'],
-            (
-                (('foo', None, hlh.ParamsCI([
-                    ('foo', 'bar'),
-                    ('baz', 'qux'),
-                    ('foobar', 'foo bar')])),)))
+            (('foo', None, hlh.ParamsCI([
+                ('foo', 'bar'),
+                ('baz', 'qux'),
+                ('foobar', 'foo bar')])),))
 
     def test_str(self):
         self.assertFieldStrEqual(

@@ -12,10 +12,9 @@ class AllowTest(utils.FieldTestCase):
     def test_raw_values(self):
         self.assertFieldRawEqual(
             ['GET, POST', 'PATCH'],
-            (
-                hlh.Methods.get,
-                hlh.Methods.post,
-                hlh.Methods.patch))
+            (hlh.Methods.get,
+             hlh.Methods.post,
+             hlh.Methods.patch))
 
     def test_str(self):
         self.assertFieldStrEqual(
