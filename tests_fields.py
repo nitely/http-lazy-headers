@@ -23,22 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-
-class ContentLocationTest(FieldTestCase):
-
-    field = fields.ContentLocation
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['rfc7231.html'],
-            ('rfc7231.html',))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            ('rfc7231.html',),
-            'content-location: rfc7231.html')
-
-
 class ContentRangeTest(FieldTestCase):
 
     field = fields.ContentRange
