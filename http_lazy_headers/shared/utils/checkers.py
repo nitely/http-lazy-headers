@@ -110,7 +110,8 @@ def is_token68(txt):
 def is_uri(txt):
     assert isinstance(txt, str)
 
-    # todo: allow empty?
+    if not txt:
+        return False
 
     return set(txt).issubset(_URI_CHARS)
 
