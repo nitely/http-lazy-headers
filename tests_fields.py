@@ -23,25 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class ContentLanguageTest(FieldTestCase):
-
-    field = fields.ContentLanguage
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['mi, da', 'en'],
-            (('mi', (), None, None, (), (), (), None),
-             ('da', (), None, None, (), (), (), None),
-             ('en', (), None, None, (), (), (), None)))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (('mi', (), None, None, (), (), (), None),
-             ('da', (), None, None, (), (), (), None),
-             ('en', (), None, None, (), (), (), None)),
-            'content-language: mi, da, en')
-
-
 class ContentLengthTest(FieldTestCase):
 
     field = fields.ContentLength
