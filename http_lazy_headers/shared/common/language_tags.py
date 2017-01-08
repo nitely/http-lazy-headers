@@ -89,7 +89,7 @@ def check_language_tag(value):
     assertions.assertion(
         not (grandfathered and
              any(st
-                 for st in value[-1])),
+                 for st in value[:-1])),
         '"{}" received, all empty but '
         'grandfathered or the inverse '
         'was expected'.format(value))
