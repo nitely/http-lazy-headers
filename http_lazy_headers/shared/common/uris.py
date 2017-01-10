@@ -2,6 +2,7 @@
 
 from ..utils import ascii_tools
 from ..utils import constraints
+from ... import exceptions
 
 from . import hosts
 
@@ -38,6 +39,11 @@ _SLASH_PATH_CHARS = (
     frozenset('-._~') |
     frozenset('!$&\'()*+,;=') |
     frozenset('%:@/'))
+
+# unreserved / sub-delims / "%" _HEXDIG / "@"
+_NC_PATH_CHARS = (
+    _SLASH_PATH_CHARS -
+    frozenset(':/'))
 
 _QUERY_CHARS = (
     _SLASH_PATH_CHARS |
@@ -137,6 +143,22 @@ def is_rootless(raw_path):
         is_path(raw_path))
 
 
+def is_noscheme(raw_path):
+    assert isinstance(raw_path, str)
+
+    if not raw_path:
+        return False
+
+    try:
+        first_segment, raw_path = raw_path.split('/', 1)
+    except ValueError:
+        return set(raw_path).issubset(_NC_PATH_CHARS)
+    else:
+        return (
+            set(first_segment).issubset(_NC_PATH_CHARS) and
+            set(raw_path).issubset(_SLASH_PATH_CHARS))
+
+
 def is_query(txt):
     assert isinstance(txt, str)
 
@@ -204,3 +226,38 @@ def clean_absolute_uri(raw_uri):
         scheme,
         clean_hierarchical_part(raw_path),
         query)
+
+
+def clean_relative_part(raw_path):
+    if raw_path.startswith('//'):
+        return clean_authority_path(raw_path)
+
+    if raw_path.startswith('/'):
+        constraints.constraint(is_absolute(raw_path))
+        return _hier_part(path=raw_path)
+
+    if raw_path:
+        constraints.constraint(is_noscheme(raw_path))
+        return _hier_part(path=raw_path)
+
+    return _hier_part(path='')
+
+
+def clean_relative_uri(raw_uri):
+    try:
+        raw_uri, query = raw_uri.split('?', 1)
+    except ValueError:
+        query = None
+    else:
+        constraints.constraint(is_query(query))
+
+    return (
+        clean_relative_part(raw_uri),
+        query)
+
+
+def clean_uri(raw_uri):
+    try:
+        return clean_absolute_uri(raw_uri)
+    except exceptions.HeaderError:
+        return clean_relative_uri(raw_uri)
