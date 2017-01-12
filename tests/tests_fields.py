@@ -23,27 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class ContentTypeTest(FieldTestCase):
-
-    field = fields.ContentType
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['text/html; charset=ISO-8859-4'],
-            (
-                (('text', 'html'),
-                 parameters.ParamsCI([
-                     ('charset', 'ISO-8859-4')])),))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                (('text', 'html'),
-                 parameters.ParamsCI([
-                     ('charset', 'ISO-8859-4')])),),
-            'content-type: text/html; charset=ISO-8859-4')
-
-
 class CustomTestCase(unittest.TestCase):
 
     def test_raw_values(self):
