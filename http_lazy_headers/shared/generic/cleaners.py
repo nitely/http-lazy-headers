@@ -159,8 +159,6 @@ def clean_accept_some(raw_value):
 
 
 def clean_bytes_range(raw_bytes):
-    # todo: check start >= end
-
     # Don't allow more/less than one dash
     try:
         start, end = raw_bytes.split('-', 2)
@@ -178,6 +176,12 @@ def clean_bytes_range(raw_bytes):
     if end:
         end = clean_number(
             end, max_chars=settings.CONTENT_MAX_CHARS)
+
+    (start is None or
+     end is None or
+     constraints.constraint(
+         start <= end,
+         'Start must be less/equal than end range'))
 
     return start, end
 
