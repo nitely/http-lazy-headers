@@ -208,6 +208,8 @@ def clean_hierarchical_part(raw_path):
 
 
 def clean_absolute_uri(raw_uri):
+    # https://tools.ietf.org/html/rfc3986#appendix-A
+
     try:
         scheme, raw_path = raw_uri.split(':', 1)
     except ValueError:
@@ -244,6 +246,8 @@ def clean_relative_part(raw_path):
 
 
 def clean_relative_uri(raw_uri):
+    # https://tools.ietf.org/html/rfc3986#appendix-A
+
     try:
         raw_uri, query = raw_uri.split('?', 1)
     except ValueError:
@@ -260,4 +264,6 @@ def clean_uri(raw_uri):
     try:
         return clean_absolute_uri(raw_uri)
     except exceptions.HeaderError:
-        return clean_relative_uri(raw_uri)
+        return (
+            None,  # Scheme
+            *clean_relative_uri(raw_uri))
