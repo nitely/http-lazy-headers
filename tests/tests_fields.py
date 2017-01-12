@@ -23,21 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class ContentRangeTest(FieldTestCase):
-
-    field = fields.ContentRange
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['bytes 0-100/100'],
-            (('bytes', (0, 100), 100, None),))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (('bytes', (0, 100), 100, None),),
-            'content-range: bytes 0-100/100')
-
-
 class ContentTypeTest(FieldTestCase):
 
     field = fields.ContentType
