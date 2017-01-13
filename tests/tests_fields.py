@@ -23,33 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class ExpiresTest(FieldTestCase):
-
-    field = fields.Expires
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['Thu, 01 Dec 1994 16:00:00 GMT'],
-            (datetime.datetime(
-                year=1994,
-                month=12,
-                day=1,
-                hour=16,
-                minute=0,
-                second=0),))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (datetime.datetime(
-                year=1994,
-                month=12,
-                day=1,
-                hour=16,
-                minute=0,
-                second=0),),
-            'expires: Thu, 01 Dec 1994 16:00:00 GMT')
-
-
 class FromTest(FieldTestCase):
 
     field = fields.From
