@@ -23,23 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class CustomTestCase(unittest.TestCase):
-
-    def test_raw_values(self):
-        self.assertEqual(
-            fields.Custom(
-                name='foo',
-                raw_values_collection=['foo, bar', 'baz']).values(),
-            ('foo, bar', 'baz'))
-
-    def test_str(self):
-        self.assertEqual(
-            str(fields.Custom(
-                name='foo',
-                values=('foo', 'bar', 'baz'))),
-            'foo: foo, bar, baz')
-
-
 class DateTest(FieldTestCase):
 
     field = fields.Date
