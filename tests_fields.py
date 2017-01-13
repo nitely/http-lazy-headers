@@ -23,20 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class ETagTest(FieldTestCase):
-
-    field = fields.ETag
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['W/"xyzzy"'],
-            (('xyzzy', True),))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (('xyzzy', True),),
-            'etag: W/"xyzzy"')
-
 
 class ExpectTest(FieldTestCase):
 
