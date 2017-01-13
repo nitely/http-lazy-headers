@@ -14,5 +14,7 @@ from .shared.values.methods import Methods
 from .shared.values.ranges import RangesOptions
 from .fields.connection import ConnectionOptions
 
+from .fields.expect import expect_continue
+
 
 __version__ = '0.1-dev'
