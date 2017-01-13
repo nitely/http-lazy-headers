@@ -23,22 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-
-class ExpectTest(FieldTestCase):
-
-    field = fields.Expect
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['100-continue'],
-            ('100-continue',))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            ('100-continue',),
-            'expect: 100-continue')
-
-
 class ExpiresTest(FieldTestCase):
 
     field = fields.Expires
