@@ -23,20 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class FromTest(FieldTestCase):
-
-    field = fields.From
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['webmaster@example.org'],
-            ('webmaster@example.org',))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            ('webmaster@example.org',),
-            'from: webmaster@example.org')
-
 
 class HostTest(FieldTestCase):
 
