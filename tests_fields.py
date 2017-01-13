@@ -23,34 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class DateTest(FieldTestCase):
-
-    field = fields.Date
-
-    def test_raw_values(self):
-
-        self.assertFieldRawEqual(
-            ['Tue, 15 Nov 1994 08:12:31 GMT'],
-            (datetime.datetime(
-                year=1994,
-                month=11,
-                day=15,
-                hour=8,
-                minute=12,
-                second=31),))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (datetime.datetime(
-                year=1994,
-                month=11,
-                day=15,
-                hour=8,
-                minute=12,
-                second=31),),
-            'date: Tue, 15 Nov 1994 08:12:31 GMT')
-
-
 class ETagTest(FieldTestCase):
 
     field = fields.ETag
