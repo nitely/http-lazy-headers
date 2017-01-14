@@ -12,96 +12,92 @@ class HostTest(utils.FieldTestCase):
     def test_raw_values(self):
         self.assertFieldRawEqual(
             ['example.org'],
-            (('example.org', None, None, None, None, None),))
+            (hlh.host(domain='example.org'),))
 
         self.assertFieldRawEqual(
             ['example.org:8080'],
-            (('example.org', None, None, None, None, 8080),))
+            (hlh.host(domain='example.org', port=8080),))
 
         # Empty port
         self.assertFieldRawEqual(
             ['example.org:'],
-            (('example.org', None, None, None, None, None),))
+            (hlh.host(domain='example.org'),))
 
         self.assertFieldRawEqual(
             ['eXaMplE.org'],
-            (('example.org', None, None, None, None, None),))
+            (hlh.host(domain='example.org'),))
 
         self.assertFieldRawEqual(
             ['xn--www.alliancefranaise.nu-dbc'],
-            (('www.alliancefrançaise.nu', None, None, None, None, None),))
+            (hlh.host(domain='www.alliancefrançaise.nu'),))
 
         self.assertFieldRawEqual(
             ['[::1]'],
-            ((None, None, '::1', None, None, None),))
+            (hlh.host(ipv6='::1'),))
 
         self.assertFieldRawEqual(
             ['[::1]:8080'],
-            ((None, None, '::1', None, None, 8080),))
+            (hlh.host(ipv6='::1', port=8080),))
 
         self.assertFieldRawEqual(
             ['[2001:db8:a0b:12f0::1]'],
-            ((None, None, '2001:db8:a0b:12f0::1', None, None, None),))
+            (hlh.host(ipv6='2001:db8:a0b:12f0::1'),))
 
         self.assertFieldRawEqual(
             ['127.0.0.1'],
-            ((None, '127.0.0.1', None, None, None, None),))
+            (hlh.host(ipv4='127.0.0.1'),))
 
         self.assertFieldRawEqual(
             ['127.0.0.1:8080'],
-            ((None, '127.0.0.1', None, None, None, 8080),))
-
-        self.assertFieldRawEqual(
-            ['127.0.0.1:8080'],
-            ((None, '127.0.0.1', None, None, None, 8080),))
+            (hlh.host(ipv4='127.0.0.1', port=8080),))
 
         self.assertFieldRawEqual(
             ['[v0.01:77:00:00:00:01]'],
-            ((None, None, None, 'v0.01:77:00:00:00:01', None, None),))
+            (hlh.host(ipv_future='v0.01:77:00:00:00:01'),))
 
         self.assertFieldRawEqual(
             ['[v0.01:77:00:00:00:01]:8080'],
-            ((None, None, None, 'v0.01:77:00:00:00:01', None, 8080),))
+            (hlh.host(ipv_future='v0.01:77:00:00:00:01', port=8080),))
 
     def test_str(self):
         self.assertFieldStrEqual(
-            (('example.org', None, None, None, None, None),),
+            (hlh.host(domain='example.org'),),
             'host: example.org')
 
         self.assertFieldStrEqual(
-            (('example.org', None, None, None, None, 8080),),
+            (hlh.host(domain='example.org', port=8080),),
             'host: example.org:8080')
 
         self.assertFieldStrEqual(
-            (('www.Alliancefrançaise.nu', None, None, None, None, None),),
+            (hlh.host(domain='www.Alliancefrançaise.nu'),),
             'host: xn--www.alliancefranaise.nu-dbc')
 
         self.assertFieldStrEqual(
-            (('xn--www.Alliancefranaise.nu-dbc', None, None, None, None, None),),
+            (hlh.host(domain='xn--www.Alliancefranaise.nu-dbc'),),
             'host: xn--www.Alliancefranaise.nu-dbc')
 
         self.assertFieldStrEqual(
-            ((None, None, '::1', None, None, None),),
+            (hlh.host(ipv6='::1'),),
             'host: [::1]')
 
         self.assertFieldStrEqual(
-            ((None, None, '::1', None, None, 8080),),
+            (hlh.host(ipv6='::1', port=8080),),
             'host: [::1]:8080')
 
         self.assertFieldStrEqual(
-            ((None, '127.0.0.1', None, None, None, None),),
+            (hlh.host(ipv4='127.0.0.1'),),
             'host: 127.0.0.1')
 
         self.assertFieldStrEqual(
-            ((None, '127.0.0.1', None, None, None, 8080),),
+            (hlh.host(ipv4='127.0.0.1', port=8080),),
             'host: 127.0.0.1:8080')
 
         self.assertFieldStrEqual(
-            ((None, None, None, 'v0.01:77:00:00:00:01', None, None),),
+            (hlh.host(ipv_future='v0.01:77:00:00:00:01'),),
             'host: [v0.01:77:00:00:00:01]')
 
         self.assertFieldStrEqual(
-            ((None, None, None, 'v0.01:77:00:00:00:01', None, 8080),),
+            (hlh.host(ipv_future='v0.01:77:00:00:00:01', port=8080),),
             'host: [v0.01:77:00:00:00:01]:8080')
 
     @hlh.override_settings(HOST_UNSAFE_ALLOW=True)
@@ -111,15 +107,15 @@ class HostTest(utils.FieldTestCase):
         """
         self.assertFieldRawEqual(
             ['foo'],
-            ((None, None, None, None, 'foo', None),))
+            (hlh.host(unsafe='foo'),))
 
         self.assertFieldRawEqual(
             ['foo:8080'],
-            ((None, None, None, None, 'foo', 8080),))
+            (hlh.host(unsafe='foo', port=8080),))
 
         self.assertFieldRawEqual(
             ['FoO'],
-            ((None, None, None, None, 'foo', None),))
+            (hlh.host(unsafe='foo'),))
 
     @hlh.override_settings(HOST_UNSAFE_ALLOW=False)
     def test_unsafe_hostname(self):
@@ -128,15 +124,15 @@ class HostTest(utils.FieldTestCase):
         allowed for the parser
         """
         self.assertFieldStrEqual(
-            ((None, None, None, None, 'foo', None),),
+            (hlh.host(unsafe='foo'),),
             'host: foo')
 
         self.assertFieldStrEqual(
-            ((None, None, None, None, 'foo', 8080),),
+            (hlh.host(unsafe='foo', port=8080),),
             'host: foo:8080')
 
         self.assertFieldStrEqual(
-            ((None, None, None, None, 'FoO', None),),
+            (hlh.host(unsafe='FoO'),),
             'host: FoO')
 
     def test_raw_empty(self):
@@ -145,14 +141,14 @@ class HostTest(utils.FieldTestCase):
         """
         self.assertFieldRawEqual(
             [''],
-            ((None, None, None, None, None, None),))
+            (hlh.host(),))
 
     def test_empty(self):
         """
         Should allow empty value
         """
         self.assertFieldStrEqual(
-            ((None, None, None, None, None, None),),
+            (hlh.host(),),
             'host: ')
 
     @hlh.override_settings(HOST_UNSAFE_ALLOW=False)
@@ -179,7 +175,7 @@ class HostTest(utils.FieldTestCase):
         """
         Should not allow bad values
         """
-        good_hostname = ('example.org', None, None, None, None, None)
+        good_hostname = hlh.host(domain='example.org')
         self.assertOK([good_hostname])
         self.assertRaisesInternalError([1])
         self.assertRaisesInternalError([''])
