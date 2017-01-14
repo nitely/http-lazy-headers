@@ -15,6 +15,7 @@ from .shared.values.ranges import RangesOptions
 from .fields.connection import ConnectionOptions
 
 from .fields.expect import expect_continue
+from .shared.common.hosts import host
 
 from .settings import settings
 from .settings import Settings
