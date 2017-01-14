@@ -23,27 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class IfMatchTest(FieldTestCase):
-
-    field = fields.IfMatch
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['"xyzzy", "r2d2xxxx"', '"c3piozzzz"'],
-            (
-                ('xyzzy', False),
-                ('r2d2xxxx', False),
-                ('c3piozzzz', False)))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                ('xyzzy', False),
-                ('r2d2xxxx', False),
-                ('c3piozzzz', False)),
-            'if-match: "xyzzy", "r2d2xxxx", "c3piozzzz"')
-
-
 class IfModifiedSinceTest(FieldTestCase):
 
     field = fields.IfModifiedSince
