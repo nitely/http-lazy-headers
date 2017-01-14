@@ -23,22 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-
-class HostTest(FieldTestCase):
-
-    field = fields.Host
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['example.org'],
-            (('example.org', None, None, None, None, None),))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (('example.org', None, None, None, None, None),),
-            'host: example.org')
-
-
 class IfMatchTest(FieldTestCase):
 
     field = fields.IfMatch
