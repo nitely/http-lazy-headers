@@ -16,5 +16,10 @@ from .fields.connection import ConnectionOptions
 
 from .fields.expect import expect_continue
 
+from .settings import settings
+from .settings import Settings
+
+from .utils import override_settings
+
 
 __version__ = '0.1-dev'
