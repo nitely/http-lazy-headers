@@ -209,6 +209,9 @@ def host(
             ipv_future,
             unsafe)
         if x is not None)) < 2
+    assert (ipv_future is None or
+            (isinstance(ipv_future, str) and
+             ipv_future.startswith('v')))
     assert (
         port is None or
         isinstance(port, int))
@@ -217,11 +220,7 @@ def host(
 
 
 def check_host(value):
-    assertions.assertion(
-        len(value) == 6,
-        '"{}" received, '
-        '6 items were expected'
-        .format(value))
+    assertions.must_be_tuple_of(value, 6)
     assertions.assertion(
         len(tuple(
             v
@@ -232,9 +231,8 @@ def check_host(value):
         .format(value[:5]))
 
     for v, check_func in zip(
-            value[:5],
-            (cookies.is_domain,
-             is_ipv4,
+            value[1:5],
+            (is_ipv4,
              is_ipv6,
              is_ipv_future,
              is_unsafe_host)):
@@ -245,8 +243,17 @@ def check_host(value):
             '"{}" received, a valid host '
             'was expected'.format(v))
 
+    domain = value[0]
+    domain is None or assertions.assertion(
+        isinstance(domain, str) and
+        cookies.is_domain(str(
+            encodings.idna.ToASCII(domain),
+            encoding='ascii')),
+        '"{}" received, a valid domain '
+        'was expected'.format(domain))
+
     port = value[5]
-    not port or assertions.must_be_int(port)
+    port is None or assertions.must_be_int(port)
 
 
 def format_host(value):
@@ -264,6 +271,12 @@ def format_host(value):
         domain = str(
             encodings.idna.ToASCII(domain),
             encoding='ascii')
+
+    if ipv6:
+        ipv6 = '[{}]'.format(ipv6)
+
+    if ipv_future:
+        ipv_future = '[{}]'.format(ipv_future)
 
     # Default to '' if no value
     host_name = next((
@@ -292,11 +305,16 @@ def clean_host(raw_value):
         raw_host = raw_value
         port = None
 
+    # Allow empty port
+    port = port or None
+
     if port:
         try:
             port = cleaners.clean_number(port, max_chars=5)
         except exceptions.HeaderError:
+            # Likely an IPv6/Future. Not a port
             raw_host = raw_value
+            port = None
 
     # For some reason this is actually valid
     if not raw_host:
@@ -311,7 +329,7 @@ def clean_host(raw_value):
             'Value is not a valid IPvFuture')
 
         return host(
-            ipv_future=ipv_some[1:],
+            ipv_future=ipv_some,
             port=port)
 
     if (raw_host.startswith('[') and
@@ -336,6 +354,8 @@ def clean_host(raw_value):
 
     if (settings.HOST_UNSAFE_ALLOW and
             is_unsafe_host(raw_host)):
-        return host(unsafe=raw_host.lower())
+        return host(
+            unsafe=raw_host.lower(),
+            port=port)
 
     raise exceptions.BadRequest('Bad host name')

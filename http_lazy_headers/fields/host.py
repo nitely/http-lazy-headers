@@ -55,6 +55,10 @@ class Host(bases.SingleHeaderBase):
             host(ipv6='2001:db8:a0b:12f0::1')
         ])
 
+        Host([
+            host(ipv_future='v0.01:77:00:00:00:01')
+        ])
+
     `Ref. <http://httpwg.org/specs/rfc7230.html#header.host>`_
     """
 
