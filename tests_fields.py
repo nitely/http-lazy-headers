@@ -23,33 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class IfUnmodifiedSinceTest(FieldTestCase):
-
-    field = fields.IfUnmodifiedSince
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['Sat, 29 Oct 1994 19:43:31 GMT'],
-            (datetime.datetime(
-                year=1994,
-                month=10,
-                day=29,
-                hour=19,
-                minute=43,
-                second=31),))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (datetime.datetime(
-                year=1994,
-                month=10,
-                day=29,
-                hour=19,
-                minute=43,
-                second=31),),
-            'if-unmodified-since: Sat, 29 Oct 1994 19:43:31 GMT')
-
-
 class LastModifiedTest(FieldTestCase):
 
     field = fields.LastModified
