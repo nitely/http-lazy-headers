@@ -23,39 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class IfRangeTest(FieldTestCase):
-
-    field = fields.IfRange
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['"xyzzy"'],
-            (('xyzzy', False),))
-        self.assertFieldRawEqual(
-            ['Sat, 29 Oct 1994 19:43:31 GMT'],
-            (datetime.datetime(
-                year=1994,
-                month=10,
-                day=29,
-                hour=19,
-                minute=43,
-                second=31),))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (('xyzzy', False),),
-            'if-range: "xyzzy"')
-        self.assertFieldStrEqual(
-            (datetime.datetime(
-                year=1994,
-                month=10,
-                day=29,
-                hour=19,
-                minute=43,
-                second=31),),
-            'if-range: Sat, 29 Oct 1994 19:43:31 GMT')
-
-
 class IfUnmodifiedSinceTest(FieldTestCase):
 
     field = fields.IfUnmodifiedSince
