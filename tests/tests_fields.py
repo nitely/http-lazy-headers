@@ -23,33 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class LastModifiedTest(FieldTestCase):
-
-    field = fields.LastModified
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['Tue, 15 Nov 1994 12:45:26 GMT'],
-            (datetime.datetime(
-                year=1994,
-                month=11,
-                day=15,
-                hour=12,
-                minute=45,
-                second=26),))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (datetime.datetime(
-                year=1994,
-                month=11,
-                day=15,
-                hour=12,
-                minute=45,
-                second=26),),
-            'last-modified: Tue, 15 Nov 1994 12:45:26 GMT')
-
-
 class LocationTest(FieldTestCase):
 
     field = fields.Location
