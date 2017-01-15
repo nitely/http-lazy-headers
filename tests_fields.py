@@ -23,27 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class IfNoneMatchTest(FieldTestCase):
-
-    field = fields.IfNoneMatch
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['W/"xyzzy", "r2d2xxxx"', '"c3piozzzz"'],
-            (
-                ('xyzzy', True),
-                ('r2d2xxxx', False),
-                ('c3piozzzz', False)))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                ('xyzzy', True),
-                ('r2d2xxxx', False),
-                ('c3piozzzz', False)),
-            'if-none-match: W/"xyzzy", "r2d2xxxx", "c3piozzzz"')
-
-
 class IfRangeTest(FieldTestCase):
 
     field = fields.IfRange
