@@ -60,6 +60,8 @@ class Range(bases.SingleHeaderBase):
     name = 'range'
 
     def check_value(self, value):
+        assertions.must_be_tuple_of(value, 2)
+
         unit, unit_range = value
 
         if unit != ranges.RangesOptions.bytes:
@@ -69,13 +71,19 @@ class Range(bases.SingleHeaderBase):
 
         assertions.must_be_instance_of(unit_range, tuple)
         assertions.assertion(
-            ((isinstance(r, tuple) and
-              len(r) == 2 and
-              (r[0] is None or isinstance(r[0], int)) and
-              (r[1] is None or isinstance(r[1], int)))
-             for r in unit_range),
+            all((isinstance(r, tuple) and
+                 len(r) == 2 and
+                 (r[0] is None or isinstance(r[0], int)) and
+                 (r[1] is None or isinstance(r[1], int)))
+                for r in unit_range),
             '"{}" received, a tuple of tuples of 2 '
             'ints were expected'.format(unit_range))
+        assertions.assertion(
+            all(r[0] is not None or
+                r[1] is not None
+                for r in unit_range),
+            '"{}" received, start and/or end '
+            'was expected'.format(unit_range))
 
     def values_str(self, values):
         unit, unit_range = values[0]
@@ -93,7 +101,7 @@ class Range(bases.SingleHeaderBase):
 
     def clean_value(self, raw_value):
         try:
-            name, raw_param_value = raw_value.split('=', 1)
+            name, raw_range = raw_value.split('=', 1)
         except ValueError:
             raise exceptions.BadRequest(
                 'Value must have "name=param" format')
@@ -101,14 +109,23 @@ class Range(bases.SingleHeaderBase):
         if name != ranges.RangesOptions.bytes:
             constraints.must_be_token(name)
             constraints.constraint(
-                checkers.is_visible_chars(raw_param_value),
+                checkers.is_visible_chars(raw_range),
                 'Value must contain 1 or '
                 'more visible chars')
-            return name, raw_param_value
+            return name, raw_range
 
         # todo: setting.BYTES_RANGES_LIMIT
+        ranges_ = tuple(
+            cleaners.clean_bytes_range(r)
+            for r in raw_range.split(',', 20))
+
+        constraints.constraint(
+            all(start is not None or
+                end is not None
+                for start, end in ranges_),
+            'Unbounded range is not allowed, '
+            'must have start and/or end')
+
         return (
             ranges.RangesOptions.bytes,
-            tuple(
-                cleaners.clean_bytes_range(rp)
-                for rp in raw_param_value.split(',', 20)),)
+            ranges_)
