@@ -23,20 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class MaxForwardsTest(FieldTestCase):
-
-    field = fields.MaxForwards
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['2'],
-            (2,))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (2,),
-            'max-forwards: 2')
-
 
 class PragmaTest(FieldTestCase):
 
