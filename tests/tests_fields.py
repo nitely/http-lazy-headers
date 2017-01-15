@@ -23,21 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class LocationTest(FieldTestCase):
-
-    field = fields.Location
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['/People.html#tim'],
-            ('/People.html#tim',))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            ('/People.html#tim',),
-            'location: /People.html#tim')
-
-
 class MaxForwardsTest(FieldTestCase):
 
     field = fields.MaxForwards
