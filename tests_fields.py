@@ -23,19 +23,7 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class RangeTest(FieldTestCase):
 
-    field = fields.Range
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['bytes=0-499'],
-            (('bytes', ((0, 499),)),))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (('bytes', ((0, 499),)),),
-            'range: bytes=0-499')
 
 
 class RefererTest(FieldTestCase):
