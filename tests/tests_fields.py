@@ -23,28 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-
-class PragmaTest(FieldTestCase):
-
-    field = fields.Pragma
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['no-cache, foo=bar', 'baz=qux'],
-            (parameters.ParamsCI([
-                ('no-cache', ()),
-                ('foo', 'bar'),
-                ('baz', 'qux')]),))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (parameters.ParamsCI([
-                ('no-cache', ()),
-                ('foo', 'bar'),
-                ('baz', 'qux')]),),
-            'pragma: no-cache, foo=bar, baz=qux')
-
-
 class RangeTest(FieldTestCase):
 
     field = fields.Range
