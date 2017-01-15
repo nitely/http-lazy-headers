@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from .common import dates
 from .common import entity_tags
 from .generic import formatters
 from .generic import cleaners
@@ -212,6 +213,18 @@ class TokensHeaderBase(MultiHeaderBase):
     def clean_value(self, raw_value):
         constraints.must_be_token(raw_value)
         return raw_value.lower()
+
+
+class DateSomeBase(SingleHeaderBase):
+
+    def check_value(self, value):
+        dates.check_date(value)
+
+    def values_str(self, values):
+        return dates.format_date(values[0])
+
+    def clean_value(self, raw_value):
+        return dates.clean_date_time(raw_value)
 
 
 class IfMatchSomeBase(MultiHeaderBase):

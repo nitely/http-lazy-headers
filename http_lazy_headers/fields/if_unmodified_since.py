@@ -6,7 +6,7 @@ from ..shared.common import dates
 from ..shared import bases
 
 
-class IfUnmodifiedSince(bases.SingleHeaderBase):
+class IfUnmodifiedSince(bases.DateSomeBase):
     """
     Sent by client only.
 
@@ -28,12 +28,6 @@ class IfUnmodifiedSince(bases.SingleHeaderBase):
     """
 
     name = 'if-unmodified-since'
-
-    def check_value(self, value):
-        dates.check_date(value)
-
-    def values_str(self, values):
-        return dates.format_date(values[0])
 
     def clean_value(self, raw_value):
         # This header should be ignore if
