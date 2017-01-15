@@ -24,23 +24,6 @@ class FieldTestCase(unittest.TestCase):
 
 
 
-
-
-class RefererTest(FieldTestCase):
-
-    field = fields.Referer
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['/People.html#tim'],
-            ('/People.html#tim',))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            ('/People.html#tim',),
-            'referer: /People.html#tim')
-
-
 class RetryAfterTest(FieldTestCase):
 
     field = fields.RetryAfter
