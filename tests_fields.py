@@ -23,22 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class ServerTest(FieldTestCase):
-
-    field = fields.Server
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['CERN/3.0 libwww/2.17 (foo bar) (baz qux)'],
-            (('CERN', '3.0', ()), ('libwww', '2.17', ())))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                ('CERN', '3.0', ()),
-                ('libwww', '2.17', ('foo bar', 'baz qux'))),
-            'server: CERN/3.0 libwww/2.17 (foo bar) (baz qux)')
-
 
 class TETest(FieldTestCase):
 
