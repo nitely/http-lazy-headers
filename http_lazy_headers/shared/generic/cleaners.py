@@ -125,7 +125,7 @@ def clean_quality(params):
     `Ref. <http://httpwg.org/specs/rfc7231.html#quality.values>`_
     """
     if 'q' not in params:
-        return params.merge({'q': 1})
+        return params
 
     return params.merge({
         'q': _clean_q_value(params['q'])})

@@ -36,7 +36,7 @@ def quality_mime_sort_key(qmt):
 
     # * -1 otherwise result is reversed
     return (
-        params['q'] * -1,
+        params.get('q', 1) * -1,
         type_factor * -1,
         subtype_factor * -1,
         len(params) * -1)
@@ -68,7 +68,7 @@ def quality_sort_key(qmt):
     _, params = qmt
 
     return weight_sort_key(
-        (_, params['q']))
+        (_, params.get('q', 1)))
 
 
 def first_of(field_values, values):
