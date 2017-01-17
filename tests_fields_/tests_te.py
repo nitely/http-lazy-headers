@@ -53,3 +53,42 @@ class TETest(utils.FieldTestCase):
             (('trailers', hlh.ParamsCI([
                 (hlh.Attributes.q, 1)])),),
             'te: trailers; q=1')
+
+    def test_raw_empty(self):
+        """
+        Should allow empty raw value
+        """
+        self.assertFieldRawEqual(
+            [''],
+            ())
+
+    def test_empty(self):
+        """
+        Should allow empty value
+        """
+        self.assertFieldStrEqual(
+            (),
+            'te: ')
+
+    def test_raw_bad_values(self):
+        """
+        Should not allow bad raw values
+        """
+        self.assertRawOK(['gzip'])
+        self.assertRaisesHeaderError(['=^'])
+        self.assertRaisesHeaderError(['gzip;'])
+        self.assertRaisesHeaderError(['gzip;q='])
+
+    def test_bad_values(self):
+        """
+        Should not allow bad values
+        """
+        good_te = ('gzip', hlh.ParamsCI())
+        self.assertOK([good_te])
+        self.assertRaisesInternalError([1])
+        self.assertRaisesInternalError([None])
+        self.assertRaisesInternalError(['foo'])
+        self.assertRaisesInternalError([(1, hlh.ParamsCI())])
+        self.assertRaisesInternalError([(None, hlh.ParamsCI())])
+        self.assertRaisesInternalError([('', hlh.ParamsCI())])
+        self.assertRaisesInternalError([('gzip', None)])
