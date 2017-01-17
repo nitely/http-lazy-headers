@@ -23,21 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class TrailerTest(FieldTestCase):
-
-    field = fields.Trailer
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['CRC32, Content-Length', 'foo'],
-            ('crc32', 'content-length', 'foo'))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            ('CRC32', 'Content-Length', 'foo'),
-            'trailer: CRC32, Content-Length, foo')
-
-
 class TransferEncodingTest(FieldTestCase):
 
     field = fields.TransferEncoding
