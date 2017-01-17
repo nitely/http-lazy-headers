@@ -23,28 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-
-class TETest(FieldTestCase):
-
-    field = fields.TE
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['gzip, deflate;q=0.5', 'compress'],
-            (
-                ('gzip', parameters.ParamsCI([('q', 1)])),
-                ('compress', parameters.ParamsCI([('q', 1)])),
-                ('deflate', parameters.ParamsCI([('q', 0.5)]))))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                ('gzip', parameters.ParamsCI([('q', 1)])),
-                ('compress', parameters.ParamsCI([('q', 1)])),
-                ('deflate', parameters.ParamsCI([('q', 0.5)]))),
-            'te: gzip; q=1, compress; q=1, deflate; q=0.5')
-
-
 class TrailerTest(FieldTestCase):
 
     field = fields.Trailer
