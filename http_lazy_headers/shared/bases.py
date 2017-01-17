@@ -317,6 +317,8 @@ class LibsHeaderBase(HeaderBase):
             assertions.must_be_ascii(c)
 
     def check_values(self, values):
+        assertions.must_not_be_empty(values)
+
         for v in values:
             self.check_value(v)
 
