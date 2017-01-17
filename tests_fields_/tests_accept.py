@@ -16,27 +16,25 @@ class AcceptTest(utils.FieldTestCase):
         self.assertFieldRawEqual(
             ['text/html, foo/bar;baz=qux', '*/*;q=0.5'],
             ((('foo', 'bar'),
-              hlh.ParamsCI([
-                  ('baz', 'qux'),
-                  (hlh.Attributes.q, 1)])),
+              hlh.ParamsCI([('baz', 'qux')])),
              ((hlh.MediaType.text, hlh.MediaType.html),
-              hlh.ParamsCI([(hlh.Attributes.q, 1)])),
+              hlh.ParamsCI()),
              ((hlh.MediaType.star, hlh.MediaType.star),
               hlh.ParamsCI([(hlh.Attributes.q, 0.5)]))))
 
         self.assertFieldRawEqual(
             ["audio/*; q=0.2, audio/basic"],
             (((hlh.MediaType.audio, 'basic'),
-              hlh.ParamsCI(((hlh.Attributes.q, 1),))),
+              hlh.ParamsCI()),
              ((hlh.MediaType.audio, hlh.MediaType.star),
               hlh.ParamsCI(((hlh.Attributes.q, 0.2),)))))
 
         self.assertFieldRawEqual(
             ["text/plain; q=0.5, text/html, text/x-dvi; q=0.8, text/x-c"],
             (((hlh.MediaType.text, hlh.MediaType.html),
-              hlh.ParamsCI(((hlh.Attributes.q, 1),))),
+              hlh.ParamsCI()),
              ((hlh.MediaType.text, 'x-c'),
-              hlh.ParamsCI(((hlh.Attributes.q, 1),))),
+              hlh.ParamsCI()),
              ((hlh.MediaType.text, 'x-dvi'),
               hlh.ParamsCI(((hlh.Attributes.q, 0.8),))),
              ((hlh.MediaType.text, hlh.MediaType.plain),
@@ -46,8 +44,7 @@ class AcceptTest(utils.FieldTestCase):
             ["text/plain; charset=utf-8"],
             (((hlh.MediaType.text, hlh.MediaType.plain),
               hlh.ParamsCI((
-                  (hlh.Attributes.charset, hlh.Charsets.utf_8.lower()),
-                  (hlh.Attributes.q, 1)))),))
+                  (hlh.Attributes.charset, hlh.Charsets.utf_8.lower()),))),))
 
         self.assertFieldRawEqual(
             ["text/plain; charset=utf-8; q=0.5"],
