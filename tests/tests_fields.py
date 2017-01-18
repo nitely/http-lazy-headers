@@ -23,29 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class UpgradeTest(FieldTestCase):
-
-    field = fields.Upgrade
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['HTTP/2.0, SHTTP/1.3', 'IRC/6.9, RTA/x11'],
-            (
-                ('HTTP', '2.0'),
-                ('SHTTP', '1.3'),
-                ('IRC', '6.9'),
-                ('RTA', 'x11')))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                ('HTTP', '2.0'),
-                ('SHTTP', '1.3'),
-                ('IRC', '6.9'),
-                ('RTA', 'x11')),
-            'upgrade: HTTP/2.0, SHTTP/1.3, IRC/6.9, RTA/x11')
-
-
 class UserAgentTest(FieldTestCase):
 
     field = fields.UserAgent
