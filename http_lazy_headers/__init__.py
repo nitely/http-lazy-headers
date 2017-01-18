@@ -13,6 +13,7 @@ from .shared.values.media_types import TopLevel
 from .shared.values.methods import Methods
 from .shared.values.ranges import RangesOptions
 from .fields.connection import ConnectionOptions
+from .fields.upgrade import ProtocolOptions
 
 from .fields.expect import expect_continue
 from .shared.common.hosts import host
