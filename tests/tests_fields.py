@@ -23,27 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class TransferEncodingTest(FieldTestCase):
-
-    field = fields.TransferEncoding
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['gzip, chunked', 'foobar;bar=qux'],
-            (
-                ('gzip', parameters.ParamsCI()),
-                ('chunked', parameters.ParamsCI()),
-                ('foobar', parameters.ParamsCI([('bar', 'qux')]))))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                ('gzip', parameters.ParamsCI()),
-                ('chunked', parameters.ParamsCI()),
-                ('foobar', parameters.ParamsCI([('bar', 'qux')]))),
-            'transfer-encoding: gzip, chunked, foobar; bar=qux')
-
-
 class UpgradeTest(FieldTestCase):
 
     field = fields.Upgrade
