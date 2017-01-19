@@ -16,6 +16,7 @@ from .fields.connection import ConnectionOptions
 from .fields.upgrade import ProtocolOptions
 
 from .fields.expect import expect_continue
+from .fields.via import via
 from .shared.common.hosts import host
 
 from .settings import settings
