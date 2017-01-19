@@ -62,8 +62,6 @@ class Warning(bases.MultiHeaderBase):
     `Ref. <http://httpwg.org/specs/rfc7234.html#header.warning>`_
     """
 
-    # todo: validate host (not uri)
-
     name = 'warning'
     codes = {
         110,
