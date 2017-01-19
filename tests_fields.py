@@ -23,22 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class UserAgentTest(FieldTestCase):
-
-    field = fields.UserAgent
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['CERN-LineMode/2.15 libwww/2.17b3 (foo bar) (baz qux)'],
-            (('CERN-LineMode', '2.15', ()), ('libwww', '2.17b3', ())))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                ('CERN-LineMode', '2.15', ()),
-                ('libwww', '2.17b3', ('foo bar', 'baz qux'))),
-            'user-agent: CERN-LineMode/2.15 libwww/2.17b3 (foo bar) (baz qux)')
-
 
 class VaryTest(FieldTestCase):
 
