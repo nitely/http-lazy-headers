@@ -23,28 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-
-class VaryTest(FieldTestCase):
-
-    field = fields.Vary
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['accept-encoding', 'accept-language, foo'],
-            ('accept-encoding', 'accept-language', 'foo'))
-        self.assertFieldRawEqual(
-            ['*'],
-            ('*',))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            ('accept-encoding', 'accept-language'),
-            'vary: accept-encoding, accept-language')
-        self.assertFieldStrEqual(
-            ('*',),
-            'vary: *')
-
-
 class ViaTest(FieldTestCase):
 
     field = fields.Via
