@@ -130,3 +130,63 @@ class ViaTest(utils.FieldTestCase):
         Should NOT allow empty value
         """
         self.assertRaisesInternalError(())
+
+    def test_raw_bad_values(self):
+        """
+        Should not allow bad raw values
+        """
+        self.assertRawOK(['foo/1.0 bar'])
+        self.assertRaisesHeaderError(['foo'])
+        self.assertRaisesHeaderError(['foo/1.0'])
+        self.assertRaisesHeaderError(['foo/1.0 bar baz'])
+        self.assertRaisesHeaderError(['^= bar'])
+        self.assertRaisesHeaderError(['foo/1.0 ^='])
+
+    def test_bad_values(self):
+        """
+        Should not allow bad values
+        """
+        good_via = hlh.via(
+            version='2.0',
+            pseudonym='foo')
+        self.assertOK([good_via])
+        self.assertRaisesInternalError([1])
+        self.assertRaisesInternalError(['foo'])
+        self.assertRaisesInternalError([None])
+        self.assertRaisesInternalError([
+            hlh.via(
+                version='^=',
+                pseudonym='foo')])
+        self.assertRaisesInternalError([
+            hlh.via(
+                version='2.0',
+                pseudonym='foo',
+                comment='á')])
+        self.assertRaisesInternalError([
+            hlh.via(
+                version='2.0',
+                pseudonym='^=')])
+        self.assertRaisesInternalError([
+            hlh.via(
+                version='2.0',
+                pseudonym='^=')])
+        self.assertRaisesInternalError([
+            hlh.via(
+                version='2.0',
+                host=('foo', None, None, None, None, None))])
+        self.assertRaisesInternalError([
+            hlh.via(
+                version='2.0',
+                host=('example.org', None, None, None, None, '123'))])
+        self.assertRaisesInternalError([
+            hlh.via(
+                version='2.0',
+                host=('example.org', None, None, None, None, ''))])
+        self.assertRaisesInternalError([
+            hlh.via(
+                version='2.0',
+                host=('example.org', '127.0.0.1', None, None, None, None))])
+        self.assertRaisesInternalError([
+            hlh.via(
+                version='2.0',
+                host=('example.org', '127.0.0.1', None, None, None, 8080))])
