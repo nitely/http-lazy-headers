@@ -23,41 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class WWWAuthenticateTest(FieldTestCase):
-
-    field = fields.WWWAuthenticate
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            [
-                'Newauth realm="apps", type=1, '
-                'title="Login to \\"apps\\"", '
-                'Basic realm="simple"',
-                'Foo asdqwe=='],
-            (
-                ('newauth', None, parameters.ParamsCI([
-                    ('realm', 'apps'),
-                    ('type', '1'),
-                    ('title', 'Login to "apps"')])),
-                ('basic', None, parameters.ParamsCI([
-                    ('realm', 'simple')])),
-                ('foo', 'asdqwe==', parameters.ParamsCI())))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                ('newauth', None, parameters.ParamsCI([
-                    ('realm', 'apps'),
-                    ('type', '1'),
-                    ('title', 'Login to "apps"')])),
-                ('basic', None, parameters.ParamsCI([
-                    ('realm', 'simple')])),
-                ('foo', 'asdqwe==', parameters.ParamsCI())),
-            'www-authenticate: newauth realm=apps, '
-            'type=1, title="Login to \\"apps\\"", '
-            'basic realm=simple, foo asdqwe==')
-
-
 class ContentDispositionTest(FieldTestCase):
 
     field = fields.ContentDisposition
