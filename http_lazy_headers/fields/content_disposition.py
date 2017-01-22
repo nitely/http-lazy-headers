@@ -140,9 +140,9 @@ class ContentDisposition(bases.SingleHeaderBase):
         if not params:
             return disposition_type
 
-        return '{};{}'.format(
+        return '{}; {}'.format(
             disposition_type,
-            ';'.join(
+            '; '.join(
                 formatters.format_ext_params(params)))
 
     def clean_value(self, raw_value):
@@ -153,6 +153,7 @@ class ContentDisposition(bases.SingleHeaderBase):
         value = raw_value.lower()
         params = cleaners.clean_extended_params(raw_params)
 
+        # Don't allow file-names with absolute path
         constraints.constraint(
             not params
             .get('filename', '')

@@ -52,13 +52,12 @@ def format_auth_values(values):
 def format_ext_params(params):
     # todo: move to common.extended_params.py
     for param_name, param_value in params.items():
-        try:
-            charset, lang, value = param_value
-        except ValueError:
+        if isinstance(param_value, str):
             yield '{}={}'.format(
                 param_name,
                 parsers.quote_maybe(param_value))
         else:
+            charset, lang, value = param_value
             yield '{name}={charset}\'{lang}\'{encoded_value}'.format(
                 name=param_name,
                 charset=charset,
