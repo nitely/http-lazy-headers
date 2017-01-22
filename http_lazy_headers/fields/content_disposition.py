@@ -43,6 +43,10 @@ class ContentDisposition(bases.SingleHeaderBase):
 
     Is up to the user to recover from a bad file name or not.
 
+    This is the only header supporting ISO-8859-1\
+    on quoted-string param value, however appendix-D\
+    says to use us-ascii on filename.
+
     The ``Content-Disposition`` response header field is\
     used to convey additional information about how to\
     process the response payload, and also can be used\
@@ -142,6 +146,20 @@ class ContentDisposition(bases.SingleHeaderBase):
                 formatters.format_ext_params(params)))
 
     def clean_value(self, raw_value):
+        # See test cases: http://greenbytes.de/tech/tc2231/#c-d-inline
         raw_value, raw_params = parsers.from_raw_value_with_params(raw_value)
         constraints.must_be_token(raw_value)
-        return raw_value.lower(), cleaners.clean_extended_params(raw_params)
+
+        value = raw_value.lower()
+        params = cleaners.clean_extended_params(raw_params)
+
+        constraints.constraint(
+            not params
+            .get('filename', '')
+            .startswith(('/', '\\')) and
+            not params
+            .get('filename*', (None, None, ''))[2]
+            .startswith(('/', '\\')),
+            'Filename can\'t be absolute')
+
+        return value, params

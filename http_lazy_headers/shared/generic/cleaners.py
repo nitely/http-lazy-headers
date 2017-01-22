@@ -79,6 +79,7 @@ def clean_extended_param(raw_param):
         'Invalid mime value')
 
     # todo: Support other strategies (ie: ignore param)
+    # todo: handle bad charset
     return (
         param_name,
         (
