@@ -42,6 +42,10 @@ _EXT_TOKEN = _TOKEN_CHARS - frozenset('*\'%')
 _VISIBLE_CHARS = frozenset(
     ascii_tools.ascii_chars((0x21, 0x7E)))
 
+_QUOTED_STR_CHARS = _ASCII_CHARS
+
+_COMMENT_CHARS = _ASCII_CHARS
+
 
 def is_token(txt):
     assert isinstance(txt, str)
@@ -53,44 +57,26 @@ def is_token(txt):
 
 
 def is_quoted_string(txt):
-    """
-    This does not validate chars,\
-    basically because it allows `quoted-pair`,\
-    meaning it allows all valid chars\
-    (``HTAB / SP / VCHAR``)
-
-    :param txt:
-    :return:
-    """
     assert isinstance(txt, str)
 
     if len(txt) < 2:  # Single quote?
         return False
 
-    if (not txt.startswith('"') and
+    if (not txt.startswith('"') or
             not txt.endswith('"')):
         return False
 
-    return True
+    return set(txt[1:-1]).issubset(_QUOTED_STR_CHARS)
 
 
 def is_comment(txt):
-    """
-    This does not validate chars,\
-    basically because it allows `quoted-pair`,\
-    meaning it allows all valid chars\
-    (``HTAB / SP / VCHAR``)
-
-    :param txt:
-    :return:
-    """
     assert isinstance(txt, str)
 
     if (not txt.startswith('(') and
             not txt.endswith(')')):
         return False
 
-    return True
+    return set(txt).issubset(_COMMENT_CHARS)
 
 
 def is_token68(txt):
