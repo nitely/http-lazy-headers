@@ -15,17 +15,11 @@ from .. import exceptions
 from ..settings import settings
 
 
-# HTAB / SP / VCHAR / ISO-8859-1 unicode chars
+# HTAB / SP / VCHAR
 _B_HEADER_VALUE_CHARS = frozenset(
-    ascii_tools.ascii_bytes(
-        0x09,
-        (0x20, 0x7E),
-        (0xA1, 0xFF)))
+    ascii_tools.ascii_bytes(0x09, (0x20, 0x7E)))
 _U_HEADER_VALUE_CHARS = frozenset(
-    ascii_tools.ascii_chars(
-        0x09,
-        (0x20, 0x7E),
-        (0xA1, 0xFF)))
+    ascii_tools.ascii_chars(0x09, (0x20, 0x7E)))
 
 
 def is_value(raw_value):

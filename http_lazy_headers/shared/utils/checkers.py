@@ -42,10 +42,6 @@ _EXT_TOKEN = _TOKEN_CHARS - frozenset('*\'%')
 _VISIBLE_CHARS = frozenset(
     ascii_tools.ascii_chars((0x21, 0x7E)))
 
-_QUOTED_STR_CHARS = _ASCII_CHARS
-
-_COMMENT_CHARS = _ASCII_CHARS
-
 
 def is_token(txt):
     assert isinstance(txt, str)
@@ -66,7 +62,7 @@ def is_quoted_string(txt):
             not txt.endswith('"')):
         return False
 
-    return set(txt[1:-1]).issubset(_QUOTED_STR_CHARS)
+    return True
 
 
 def is_comment(txt):
@@ -76,7 +72,7 @@ def is_comment(txt):
             not txt.endswith(')')):
         return False
 
-    return set(txt).issubset(_COMMENT_CHARS)
+    return True
 
 
 def is_token68(txt):
