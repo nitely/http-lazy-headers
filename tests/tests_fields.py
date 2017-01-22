@@ -23,30 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class ContentDispositionTest(FieldTestCase):
-
-    field = fields.ContentDisposition
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['attachment; filename="EURO rates"; '
-             'filename*=utf-8\'en\'%e2%82%ac%20rates'],
-            (
-                ('attachment', parameters.ParamsCI([
-                    ('filename', 'EURO rates'),
-                    ('filename*', ('utf-8', 'en', '€ rates'))])),))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                ('attachment', parameters.ParamsCI([
-                    ('filename', 'EURO rates'),
-                    ('filename*', ('utf-8', 'en', '€ rates'))])),),
-            'content-disposition: attachment;'
-            'filename="EURO rates";'
-            'filename*=utf-8\'en\'%E2%82%AC%20rates')
-
-
 class CookieTest(FieldTestCase):
 
     field = fields.Cookie
