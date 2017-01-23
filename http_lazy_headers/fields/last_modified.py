@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from ..shared.common import dates
 from ..shared import bases
 
 
-class LastModified(bases.SingleHeaderBase):
+class LastModified(bases.DateSomeBase):
     """
     Sent by server only.
 
@@ -25,12 +24,3 @@ class LastModified(bases.SingleHeaderBase):
     """
 
     name = 'last-modified'
-
-    def check_value(self, value):
-        dates.check_date(value)
-
-    def values_str(self, values):
-        return dates.format_date(values[0])
-
-    def clean_value(self, raw_value):
-        return dates.clean_date_time(raw_value)

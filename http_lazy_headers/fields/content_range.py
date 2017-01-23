@@ -31,6 +31,7 @@ def content_range_bytes(
 
 
 def content_range_none():
+    # todo: change to ranges.RangesOptions.none
     return None, None, None, None
 
 

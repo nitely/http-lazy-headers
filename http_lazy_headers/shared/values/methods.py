@@ -11,3 +11,4 @@ class Methods:
     options = 'OPTIONS'
     trace = 'TRACE'
     connect = 'CONNECT'
+    patch = 'PATCH'

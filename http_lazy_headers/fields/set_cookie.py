@@ -20,36 +20,47 @@ _COOKIE_CHARS = (
     frozenset(';'))
 
 
-class CookiePair:
+CookiePair = collections.namedtuple(
+    'CookiePair',
+    ['name',
+     'value',
+     'expires',
+     'max_age',
+     'domain',
+     'path',
+     'extension',
+     'secure',
+     'http_only'])
 
-    def __init__(
-            self,
-            name,
-            value,
-            expires=None,
-            max_age=None,
-            domain=None,
-            path=None,
-            extension=None,
-            secure=False,
-            http_only=False):
-        assert (
-            extension is None or
-            isinstance(
-                extension, (tuple, list)))
 
-        if extension is not None:
-            extension = tuple(extension)
+def cookie_pair(
+        name,
+        value,
+        expires=None,
+        max_age=None,
+        domain=None,
+        path=None,
+        extension=None,
+        secure=False,
+        http_only=False):
+    assert (
+        extension is None or
+        isinstance(
+            extension, (tuple, list)))
 
-        self.name = name
-        self.value = value
-        self.expires = expires
-        self.max_age = max_age
-        self.domain = domain
-        self.path = path
-        self.extension = extension
-        self.secure = secure
-        self.http_only = http_only
+    if extension is not None:
+        extension = tuple(extension)
+
+    return CookiePair(
+        name=name,
+        value=value,
+        expires=expires,
+        max_age=max_age,
+        domain=domain,
+        path=path,
+        extension=extension,
+        secure=secure,
+        http_only=http_only)
 
 
 def clean_expires(raw_expires):
@@ -112,7 +123,8 @@ _CLEANERS = {
 
 _TO_PY_ATTR = {
     'Secure': 'secure',
-    'HttpOnly': 'http_only'}
+    'HttpOnly': 'http_only',
+    'max-age': 'max_age'}
 
 _FROM_PY_ATTR = {
     v: k
@@ -135,7 +147,9 @@ def clean_attr(raw_attribute):
     except KeyError:
         return 'extension', clean_extension(raw_attribute)
 
-    return attribute, cleaner(value.lower())
+    return (
+        _TO_PY_ATTR.get(attribute, attribute),
+        cleaner(value))
 
 
 def clean_attrs(raw_attrs):
@@ -157,8 +171,8 @@ def clean_attrs(raw_attrs):
 def clean(raw_values):
     raw_values = parsers.from_tokens(raw_values, ';')
 
-    return CookiePair(
-        *cookies.clean_cookie_pair(next(raw_values)),
+    return cookie_pair(
+        *cookies.clean_cookie_pair(next(raw_values, '')),
         **dict(clean_attrs(raw_values)))
 
 
@@ -205,12 +219,19 @@ class SetCookie(bases.HeaderBase):
         assertions.must_not_be_empty(values)
 
         for c in values:
-            assertions.must_be_instance_of(c, CookiePair)
+            assertions.assertion(
+                isinstance(c, CookiePair) and
+                hasattr(c, '_fields') and
+                c._fields == CookiePair._fields,
+                '"{}" received, a CookiePair '
+                'was expected'.format(c))
             c.expires is None or dates.check_date(c.expires)
             c.max_age is None or assertions.must_be_int(c.max_age)
             c.domain is None or assertions.assertion(
                 isinstance(c.domain, str) and
-                cookies.is_domain(c.domain),
+                cookies.is_domain(str(
+                    encodings.idna.ToASCII(c.domain),
+                    encoding='ascii')),
                 '"{}" received, a valid '
                 'domain was expected'.format(c.domain))
             c.path is None or assertions.assertion(
@@ -219,7 +240,7 @@ class SetCookie(bases.HeaderBase):
                 '"{}" received, a valid '
                 'path was expected'.format(c.path))
             c.extension is None or assertions.assertion(
-                isinstance(c.path, tuple) and
+                isinstance(c.extension, tuple) and
                 all(is_extension(e)
                     for e in c.extension),
                 '"{}" received, a valid '
@@ -234,13 +255,6 @@ class SetCookie(bases.HeaderBase):
     def _cookie_str(self, cookie):
         yield '{}={}'.format(cookie.name, cookie.value)
 
-        if cookie.expires is not None:
-            yield 'expires={}'.format(
-                dates.format_date(cookie.expires))
-
-        if cookie.max_age is not None:
-            yield 'max-age={}'.format(cookie.max_age)
-
         if cookie.path:
             yield 'path={}'.format(cookie.path)
 
@@ -248,6 +262,13 @@ class SetCookie(bases.HeaderBase):
             yield 'domain={}'.format(str(
                 encodings.idna.ToASCII(cookie.domain),
                 encoding='ascii'))
+
+        if cookie.expires is not None:
+            yield 'expires={}'.format(
+                dates.format_date(cookie.expires))
+
+        if cookie.max_age is not None:
+            yield 'max-age={}'.format(cookie.max_age)
 
         for attr in ('secure', 'http_only'):
             value = getattr(cookie, attr)

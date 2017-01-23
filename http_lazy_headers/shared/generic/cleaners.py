@@ -79,6 +79,7 @@ def clean_extended_param(raw_param):
         'Invalid mime value')
 
     # todo: Support other strategies (ie: ignore param)
+    # todo: handle bad charset
     return (
         param_name,
         (
@@ -96,6 +97,28 @@ def clean_extended_params(raw_params):
         for p in raw_params)
 
 
+def _clean_q_value(raw_q_value):
+    """
+    Quality q-value
+
+    `Ref. <http://httpwg.org/specs/rfc7231.html#quality.values>`_
+    """
+    if raw_q_value in {'0', '1'}:
+        return int(raw_q_value)
+
+    q_value = clean_float(
+        raw_q_value,
+        exponent_max_len=1,
+        fraction_max_len=3)
+
+    constraints.constraint(
+        0 <= q_value <= 1,
+        'q value must be equal/greater '
+        'than 0 and equal/lesser than 1')
+
+    return q_value
+
+
 def clean_quality(params):
     """
     Quality parameter
@@ -103,30 +126,18 @@ def clean_quality(params):
     `Ref. <http://httpwg.org/specs/rfc7231.html#quality.values>`_
     """
     if 'q' not in params:
-        return params.merge({'q': 1})
+        return params
 
-    quality_raw = params['q']
-
-    if quality_raw in {'0', '1'}:
-        return params.merge({'q': float(quality_raw)})
-
-    quality = clean_float(
-        quality_raw,
-        exponent_max_len=1,
-        fraction_max_len=3)
-
-    constraints.constraint(
-        0 <= quality <= 1,
-        'q value must be equal/greater '
-        'than 0 and equal/lesser than 1')
-
-    return params.merge({'q': quality})
+    return params.merge({
+        'q': _clean_q_value(params['q'])})
 
 
 def clean_weight(raw_weight):
     """
     Use on headers that only allow\
     quality parameters.
+
+    `Ref. <http://httpwg.org/specs/rfc7231.html#quality.values>`_
 
     :param raw_weight:
     :return:
@@ -137,20 +148,7 @@ def clean_weight(raw_weight):
         param_name == 'q',
         'Weight must be in "q=value" format')
 
-    if param_value in {'0', '1'}:
-        return float(param_value)
-
-    weight = clean_float(
-        param_value,
-        exponent_max_len=1,
-        fraction_max_len=3)
-
-    constraints.constraint(
-        0 <= weight <= 1,
-        'q value must be equal/greater '
-        'than 0 and equal/lesser than 1')
-
-    return weight
+    return _clean_q_value(param_value)
 
 
 def clean_accept_some(raw_value):
@@ -162,8 +160,6 @@ def clean_accept_some(raw_value):
 
 
 def clean_bytes_range(raw_bytes):
-    # todo: check start >= end
-
     # Don't allow more/less than one dash
     try:
         start, end = raw_bytes.split('-', 2)
@@ -181,6 +177,12 @@ def clean_bytes_range(raw_bytes):
     if end:
         end = clean_number(
             end, max_chars=settings.CONTENT_MAX_CHARS)
+
+    (start is None or
+     end is None or
+     constraints.constraint(
+         start <= end,
+         'Start must be less/equal than end range'))
 
     return start, end
 
@@ -223,7 +225,7 @@ def clean_float(
         len(fraction) <= fraction_max_len,
         'Fraction part contains too many digits')
     constraints.must_be_number(exponent)
-    constraints.must_be_number(fraction)
+    not fraction or constraints.must_be_number(fraction)
 
     try:
         return float(raw_float)

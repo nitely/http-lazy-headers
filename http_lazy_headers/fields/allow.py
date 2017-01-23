@@ -35,6 +35,17 @@ class Allow(bases.TokensHeaderBase):
     name = 'allow'
     # methods = constants.METHODS  # todo: warning if not one of these, case-sensitive
 
+    def check_values(self, values):
+        # Allow empty field
+        for v in values:
+            self.check_value(v)
+
     def clean_value(self, raw_value):
         constraints.must_be_token(raw_value)
         return raw_value
+
+    def clean(self, raw_values):
+        # Allow empty field
+        return tuple(
+            self.clean_value(rv)
+            for rv in raw_values)

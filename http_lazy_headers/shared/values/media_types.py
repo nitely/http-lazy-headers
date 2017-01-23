@@ -2,6 +2,7 @@
 
 from . import charsets
 from .. import parameters
+from ..utils import misc
 
 
 def media_type(
@@ -79,15 +80,8 @@ class SubLevel:
     ogg = 'ogg'
 
 
-def _attr_values(klass):
-    return {
-        getattr(klass, attr)
-        for attr in vars(klass)
-        if not attr.startswith('_')}
-
-
-_TOP_LEVEL_VALUES = _attr_values(TopLevel)
-_SUB_LEVEL_VALUES = _attr_values(SubLevel)
+_TOP_LEVEL_VALUES = misc.vars_for(TopLevel)
+_SUB_LEVEL_VALUES = misc.vars_for(SubLevel)
 
 
 class MediaType(TopLevel, SubLevel):

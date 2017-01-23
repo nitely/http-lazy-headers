@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from ..utils import misc
+
 
 class Charsets:
     # http://www.iana.org/assignments/character-sets/character-sets.xhtml
@@ -33,8 +35,5 @@ class Charsets:
     utf_8 = 'UTF-8'
 
 
-CHARSET_VALUES = {
-    getattr(Charsets, attr)
-    for attr in vars(Charsets)
-    if not attr.startswith('_')}
+CHARSET_VALUES = misc.vars_for(Charsets)
 

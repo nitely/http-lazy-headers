@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from .common import dates
 from .common import entity_tags
 from .generic import formatters
 from .generic import cleaners
@@ -88,12 +89,13 @@ class HeaderBase:
     def __repr__(self):
         name = self.__class__.__name__
 
+        if self._values is not None:
+            return '{}({})'.format(
+                name, self._values)
+
         if self._raw_values_collection is not None:
             return '{}(raw_values_collection={})'.format(
                 name, self._raw_values_collection)
-
-        if self._values is not None:
-            return '{}({})'.format(name, self._values)
 
         return '{}()'.format(name)
 
@@ -121,22 +123,22 @@ class HeaderBase:
 
         self._raw_values_collection = None
 
-    def values_str(self, values):
+    def check_values(self, values):  # todo: rename to check()
         raise NotImplementedError
 
-    def prepare_raw_values(self, raw_values_collection):
+    def values_str(self, values):  # todo: rename to to_str()
+        raise NotImplementedError
+
+    def prepare_raw_values(self, raw_values_collection):  # todo: rename to prepare_raw()
         raise NotImplementedError
 
     def clean(self, raw_values):
         raise NotImplementedError
 
-    def check_values(self, values):
-        raise NotImplementedError
-
 
 class MultiHeaderBase(HeaderBase):
 
-    def check_value(self, value):
+    def check_value(self, value):  # todo: rename to check_one()
         raise NotImplementedError
 
     def check_values(self, values):
@@ -151,7 +153,7 @@ class MultiHeaderBase(HeaderBase):
     def prepare_raw_values(self, raw_values_collection):
         return preparers.prepare_multi_raw_values(raw_values_collection)
 
-    def clean_value(self, raw_value):
+    def clean_value(self, raw_value):  # todo: rename to clean_one()
         raise NotImplementedError
 
     def clean(self, raw_values):
@@ -211,6 +213,18 @@ class TokensHeaderBase(MultiHeaderBase):
     def clean_value(self, raw_value):
         constraints.must_be_token(raw_value)
         return raw_value.lower()
+
+
+class DateSomeBase(SingleHeaderBase):
+
+    def check_value(self, value):
+        dates.check_date(value)
+
+    def values_str(self, values):
+        return dates.format_date(values[0])
+
+    def clean_value(self, raw_value):
+        return dates.clean_date_time(raw_value)
 
 
 class IfMatchSomeBase(MultiHeaderBase):
@@ -303,6 +317,8 @@ class LibsHeaderBase(HeaderBase):
             assertions.must_be_ascii(c)
 
     def check_values(self, values):
+        assertions.must_not_be_empty(values)
+
         for v in values:
             self.check_value(v)
 
@@ -329,10 +345,8 @@ class LibsHeaderBase(HeaderBase):
             for v in values)
 
     def prepare_raw_values(self, raw_values_collection):
-        raw_values_collection = preparers.prepare_single_raw_values(
-            raw_values_collection)
         return parsers.from_raw_values(
-            raw_values_collection[0],
+            preparers.prepare_single_raw_values(raw_values_collection)[0],
             separator=' ')
 
     def clean_value(self, raw_value):

@@ -58,7 +58,13 @@ class IfRange(bases.SingleHeaderBase):
             value, (tuple, datetime.datetime))
 
         (isinstance(value, datetime.datetime) or
-         entity_tags.check_etag(value))
+         (entity_tags.check_etag(value)))
+
+        (isinstance(value, datetime.datetime) or
+         assertions.assertion(
+             not value[1],
+             '"{}" received, a strong e-tag '
+             'was expected'.format(value)))
 
     def values_str(self, values):
         value = values[0]

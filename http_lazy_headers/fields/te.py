@@ -81,7 +81,6 @@ class TE(bases.HeaderBase):
             assertions.must_be_quality(params)
 
     def values_str(self, values):
-        # todo: remove the q=1 in trailers (from str values)
         return ', '.join(
             formatters.format_values_with_params(values))
 
@@ -91,6 +90,7 @@ class TE(bases.HeaderBase):
     def clean_value(self, raw_value):
         value, raw_params = parsers.from_raw_value_with_params(raw_value)
         constraints.must_be_token(value)
+
         return (
             value.lower(),
             cleaners.clean_quality(
@@ -103,9 +103,3 @@ class TE(bases.HeaderBase):
                 self.clean_value(raw_value)
                 for raw_value in raw_values),
             key=quality.quality_sort_key))
-
-    def first_of(self, values):
-        return quality.first_of(self.values(), values)
-
-    def best_of(self, values):
-        return quality.best_of(self.values(), values)

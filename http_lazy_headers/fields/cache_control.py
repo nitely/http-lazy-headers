@@ -8,6 +8,7 @@ from ..shared.utils import parsers
 from ..shared import bases
 from ..shared import parameters
 from ..shared.utils import assertions
+from ..shared.values import cache
 
 
 def cache_control(
@@ -36,12 +37,12 @@ def cache_control(
     params = []
 
     for param_name, param_value in (
-            ('no-cache', no_cache),
-            ('private', private),
-            ('max-age', max_age),
-            ('max-stale', max_stale),
-            ('min-fresh', min_fresh),
-            ('s-maxage', s_maxage)):
+            (cache.CacheOptions.no_cache, no_cache),
+            (cache.CacheOptions.private, private),
+            (cache.CacheOptions.max_age, max_age),
+            (cache.CacheOptions.max_stale, max_stale),
+            (cache.CacheOptions.min_fresh, min_fresh),
+            (cache.CacheOptions.s_maxage, s_maxage)):
         if param_value is None:
             continue
 
@@ -90,9 +91,9 @@ class CacheControl(bases.HeaderBase):
 
         CacheControl([
             Params([
-                ('no-cache', ()),
-                ('private', ()),
-                ('max-age', 60)
+                (CacheOptions.no_cache, ()),
+                (CacheOptions.private, ()),
+                (CacheOptions.max_age, 60)
             ])
         ])
 
@@ -104,14 +105,6 @@ class CacheControl(bases.HeaderBase):
     # param values are case-insensitive
 
     name = 'cache-control'
-    directives_with_delta_secs = frozenset((
-        'max-age',
-        'max-stale',
-        'min-fresh',
-        's-maxage'))
-    directives_with_header_values = frozenset((
-        'no-cache',
-        'private'))
 
     def check_value(self, value):
         assertions.must_be_tuple_of(value, 2)
@@ -119,7 +112,7 @@ class CacheControl(bases.HeaderBase):
         assertions.must_be_token(param_name)
         param_name = param_name.lower()
 
-        if param_name in self.directives_with_header_values:
+        if param_name in cache.CACHE_HEADERS_VALUES:
             assertions.must_be_instance_of(param_value, tuple)
 
             for t in param_value:
@@ -127,7 +120,7 @@ class CacheControl(bases.HeaderBase):
 
             return
 
-        if param_name in self.directives_with_delta_secs:
+        if param_name in cache.CACHE_SECS_VALUES:
             assertions.must_be_instance_of(param_value, int)
             return
 
@@ -150,12 +143,12 @@ class CacheControl(bases.HeaderBase):
     def value_str(self, value):
         param_name, param_value = value
 
-        if param_name in self.directives_with_delta_secs:
+        if param_name in cache.CACHE_SECS_VALUES:
             return '{}={}'.format(
                 param_name,
                 str(param_value))
 
-        if (param_name in self.directives_with_header_values and
+        if (param_name in cache.CACHE_HEADERS_VALUES and
                 param_value):
             return '{}="{}"'.format(
                 param_name,
@@ -181,13 +174,13 @@ class CacheControl(bases.HeaderBase):
     def clean_value(self, raw_value):
         # Directives with delta secs
         # must have values
-        if (raw_value not in self.directives_with_delta_secs and
+        if (raw_value not in cache.CACHE_SECS_VALUES and
                 checkers.is_token(raw_value)):
             return raw_value, ()
 
         directive, argument = cleaners.clean_param(raw_value)
 
-        if directive.lower() in self.directives_with_delta_secs:
+        if directive.lower() in cache.CACHE_SECS_VALUES:
             return directive, cleaners.clean_delta_seconds(argument)
 
         # Custom directives, no-cache and
@@ -196,14 +189,17 @@ class CacheControl(bases.HeaderBase):
         if not argument:
             return directive, ()
 
-        if directive.lower() in self.directives_with_header_values:
+        if directive.lower() in cache.CACHE_HEADERS_VALUES:
             return directive, cleaners.clean_tokens_ci(argument)
 
         return directive, argument
 
     def clean(self, raw_values):
-        constraints.must_not_be_empty(raw_values)
+        values = tuple(
+            self.clean_value(v)
+            for v in raw_values)
+
+        constraints.must_not_be_empty(values)
+
         return (
-            parameters.ParamsCI(
-                self.clean_value(v)
-                for v in raw_values),)
+            parameters.ParamsCI(values),)

@@ -9,7 +9,7 @@ def upgrade(name, version=None):
     return name, version
 
 
-class ProtocolName:
+class ProtocolOptions:
 
     # http://www.iana.org/assignments/http-upgrade-tokens/http-upgrade-tokens.xml
 

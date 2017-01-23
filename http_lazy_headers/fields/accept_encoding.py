@@ -27,11 +27,11 @@ class AcceptEncoding(bases.AcceptSomeBase):
     This is one of the few headers where\
     there may be no values.
 
-    If is empty, the user agent does not\
-    want any content-coding in response.
+    If it's empty, the user agent does not\
+    want any content-coding in the response.
 
-    If is present and none is available as\
-    response that is acceptable, send a\
+    If it's present and none is available as\
+    an acceptable (quality > 0) response, send a\
     response without any content-coding.
 
     Example::

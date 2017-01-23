@@ -21,7 +21,7 @@ class ContentLocation(bases.URIHeaderBase):
 
     Example::
 
-        ContentLocation(['rfc7231.html'])
+        ContentLocation(['/rfc7231.html'])
 
     `Ref. <http://httpwg.org/specs/rfc7231.html#header.content-location>`_
     """

@@ -53,21 +53,12 @@ def is_token(txt):
 
 
 def is_quoted_string(txt):
-    """
-    This does not validate chars,\
-    basically because it allows `quoted-pair`,\
-    meaning it allows all valid chars\
-    (``HTAB / SP / VCHAR``)
-
-    :param txt:
-    :return:
-    """
     assert isinstance(txt, str)
 
     if len(txt) < 2:  # Single quote?
         return False
 
-    if (not txt.startswith('"') and
+    if (not txt.startswith('"') or
             not txt.endswith('"')):
         return False
 
@@ -75,15 +66,6 @@ def is_quoted_string(txt):
 
 
 def is_comment(txt):
-    """
-    This does not validate chars,\
-    basically because it allows `quoted-pair`,\
-    meaning it allows all valid chars\
-    (``HTAB / SP / VCHAR``)
-
-    :param txt:
-    :return:
-    """
     assert isinstance(txt, str)
 
     if (not txt.startswith('(') and
@@ -110,7 +92,8 @@ def is_token68(txt):
 def is_uri(txt):
     assert isinstance(txt, str)
 
-    # todo: allow empty?
+    if not txt:
+        return False
 
     return set(txt).issubset(_URI_CHARS)
 
@@ -121,7 +104,7 @@ def is_etag(txt):
     if len(txt) < 2:  # Single quote?
         return False
 
-    if (not txt.startswith('"') and
+    if (not txt.startswith('"') or
             not txt.endswith('"')):
         return False
 
@@ -188,3 +171,12 @@ def is_visible_chars(txt):
         return False
 
     return set(txt).issubset(_VISIBLE_CHARS)
+
+
+def is_alphanum(txt):
+    assert isinstance(txt, str)
+
+    if not txt:
+        return False
+
+    return set(txt).issubset(_ALPHA_NUM)
