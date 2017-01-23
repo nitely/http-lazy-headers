@@ -64,6 +64,10 @@ class ETagTest(utils.FieldTestCase):
         self.assertRaisesHeaderError(['w/""'])
         self.assertRaisesHeaderError(['xyzzy'])
         self.assertRaisesHeaderError(['"xyzzy", "xyzzy"'])
+        self.assertRaisesHeaderError(['"xyzzy'])
+        self.assertRaisesHeaderError(['xyzzy"'])
+        self.assertRaisesHeaderError(['w/xyzzy"'])
+        self.assertRaisesHeaderError(['w/"xyzzy'])
 
     def test_bad_values(self):
         """
