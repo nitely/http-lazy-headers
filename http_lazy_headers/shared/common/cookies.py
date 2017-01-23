@@ -55,7 +55,7 @@ def is_quoted_cookie_octets(txt):
     if len(txt) <= 2:
         return False
 
-    if (not txt.startswith('"') and
+    if (not txt.startswith('"') or
             not txt.endswith('"')):
         return False
 

@@ -104,7 +104,7 @@ def is_etag(txt):
     if len(txt) < 2:  # Single quote?
         return False
 
-    if (not txt.startswith('"') and
+    if (not txt.startswith('"') or
             not txt.endswith('"')):
         return False
 
