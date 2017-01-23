@@ -23,25 +23,6 @@ class FieldTestCase(unittest.TestCase):
             expected)
 
 
-class CookieTest(FieldTestCase):
-
-    field = fields.Cookie
-
-    def test_raw_values(self):
-        self.assertFieldRawEqual(
-            ['SID=31d4d96e407aad42; lang=en-US'],
-            (
-                ('SID', '31d4d96e407aad42'),
-                ('lang', 'en-US')))
-
-    def test_str(self):
-        self.assertFieldStrEqual(
-            (
-                ('SID', '31d4d96e407aad42'),
-                ('lang', 'en-US')),
-            'cookie: SID=31d4d96e407aad42; lang=en-US')
-
-
 from http_lazy_headers.fields.set_cookie import cookie_pair
 
 
