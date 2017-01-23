@@ -87,6 +87,7 @@ def clean_cookie_pair(raw_cookie_pair):
         'Cookie name is not a token')
     constraints.constraint(
         not value or
+        value == '""' or
         is_cookie_octets(value) or
         is_quoted_cookie_octets(value),
         'Cookie value must be '
