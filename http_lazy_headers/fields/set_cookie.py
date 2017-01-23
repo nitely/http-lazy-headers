@@ -123,7 +123,8 @@ _CLEANERS = {
 
 _TO_PY_ATTR = {
     'Secure': 'secure',
-    'HttpOnly': 'http_only'}
+    'HttpOnly': 'http_only',
+    'max-age': 'max_age'}
 
 _FROM_PY_ATTR = {
     v: k
@@ -146,7 +147,9 @@ def clean_attr(raw_attribute):
     except KeyError:
         return 'extension', clean_extension(raw_attribute)
 
-    return attribute, cleaner(value.lower())
+    return (
+        _TO_PY_ATTR.get(attribute, attribute),
+        cleaner(value))
 
 
 def clean_attrs(raw_attrs):
@@ -235,7 +238,7 @@ class SetCookie(bases.HeaderBase):
                 '"{}" received, a valid '
                 'path was expected'.format(c.path))
             c.extension is None or assertions.assertion(
-                isinstance(c.path, tuple) and
+                isinstance(c.extension, tuple) and
                 all(is_extension(e)
                     for e in c.extension),
                 '"{}" received, a valid '

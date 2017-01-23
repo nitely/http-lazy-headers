@@ -17,6 +17,7 @@ from .fields.upgrade import ProtocolOptions
 
 from .fields.expect import expect_continue
 from .fields.via import via
+from .fields.set_cookie import cookie_pair
 from .shared.common.hosts import host
 
 from .settings import settings
