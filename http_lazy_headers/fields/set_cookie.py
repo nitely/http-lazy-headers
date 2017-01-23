@@ -172,7 +172,7 @@ def clean(raw_values):
     raw_values = parsers.from_tokens(raw_values, ';')
 
     return cookie_pair(
-        *cookies.clean_cookie_pair(next(raw_values)),
+        *cookies.clean_cookie_pair(next(raw_values, '')),
         **dict(clean_attrs(raw_values)))
 
 
@@ -229,7 +229,9 @@ class SetCookie(bases.HeaderBase):
             c.max_age is None or assertions.must_be_int(c.max_age)
             c.domain is None or assertions.assertion(
                 isinstance(c.domain, str) and
-                cookies.is_domain(c.domain),
+                cookies.is_domain(str(
+                    encodings.idna.ToASCII(c.domain),
+                    encoding='ascii')),
                 '"{}" received, a valid '
                 'domain was expected'.format(c.domain))
             c.path is None or assertions.assertion(
@@ -253,13 +255,6 @@ class SetCookie(bases.HeaderBase):
     def _cookie_str(self, cookie):
         yield '{}={}'.format(cookie.name, cookie.value)
 
-        if cookie.expires is not None:
-            yield 'expires={}'.format(
-                dates.format_date(cookie.expires))
-
-        if cookie.max_age is not None:
-            yield 'max-age={}'.format(cookie.max_age)
-
         if cookie.path:
             yield 'path={}'.format(cookie.path)
 
@@ -267,6 +262,13 @@ class SetCookie(bases.HeaderBase):
             yield 'domain={}'.format(str(
                 encodings.idna.ToASCII(cookie.domain),
                 encoding='ascii'))
+
+        if cookie.expires is not None:
+            yield 'expires={}'.format(
+                dates.format_date(cookie.expires))
+
+        if cookie.max_age is not None:
+            yield 'max-age={}'.format(cookie.max_age)
 
         for attr in ('secure', 'http_only'):
             value = getattr(cookie, attr)
