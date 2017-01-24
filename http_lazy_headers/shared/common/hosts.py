@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import encodings.idna
+import urllib.parse
 
 from . import cookies
 from ..generic import cleaners
@@ -40,8 +41,17 @@ _REG_NAME = (
     frozenset('!$&\'()*+,;=') |
     frozenset('%'))
 
+_DIGITS = frozenset(
+    ascii_tools.ascii_chars(
+        (0x30, 0x39)))
+
 
 def is_ipv4(raw_ipv4):
+    # Quick check to avoid
+    # extra computation
+    if raw_ipv4[-1] not in _DIGITS:
+        return False
+
     ipv4 = raw_ipv4.split('.', 3)
 
     if len(ipv4) != 4:
@@ -295,8 +305,42 @@ def format_host(value):
     return host_name
 
 
+def _clean_unsafe_host(raw_host):
+    """
+    This tries to unquote the host.\
+    If there is nothing to unquote,\
+    then it tries to idna decode it.
+
+    :param raw_host:
+    :return:
+    """
+    constraints.constraint(
+        is_unsafe_host(raw_host),
+        'Host is not a valid reg-name')
+
+    try:
+        raw_host_unquoted = urllib.parse.unquote(
+            raw_host,
+            encoding='utf-8',
+            errors='strict')
+    except UnicodeDecodeError:
+        raw_host_unquoted = raw_host
+
+    if raw_host != raw_host_unquoted:
+        return raw_host_unquoted
+
+    try:
+        return encodings.idna.ToUnicode(raw_host)
+    except UnicodeError:
+        # A broken idna encoded name
+        # or something that looks
+        # too much like it
+        return raw_host
+
+
 def clean_host(raw_value):
-    # https://tools.ietf.org/html/rfc3986#appendix-A
+    # ABNF: https://tools.ietf.org/html/rfc3986#appendix-A
+    # Host: https://tools.ietf.org/html/rfc3986#section-3.2.2
 
     # Port may be a empty str
     try:
@@ -315,6 +359,11 @@ def clean_host(raw_value):
             # Likely an IPv6/Future. Not a port
             raw_host = raw_value
             port = None
+
+    # Host must be case-insensitive,
+    # including ipv_future that may
+    # start with "v" or "V"
+    raw_host = raw_host.lower()
 
     # For some reason this is actually valid
     if not raw_host:
@@ -342,6 +391,7 @@ def clean_host(raw_value):
 
         return host(ipv6=ipv_some, port=port)
 
+    # Must check for ipv4 before domain
     if is_ipv4(raw_host):
         return host(ipv4=raw_host, port=port)
 
@@ -352,10 +402,9 @@ def clean_host(raw_value):
     except exceptions.HeaderError:
         pass
 
-    if (settings.HOST_UNSAFE_ALLOW and
-            is_unsafe_host(raw_host)):
+    if settings.HOST_UNSAFE_ALLOW:
         return host(
-            unsafe=raw_host.lower(),
+            unsafe=_clean_unsafe_host(raw_host),
             port=port)
 
     raise exceptions.BadRequest('Bad host name')
