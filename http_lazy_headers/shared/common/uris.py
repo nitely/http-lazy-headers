@@ -7,6 +7,10 @@ from ... import exceptions
 from . import hosts
 
 
+__all__ = [
+    'clean_uri']
+
+
 _ALPHA = frozenset(
     ascii_tools.ascii_chars(
         (0x41, 0x5A),
@@ -61,13 +65,10 @@ def _hier_part(user_info=None, host=None, path=None):
 def is_scheme(txt):
     assert isinstance(txt, str)
 
-    if not txt:
-        return False
-
-    if txt[0] not in _ALPHA:
-        return False
-
-    return set(txt).issubset(_SCHEME)
+    return (
+        txt and
+        txt[0] in _ALPHA and
+        set(txt).issubset(_SCHEME))
 
 
 def is_hex_encoded(txt):
@@ -124,10 +125,8 @@ def is_absolute(raw_path):
     assert isinstance(raw_path, str)
 
     # Must start with "/" or "/segment"
-    if raw_path.startswith('//'):
-        return False
-
     return (
+        not raw_path.startswith('//') and
         raw_path.startswith('/') and
         is_path(raw_path))
 
@@ -135,10 +134,8 @@ def is_absolute(raw_path):
 def is_rootless(raw_path):
     assert isinstance(raw_path, str)
 
-    if not raw_path:
-        return False
-
     return (
+        raw_path and
         not raw_path.startswith('/') and
         is_path(raw_path))
 
@@ -162,12 +159,15 @@ def is_noscheme(raw_path):
 def is_query(txt):
     assert isinstance(txt, str)
 
-    return set(txt).issubset(_QUERY_CHARS)
+    return set(txt).issubset(_QUERY_CHARS)  # and is_hex_encoded(txt) ?
 
 
 def clean_authority_path(raw_path):
+    # https://tools.ietf.org/html/rfc3986#section-3.2
+
     constraints.constraint(
-        raw_path.startswith('//'))
+        raw_path.startswith('//'),
+        'Authority URI must start with "//"')
 
     raw_path = raw_path[2:]
 
@@ -176,7 +176,9 @@ def clean_authority_path(raw_path):
     except ValueError:
         userinfo = None
     else:
-        constraints.constraint(is_user_info(userinfo))
+        constraints.constraint(
+            is_user_info(userinfo),
+            'Userinfo in authority URI is not valid')
 
     try:
         raw_host, path = raw_path.split('/', 1)
@@ -184,7 +186,9 @@ def clean_authority_path(raw_path):
         raw_host = raw_path
         path = None
     else:
-        constraints.constraint(is_abempty(path))
+        constraints.constraint(
+            is_abempty(path),
+            'Authority URI "path-abempty" is not valid')
 
     return _hier_part(
         user_info=userinfo,
@@ -197,49 +201,68 @@ def clean_hierarchical_part(raw_path):
         return clean_authority_path(raw_path)
 
     if raw_path.startswith('/'):
-        constraints.constraint(is_absolute(raw_path))
+        constraints.constraint(
+            is_absolute(raw_path),
+            'Absolute path is not valid')
         return _hier_part(path=raw_path)
 
     if raw_path:
-        constraints.constraint(is_rootless(raw_path))
+        constraints.constraint(
+            is_rootless(raw_path),
+            'Rootless path is not valid')
         return _hier_part(path=raw_path)
 
     return _hier_part(path='')
 
 
 def clean_absolute_uri(raw_uri):
-    # https://tools.ietf.org/html/rfc3986#appendix-A
+    # ABNF: https://tools.ietf.org/html/rfc3986#appendix-A
+    # Scheme: https://tools.ietf.org/html/rfc3986#section-3.1
 
     try:
         scheme, raw_path = raw_uri.split(':', 1)
     except ValueError:
-        raise
+        raise exceptions.BadRequest(
+            'Absolute path is not valid, '
+            '"schema:path" was expected')
 
-    constraints.constraint(is_scheme(scheme))
+    constraints.constraint(
+        is_scheme(scheme),
+        'URI scheme is not valid')
 
     try:
         raw_path, query = raw_path.split('?', 1)
     except ValueError:
         query = None
     else:
-        constraints.constraint(is_query(query))
+        constraints.constraint(
+            is_query(query),
+            'URI query is not valid')
 
+    # Scheme must be lowered,
+    # also when formatting
     return (
-        scheme,
+        scheme.lower(),
         clean_hierarchical_part(raw_path),
         query)
 
 
 def clean_relative_part(raw_path):
+    # https://tools.ietf.org/html/rfc3986#section-4.2
+
     if raw_path.startswith('//'):
         return clean_authority_path(raw_path)
 
     if raw_path.startswith('/'):
-        constraints.constraint(is_absolute(raw_path))
+        constraints.constraint(
+            is_absolute(raw_path),
+            'Rel URI "path-absolute" is not valid')
         return _hier_part(path=raw_path)
 
     if raw_path:
-        constraints.constraint(is_noscheme(raw_path))
+        constraints.constraint(
+            is_noscheme(raw_path),
+            'Rel URI "path-noscheme" is not valid')
         return _hier_part(path=raw_path)
 
     return _hier_part(path='')
@@ -253,7 +276,9 @@ def clean_relative_uri(raw_uri):
     except ValueError:
         query = None
     else:
-        constraints.constraint(is_query(query))
+        constraints.constraint(
+            is_query(query),
+            'Query string is not valid')
 
     return (
         clean_relative_part(raw_uri),
