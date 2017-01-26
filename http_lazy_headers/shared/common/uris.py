@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import collections
+
 from ..utils import ascii_tools
 from ..utils import constraints
 from ... import exceptions
@@ -38,7 +40,7 @@ _USER_INFO = (
 
 # unreserved / sub-delims / "%" _HEXDIG / ":" / "@"
 # + "/"
-_SLASH_PATH_CHARS = (
+_PATH_CHARS = (
     _ALPHANUM |
     frozenset('-._~') |
     frozenset('!$&\'()*+,;=') |
@@ -46,12 +48,45 @@ _SLASH_PATH_CHARS = (
 
 # unreserved / sub-delims / "%" _HEXDIG / "@"
 _NC_PATH_CHARS = (
-    _SLASH_PATH_CHARS -
+    _PATH_CHARS -
     frozenset(':/'))
 
 _QUERY_CHARS = (
-    _SLASH_PATH_CHARS |
+    _PATH_CHARS |
     frozenset('?'))
+
+
+def remove_dot_segments(path):
+    # https://tools.ietf.org/html/rfc3986#section-5.2.4
+
+    assert isinstance(path, str)
+
+    in_buff = collections.deque(path.split('/'))
+    out_buff = []
+
+    while in_buff:
+        if in_buff[0] == '.':
+            in_buff.popleft()
+
+            if not in_buff:
+                in_buff.append('')
+
+            continue
+
+        if in_buff[0] == '..':
+            in_buff.popleft()
+
+            if not in_buff:
+                in_buff.append('')
+
+            if out_buff and out_buff[-1]:
+                out_buff.pop()
+
+            continue
+
+        out_buff.append(in_buff.popleft())
+
+    return '/'.join(out_buff)
 
 
 def _hier_part(user_info=None, host=None, path=None):
@@ -107,7 +142,7 @@ def is_user_info(txt):
 def is_path(raw_path):
     assert isinstance(raw_path, str)
 
-    return set(raw_path).issubset(_SLASH_PATH_CHARS)
+    return set(raw_path).issubset(_PATH_CHARS)
 
 
 def is_abempty(raw_path):
@@ -153,7 +188,7 @@ def is_noscheme(raw_path):
     else:
         return (
             set(first_segment).issubset(_NC_PATH_CHARS) and
-            set(raw_path).issubset(_SLASH_PATH_CHARS))
+            set(raw_path).issubset(_PATH_CHARS))
 
 
 def is_query(txt):
