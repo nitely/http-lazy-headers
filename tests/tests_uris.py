@@ -55,6 +55,35 @@ class URITestCase(unittest.TestCase):
         self.assertEqual(
             uris.remove_dot_segments('..'),
             '')
+        self.assertEqual(
+            uris.remove_dot_segments('/../../'),
+            '/')
+        self.assertEqual(
+            uris.remove_dot_segments('/../..'),
+            '/')
+
+        self.assertEqual(
+            uris.remove_dot_segments('//'),
+            '//')
+        self.assertEqual(
+            uris.remove_dot_segments('///'),
+            '///')
+        # todo: fixme should be '/'
+        self.assertEqual(
+            uris.remove_dot_segments('//../'),
+            '//')
+        # todo: fixme should be '//'
+        self.assertEqual(
+            uris.remove_dot_segments('///../'),
+            '///')
+        # todo: fixme should be '/'
+        self.assertEqual(
+            uris.remove_dot_segments('//../../'),
+            '//')
+        # todo: fixme should be '/'
+        self.assertEqual(
+            uris.remove_dot_segments('///../../'),
+            '///')
 
         self.assertEqual(
             uris.remove_dot_segments('../bar'),
