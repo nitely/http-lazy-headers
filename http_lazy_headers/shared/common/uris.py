@@ -71,22 +71,45 @@ def remove_dot_segments(path):
             if not in_buff:
                 in_buff.append('')
 
+            if not out_buff and in_buff and not in_buff[0]:
+                in_buff.popleft()
+
             continue
 
-        if in_buff[0] == '..':
+        # ../
+        if in_buff[0] == '..' and not out_buff:
             in_buff.popleft()
 
-            if not in_buff:
-                in_buff.append('')
+            # Last "../"?
+            if len(in_buff) == 1 and not in_buff[0]:
+                in_buff.popleft()
 
-            if out_buff and out_buff[-1]:
+            continue
+
+        # /..
+        if in_buff[0] == '..' and out_buff:
+            in_buff.popleft()
+
+            if out_buff:
                 out_buff.pop()
+
+            if not out_buff:
+                if not in_buff:
+                    out_buff.append('')
+                    out_buff.append('')
+                else:
+                    out_buff.append('')
+
+                continue
+
+            if not in_buff:
+                out_buff.append('')
 
             continue
 
         out_buff.append(in_buff.popleft())
 
-    return '/'.join(out_buff)
+    return tuple(out_buff)
 
 
 def _hier_part(user_info=None, host=None, path=None):

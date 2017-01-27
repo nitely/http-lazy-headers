@@ -24,181 +24,230 @@ class URITestCase(unittest.TestCase):
         """
         Should remove dot segments from paths
         """
-        self.assertEqual(
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/a/b/c/./../../g'),
-            '/a/g')
-        self.assertEqual(
+            ['', 'a', 'g'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('mid/content=5/../6'),
-            'mid/6')
+            ['mid', '6'])
 
-        self.assertEqual(
+        self.assertSequenceEqual(
             uris.remove_dot_segments('../'),
-            '')
-        self.assertEqual(
+            [])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('./'),
-            '')
-        self.assertEqual(
+            [])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/./'),
-            '/')
-        self.assertEqual(
+            ['', ''])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('/./'),
+            ['', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/.'),
-            '/')
-        self.assertEqual(
+            ['', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/../'),
-            '/')
-        self.assertEqual(
+            ['', ''])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('././'),
+            [])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/..'),
-            '/')
-        self.assertEqual(
+            ['', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('.'),
-            '')
-        self.assertEqual(
+            [])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('..'),
-            '')
-        self.assertEqual(
+            [])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/../../'),
-            '/')
-        self.assertEqual(
+            ['', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/../..'),
-            '/')
+            ['', ''])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('../../'),
+            [])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('./././././'),
+            [])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('/./././././'),
+            ['', ''])
 
-        self.assertEqual(
+        self.assertSequenceEqual(
             uris.remove_dot_segments('//'),
-            '//')
-        self.assertEqual(
+            ['', '', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('///'),
-            '///')
-        # todo: fixme should be '/'
-        self.assertEqual(
+            ['', '', '', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('//../'),
-            '//')
-        # todo: fixme should be '//'
-        self.assertEqual(
+            ['', ''])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('////../'),
+            ['', '', '', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('///../'),
-            '///')
-        # todo: fixme should be '/'
-        self.assertEqual(
-            uris.remove_dot_segments('//../../'),
-            '//')
-        # todo: fixme should be '/'
-        self.assertEqual(
-            uris.remove_dot_segments('///../../'),
-            '///')
+            ['', '', ''])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('//../'),
+            ['', ''])
 
-        self.assertEqual(
+        # The minimal amount of slashes left is always one
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('//../../../../../'),
+            ['', ''])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('///../../../../../'),
+            ['', ''])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('//..'),
+            ['', ''])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('///..'),
+            ['', '', ''])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('//../../../../..'),
+            ['', ''])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('///../../../../..'),
+            ['', ''])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('/..//'),
+            ['', '', ''])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('/..///'),
+            ['', '', '', ''])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('..//'),
+            ['', ''])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('../..//'),
+            ['', ''])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('..///'),
+            ['', '', ''])
+        self.assertSequenceEqual(
+            uris.remove_dot_segments('../..///'),
+            ['', '', ''])
+
+        self.assertSequenceEqual(
             uris.remove_dot_segments('../bar'),
-            'bar')
-        self.assertEqual(
+            ['bar'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('./bar'),
-            'bar')
-        self.assertEqual(
+            ['bar'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('../bar/'),
-            'bar/')
-        self.assertEqual(
+            ['bar', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('./bar/'),
-            'bar/')
-        self.assertEqual(
+            ['bar', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('.././bar'),
-            'bar')
-        self.assertEqual(
+            ['bar'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('./../bar'),
-            'bar')
-        self.assertEqual(
+            ['bar'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('./.././bar'),
-            'bar')
-        self.assertEqual(
+            ['bar'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('.././../bar'),
-            'bar')
-        self.assertEqual(
+            ['bar'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('../../bar'),
-            'bar')
-        self.assertEqual(
+            ['bar'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('././bar'),
-            'bar')
+            ['bar'])
 
-        self.assertEqual(
+        self.assertSequenceEqual(
             uris.remove_dot_segments('bar/..'),
-            '')
-        self.assertEqual(
+            ['', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('bar/.'),
-            'bar/')
-        self.assertEqual(
+            ['bar', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/bar/..'),
-            '/')
-        self.assertEqual(
+            ['', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/bar/.'),
-            '/bar/')
-        self.assertEqual(
+            ['', 'bar', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('bar/../'),
-            '')
-        self.assertEqual(
+            ['', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('bar/./'),
-            'bar/')
-        self.assertEqual(
+            ['bar', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('bar/../.'),
-            '')
-        self.assertEqual(
+            ['', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('bar/./..'),
-            '')
-        self.assertEqual(
+            ['', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('bar/./../.'),
-            '')
-        self.assertEqual(
+            ['', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('bar/.././..'),
-            '')
-        self.assertEqual(
+            ['', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('bar/../..'),
-            '')
-        self.assertEqual(
+            ['', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('bar/./.'),
-            'bar/')
-        self.assertEqual(
+            ['bar', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('bar/././'),
-            'bar/')
-        self.assertEqual(
+            ['bar', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/foo/bar/..'),
-            '/foo/')
+            ['', 'foo', ''])
 
-        self.assertEqual(
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/foo/./bar'),
-            '/foo/bar')
-        self.assertEqual(
+            ['', 'foo', 'bar'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/foo/../bar'),
-            '/bar')
-        self.assertEqual(
+            ['', 'bar'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/foo/../bar/'),
-            '/bar/')
-        self.assertEqual(
+            ['', 'bar', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/foo/../bar/..'),
-            '/')
+            ['', ''])
 
-        self.assertEqual(
+        self.assertSequenceEqual(
             uris.remove_dot_segments('g.'),
-            'g.')
-        self.assertEqual(
+            ['g.'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('.g'),
-            '.g')
-        self.assertEqual(
+            ['.g'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('g..'),
-            'g..')
-        self.assertEqual(
+            ['g..'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('..g'),
-            '..g')
-        self.assertEqual(
+            ['..g'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/b/c/./../g'),
-            '/b/g')
-        self.assertEqual(
+            ['', 'b', 'g'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/b/c/./g/.'),
-            '/b/c/g/')
-        self.assertEqual(
+            ['', 'b', 'c', 'g', ''])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/b/c/g/./h'),
-            '/b/c/g/h')
-        self.assertEqual(
+            ['', 'b', 'c', 'g', 'h'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/b/c/g/../h'),
-            '/b/c/h')
-        self.assertEqual(
+            ['', 'b', 'c', 'h'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/b/c/g;x=1/./y'),
-            '/b/c/g;x=1/y')
-        self.assertEqual(
+            ['', 'b', 'c', 'g;x=1', 'y'])
+        self.assertSequenceEqual(
             uris.remove_dot_segments('/b/c/g;x=1/../y'),
-            '/b/c/y')
+            ['', 'b', 'c', 'y'])
