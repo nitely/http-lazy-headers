@@ -135,6 +135,10 @@ class URITestCase(unittest.TestCase):
             ['', '', ''])
 
         self.assertSequenceEqual(
+            uris.remove_dot_segments('.//'),
+            ['', ''])
+
+        self.assertSequenceEqual(
             uris.remove_dot_segments('../bar'),
             ['bar'])
         self.assertSequenceEqual(

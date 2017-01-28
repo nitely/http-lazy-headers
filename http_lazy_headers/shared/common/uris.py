@@ -57,7 +57,8 @@ _QUERY_CHARS = (
 
 
 def remove_dot_segments(path):
-    # https://tools.ietf.org/html/rfc3986#section-5.2.4
+    # Ref: https://tools.ietf.org/html/rfc3986#section-5.2.4
+    # Ref impl: https://gist.github.com/nitely/08ee70e3429d4f174a00aa06e5ebf68c
 
     assert isinstance(path, str)
 
@@ -65,45 +66,37 @@ def remove_dot_segments(path):
     out_buff = []
 
     while in_buff:
-        if in_buff[0] == '.':
+        # ./ or ../ or . or ..
+        if in_buff[0] in ('.', '..') and not out_buff:
             in_buff.popleft()
 
-            if not in_buff:
-                in_buff.append('')
-
-            if not out_buff and in_buff and not in_buff[0]:
-                in_buff.popleft()
-
-            continue
-
-        # ../
-        if in_buff[0] == '..' and not out_buff:
-            in_buff.popleft()
-
-            # Last "../"?
+            # Last one?
             if len(in_buff) == 1 and not in_buff[0]:
                 in_buff.popleft()
 
             continue
 
+        # /.
+        if in_buff[0] == '.':
+            in_buff.popleft()
+
+            if not in_buff:
+                in_buff.appendleft('')
+
+            continue
+
         # /..
-        if in_buff[0] == '..' and out_buff:
+        if in_buff[0] == '..':
             in_buff.popleft()
 
             if out_buff:
                 out_buff.pop()
 
-            if not out_buff:
-                if not in_buff:
-                    out_buff.append('')
-                    out_buff.append('')
-                else:
-                    out_buff.append('')
-
-                continue
-
             if not in_buff:
-                out_buff.append('')
+                in_buff.appendleft('')
+
+            if not out_buff:
+                in_buff.appendleft('')
 
             continue
 
