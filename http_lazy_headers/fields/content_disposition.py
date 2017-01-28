@@ -137,13 +137,9 @@ class ContentDisposition(bases.SingleHeaderBase):
     def values_str(self, values):
         disposition_type, params = values[0]
 
-        if not params:
-            return disposition_type
-
-        return '{}; {}'.format(
+        return '; '.join((
             disposition_type,
-            '; '.join(
-                formatters.format_ext_params(params)))
+            *formatters.format_ext_params(params)))
 
     def clean_value(self, raw_value):
         # See test cases: http://greenbytes.de/tech/tc2231/#c-d-inline
