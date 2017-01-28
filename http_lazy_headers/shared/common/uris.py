@@ -89,11 +89,11 @@ def remove_dot_segments(path):
         if in_buff[0] == '..':
             in_buff.popleft()
 
-            if out_buff:
-                out_buff.pop()
-
             if not in_buff:
                 in_buff.appendleft('')
+
+            if out_buff:
+                out_buff.pop()
 
             if not out_buff:
                 in_buff.appendleft('')
