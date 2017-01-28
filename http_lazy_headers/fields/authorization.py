@@ -12,7 +12,7 @@ from ..shared import parameters
 from ..shared.utils import assertions
 
 
-def authorization_basic(username, password):
+def authorization_basic(username, password, encoding='utf-8'):
     assert isinstance(username, str)
     assert isinstance(password, str)
 
@@ -22,7 +22,7 @@ def authorization_basic(username, password):
             '{username}:{password}'.format(
                 username=username,
                 password=password),
-            encoding='latin1')),
+            encoding=encoding)),
         parameters.Params())
 
 
@@ -54,7 +54,7 @@ class Authorization(bases.SingleHeaderBase):
                     '{username}:{password}'.format(
                         username='nitely',
                         password='foobar')
-                    encoding='latin1')),
+                    encoding='utf-8')),
                 Params()
             )
         ])
@@ -74,9 +74,7 @@ class Authorization(bases.SingleHeaderBase):
 
     def check_value(self, value):
         assertions.must_be_tuple_of(value, 3)
-
         schema, token, params = value
-
         assertions.must_be_token(schema)
         not token or assertions.must_be_token68(token)
         assertions.must_be_params(params)

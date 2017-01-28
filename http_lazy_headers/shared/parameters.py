@@ -46,8 +46,7 @@ class Params:
 
         return separator.join(
             '='.join((
-                p,
-                parsers.quote_maybe(str(v))))
+                p, parsers.quote_maybe(str(v))))
             for p, v in self.items())
 
     def items(self):

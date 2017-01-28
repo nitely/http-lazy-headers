@@ -72,7 +72,6 @@ def is_sub_tag(txt):
 
 def check_language_tag(value):
     assertions.must_be_tuple_of(value, 8)
-
     (lang,
      ext_lang,
      script,
@@ -156,16 +155,13 @@ def check_language_tag(value):
 
     for ext in extension:
         assertions.must_be_tuple_of(ext, 2)
-
         st, sts = ext
-
         assertions.assertion(
             isinstance(st, str) and
             len(st) == 1 and
             checkers.is_alphanum(st),
             '"{}" received, extension key of '
             '1 alphanum was expected'.format(st))
-
         assertions.assertion(
             isinstance(sts, str) and
             2 <= len(sts) <= 8 and

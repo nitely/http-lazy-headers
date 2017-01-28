@@ -272,9 +272,7 @@ class AcceptSomeBase(HeaderBase):
 
         for v in values:
             assertions.must_be_tuple_of(v, 2)
-
             value, weight = v
-
             assertions.must_be_token(value)
             assertions.must_be_weight(weight)
 
@@ -290,9 +288,8 @@ class AcceptSomeBase(HeaderBase):
 
     def clean(self, raw_values):
         values = tuple(sorted(
-            (
-                self.clean_value(raw_value)
-                for raw_value in raw_values),
+            (self.clean_value(raw_value)
+             for raw_value in raw_values),
             key=quality.weight_sort_key))
 
         constraints.must_not_be_empty(values)

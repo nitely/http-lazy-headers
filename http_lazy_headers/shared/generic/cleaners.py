@@ -153,9 +153,7 @@ def clean_weight(raw_weight):
 
 def clean_accept_some(raw_value):
     value, raw_weight = parsers.from_raw_value_with_weight(raw_value)
-
     constraints.must_be_token(value)
-
     return value.lower(), clean_weight(raw_weight)
 
 

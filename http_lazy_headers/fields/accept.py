@@ -90,7 +90,6 @@ class Accept(bases.HeaderBase):
     def clean(self, raw_values):
         # Allow empty field
         return tuple(sorted(
-            (
-                self.clean_value(raw_value)
-                for raw_value in raw_values),
+            (self.clean_value(raw_value)
+             for raw_value in raw_values),
             key=quality.quality_mime_sort_key))

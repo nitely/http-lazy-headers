@@ -138,7 +138,6 @@ class ContentRange(bases.SingleHeaderBase):
 
     def check_value(self, value):
         assertions.must_be_tuple_of(value, 4)
-
         unit, unit_range, length, chars = value
 
         if unit is None:

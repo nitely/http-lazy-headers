@@ -78,7 +78,6 @@ class Warning(bases.MultiHeaderBase):
     def check_value(self, value):
         assertions.must_be_tuple_of(value, 4)
         assertions.must_be_tuple_of(value[1], 2)
-
         code, (host, pseudonym), message, date_time = value
 
         assertions.must_be_int(code)

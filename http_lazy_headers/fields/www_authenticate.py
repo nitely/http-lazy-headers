@@ -112,9 +112,7 @@ class WWWAuthenticate(bases.HeaderBase):
 
     def clean_challenge(self, raw_challenge):
         scheme, *token_or_params = raw_challenge
-
         constraints.must_be_token(scheme)
-
         scheme = scheme.lower()
 
         if not token_or_params:

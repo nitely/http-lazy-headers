@@ -56,7 +56,6 @@ class Via(bases.MultiHeaderBase):
         assertions.must_be_tuple_of(value, 3)
         assertions.must_be_tuple_of(value[0], 2)
         assertions.must_be_tuple_of(value[1], 2)
-
         (protocol, version), (host, pseudonym), comment = value
 
         protocol is None or assertions.must_be_token(protocol)

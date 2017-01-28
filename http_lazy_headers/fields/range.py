@@ -61,7 +61,6 @@ class Range(bases.SingleHeaderBase):
 
     def check_value(self, value):
         assertions.must_be_tuple_of(value, 2)
-
         unit, unit_range = value
 
         if unit != ranges.RangesOptions.bytes:

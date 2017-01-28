@@ -62,16 +62,13 @@ class AcceptEncoding(bases.AcceptSomeBase):
     def check_values(self, values):
         for v in values:
             assertions.must_be_tuple_of(v, 2)
-
             encoding, weight = v
-
             assertions.must_be_token(encoding)
             assertions.must_be_weight(weight)
 
     def clean(self, raw_values):
         # Allow empty value
         return tuple(sorted(
-            (
-                self.clean_value(raw_value)
-                for raw_value in raw_values),
+            (self.clean_value(raw_value)
+             for raw_value in raw_values),
             key=quality.weight_sort_key))

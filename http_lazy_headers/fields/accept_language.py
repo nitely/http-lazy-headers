@@ -56,9 +56,7 @@ class AcceptLanguage(bases.TokensHeaderBase):
 
     def check_value(self, value):
         assertions.must_be_tuple_of(value, 2)
-
         sub_tags, weight = value
-
         language_tags.check_language_tag(sub_tags)
         assertions.must_be_weight(weight)
 
@@ -83,9 +81,8 @@ class AcceptLanguage(bases.TokensHeaderBase):
 
     def clean(self, raw_values):
         values = tuple(sorted(
-            (
-                self.clean_value(raw_value)
-                for raw_value in raw_values),
+            (self.clean_value(raw_value)
+             for raw_value in raw_values),
             key=quality.weight_sort_key))
 
         constraints.must_not_be_empty(values)

@@ -58,9 +58,7 @@ class Pragma(bases.HeaderBase):
 
     def check_values(self, values):
         assertions.must_have_one_value(values)
-
         params = values[0]
-
         assertions.must_be_params(params)
         assertions.must_not_be_empty(params)
 

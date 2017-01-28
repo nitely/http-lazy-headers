@@ -88,9 +88,7 @@ class ContentDisposition(bases.SingleHeaderBase):
 
     def check_value(self, value):
         assertions.must_be_tuple_of(value, 2)
-
         disposition_type, params = value
-
         assertions.must_be_token(disposition_type)
         assertions.must_be_params(params)
 
@@ -119,9 +117,7 @@ class ContentDisposition(bases.SingleHeaderBase):
                 'were expected'.format(v, len(v)))
 
             assertions.must_be_tuple_of(v, 3)
-
             charset, lang, mime_value = v
-
             assertions.must_be_instance_of(charset, str)
             assertions.assertion(
                 checkers.is_mime_charset(charset),
