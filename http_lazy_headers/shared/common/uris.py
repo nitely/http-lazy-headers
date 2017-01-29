@@ -56,6 +56,17 @@ _QUERY_CHARS = (
     frozenset('?'))
 
 
+def uri(
+        schema=None,
+        user_info=None,
+        host=None,
+        path=None,
+        query=None,
+        fragment=None):
+
+    return schema, user_info, host, path, query, fragment
+
+
 def remove_dot_segments(path):
     # Ref: https://tools.ietf.org/html/rfc3986#section-5.2.4
     # Ref impl: https://gist.github.com/nitely/08ee70e3429d4f174a00aa06e5ebf68c
@@ -292,9 +303,9 @@ def clean_absolute_uri(raw_uri):
 
     # Scheme must be lowered,
     # also when formatting
-    return (
+    return uri(
         scheme.lower(),
-        clean_hierarchical_part(raw_path),
+        *clean_hierarchical_part(raw_path),
         query)
 
 
@@ -331,8 +342,9 @@ def clean_relative_uri(raw_uri):
             is_query(query),
             'Query string is not valid')
 
-    return (
-        clean_relative_part(raw_uri),
+    return uri(
+        None,  # Scheme
+        *clean_relative_part(raw_uri),
         query)
 
 
@@ -340,6 +352,8 @@ def clean_uri(raw_uri):
     try:
         return clean_absolute_uri(raw_uri)
     except exceptions.HeaderError:
-        return (
-            None,  # Scheme
-            *clean_relative_uri(raw_uri))
+        return clean_relative_uri(raw_uri)
+
+
+def format_uri():
+    pass
