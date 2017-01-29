@@ -63,8 +63,13 @@ def uri(
         path=None,
         query=None,
         fragment=None):
-
-    return schema, user_info, host, path, query, fragment
+    return (
+        schema,
+        user_info,
+        host or hosts.host(),
+        path,
+        query,
+        fragment)
 
 
 def remove_dot_segments(path):
@@ -355,5 +360,40 @@ def clean_uri(raw_uri):
         return clean_relative_uri(raw_uri)
 
 
-def format_uri():
-    pass
+def _format_uri(value):
+    (schema,
+     user_info,
+     host,
+     path,
+     query,
+     fragment) = value
+
+    if schema:
+        yield '{}:'.format(schema)
+
+    has_host = any(
+        h
+        for h in host
+        if h is not None)
+
+    # Authority
+    if user_info is not None or has_host:
+        yield '//'
+
+    if user_info is not None:
+        yield '{}@'.format(user_info)
+
+    if has_host:
+        yield hosts.format_host(host)
+
+    yield path
+
+    if query is not None:
+        yield '?{}'.format(query)
+
+    if fragment is not None:
+        yield '#{}'.format(fragment)
+
+
+def format_uri(value):
+    return ''.join(_format_uri(value))
