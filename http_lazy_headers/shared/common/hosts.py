@@ -274,9 +274,6 @@ def format_host(value):
      unsafe,
      port) = value
 
-    if not value:
-        return ''
-
     if domain:
         domain = str(
             encodings.idna.ToASCII(domain),

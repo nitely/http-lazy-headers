@@ -72,13 +72,62 @@ def uri(
         fragment)
 
 
-def remove_dot_segments(path):
+def resolve_relative_reference(uri_base, uri_rel):
+    # https://tools.ietf.org/html/rfc3986#section-5.4
+    (schema,
+     user_info,
+     host,
+     path,
+     query,
+     fragment) = uri_base
+
+    (schema_rel,
+     user_info_rel,
+     host_rel,
+     path_rel,
+     query_rel,
+     fragment_rel) = uri_rel
+
+    user_info_ = user_info
+    host_ = host
+    path_ = path
+
+    if path and not path[-1] and path_rel and path_rel[0]:
+        path_ = remove_dot_segments_parts((
+            *path, *path_rel))
+
+    if path and path[-1] and path_rel and path_rel[0]:
+        path_ = remove_dot_segments_parts((
+            *path[:-1], *path_rel))
+
+    if user_info_rel is not None:
+        user_info_ = user_info_rel
+
+    if host_rel is not None:
+        host_ = host_rel
+
+    if query_rel is not None:
+        query = query_rel
+
+    if fragment_rel is not None:
+        fragment = fragment_rel
+
+    return (
+        schema,
+        user_info_,
+        host_,
+        path_,
+        query,
+        fragment)
+
+
+def remove_dot_segments_parts(segments):
     # Ref: https://tools.ietf.org/html/rfc3986#section-5.2.4
     # Ref impl: https://gist.github.com/nitely/08ee70e3429d4f174a00aa06e5ebf68c
 
-    assert isinstance(path, str)
+    assert isinstance(segments, (tuple, list))
 
-    in_buff = collections.deque(path.split('/'))
+    in_buff = collections.deque(segments)
     out_buff = []
 
     while in_buff:
@@ -119,6 +168,12 @@ def remove_dot_segments(path):
         out_buff.append(in_buff.popleft())
 
     return tuple(out_buff)
+
+
+def remove_dot_segments(path):
+    assert isinstance(path, str)
+
+    return remove_dot_segments_parts(path.split('/'))
 
 
 def _hier_part(user_info=None, host=None, path=None):
