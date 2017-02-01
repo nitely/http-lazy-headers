@@ -3,6 +3,7 @@
 import unittest
 
 from http_lazy_headers.shared.common import uris
+from http_lazy_headers.shared.common import hosts
 
 
 class URITestCase(unittest.TestCase):
@@ -255,3 +256,97 @@ class URITestCase(unittest.TestCase):
         self.assertSequenceEqual(
             uris.remove_dot_segments('/b/c/g;x=1/../y'),
             ['', 'b', 'c', 'y'])
+
+    def test_resolve_relative_reference(self):
+        """
+        Should resolve relative references
+        """
+        abs_url = uris.uri(
+            schema='http',
+            host=hosts.host(unsafe='a'),
+            path='b/c/d;p'.split('/'),
+            query={'q': ()})
+
+        self.assertSequenceEqual(
+            uris.resolve_relative_reference(
+                abs_url, uris.uri(path=['g'])),
+            uris.uri(
+                schema='http',
+                host=hosts.host(unsafe='a'),
+                path='b/c/g'.split('/')))
+        self.assertSequenceEqual(
+            uris.resolve_relative_reference(
+                abs_url, uris.uri(path='./g'.split('/'))),
+            uris.uri(
+                schema='http',
+                host=hosts.host(unsafe='a'),
+                path='b/c/g'.split('/')))
+        self.assertSequenceEqual(
+            uris.resolve_relative_reference(
+                abs_url, uris.uri(path='g/'.split('/'))),
+            uris.uri(
+                schema='http',
+                host=hosts.host(unsafe='a'),
+                path='b/c/g/'.split('/')))
+        self.assertSequenceEqual(
+            uris.resolve_relative_reference(
+                abs_url, uris.uri(path='/g'.split('/'))),
+            uris.uri(
+                schema='http',
+                host=hosts.host(unsafe='a'),
+                path=['g']))
+        self.assertSequenceEqual(
+            uris.resolve_relative_reference(
+                abs_url, uris.uri(host=hosts.host(unsafe='g'))),
+            uris.uri(
+                schema='http',
+                host=hosts.host(unsafe='g')))
+        self.assertSequenceEqual(
+            uris.resolve_relative_reference(
+                abs_url, uris.uri(query={'y': ()})),
+            uris.uri(
+                schema='http',
+                host=hosts.host(unsafe='a'),
+                path='b/c/d;p'.split('/'),
+                query={'y': ()}))
+        self.assertSequenceEqual(
+            uris.resolve_relative_reference(
+                abs_url, uris.uri(path=['g'], query={'y': ()})),
+            uris.uri(
+                schema='http',
+                host=hosts.host(unsafe='a'),
+                path='b/c/g'.split('/'),
+                query={'y': ()}))
+        self.assertSequenceEqual(
+            uris.resolve_relative_reference(
+                abs_url, uris.uri(fragment='s')),
+            uris.uri(
+                schema='http',
+                host=hosts.host(unsafe='a'),
+                path='b/c/d;p'.split('/'),
+                query={'q': ()},
+                fragment='s'))
+        self.assertSequenceEqual(
+            uris.resolve_relative_reference(
+                abs_url, uris.uri(path=['g'], fragment='s')),
+            uris.uri(
+                schema='http',
+                host=hosts.host(unsafe='a'),
+                path='b/c/g'.split('/'),
+                fragment='s'))
+        self.assertSequenceEqual(
+            uris.resolve_relative_reference(
+                abs_url, uris.uri(path=['g'], query={'y': ()}, fragment='s')),
+            uris.uri(
+                schema='http',
+                host=hosts.host(unsafe='a'),
+                path='b/c/g'.split('/'),
+                query={'y': ()},
+                fragment='s'))
+        self.assertSequenceEqual(
+            uris.resolve_relative_reference(
+                abs_url, uris.uri(path=';x'.split('/'))),
+            uris.uri(
+                schema='http',
+                host=hosts.host(unsafe='a'),
+                path='b/c/;x'.split('/')))

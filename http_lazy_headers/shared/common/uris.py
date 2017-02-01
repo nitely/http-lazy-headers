@@ -63,11 +63,16 @@ def uri(
         path=None,
         query=None,
         fragment=None):
+    # todo: remove path, add segments
+
+    if path is not None:
+        path = tuple(path)
+
     return (
         schema,
         user_info,
         host or hosts.host(),
-        path,
+        path or (),
         query,
         fragment)
 
@@ -91,6 +96,8 @@ def resolve_relative_reference(uri_base, uri_rel):
     user_info_ = user_info
     host_ = host
     path_ = path
+    query_ = query
+    fragment_ = fragment
 
     if path and not path[-1] and path_rel and path_rel[0]:
         path_ = remove_dot_segments_parts((
@@ -100,25 +107,31 @@ def resolve_relative_reference(uri_base, uri_rel):
         path_ = remove_dot_segments_parts((
             *path[:-1], *path_rel))
 
-    if user_info_rel is not None:
+    if path_rel and not path_rel[0]:
+        path_ = remove_dot_segments_parts(path_rel[1:])
+
+    if query_rel is not None or path != path_:
+        query_ = query_rel
+
+    if fragment_rel is not None or path != path_:
+        fragment_ = fragment_rel
+
+    if (user_info_rel is not None or
+            any(h is not None
+                for h in host_rel)):
         user_info_ = user_info_rel
-
-    if host_rel is not None:
         host_ = host_rel
-
-    if query_rel is not None:
-        query = query_rel
-
-    if fragment_rel is not None:
-        fragment = fragment_rel
+        path_ = remove_dot_segments_parts(path_rel)  # todo: fixme, remove first slash
+        query_ = query_rel
+        fragment_ = fragment_rel
 
     return (
         schema,
         user_info_,
         host_,
         path_,
-        query,
-        fragment)
+        query_,
+        fragment_)
 
 
 def remove_dot_segments_parts(segments):
