@@ -108,7 +108,7 @@ def resolve_relative_reference(uri_base, uri_rel):
             *path[:-1], *path_rel))
 
     if path_rel and not path_rel[0]:
-        path_ = remove_dot_segments_parts(path_rel[1:])
+        path_ = remove_dot_segments_parts(path_rel)
 
     if query_rel is not None or path != path_:
         query_ = query_rel
@@ -121,7 +121,7 @@ def resolve_relative_reference(uri_base, uri_rel):
                 for h in host_rel)):
         user_info_ = user_info_rel
         host_ = host_rel
-        path_ = remove_dot_segments_parts(path_rel)  # todo: fixme, remove first slash
+        path_ = remove_dot_segments_parts(path_rel)
         query_ = query_rel
         fragment_ = fragment_rel
 
@@ -324,6 +324,7 @@ def clean_authority_path(raw_path):
         constraints.constraint(
             is_abempty(path),
             'Authority URI "path-abempty" is not valid')
+        path.insert(0, '/')  # Insert "/" back
 
     return _hier_part(
         user_info=userinfo,
