@@ -93,6 +93,17 @@ def resolve_relative_reference(uri_base, uri_rel):
      query_rel,
      fragment_rel) = uri_rel
 
+    if (user_info_rel is not None or
+            any(h is not None
+                for h in host_rel)):
+        return (
+            schema,
+            user_info_rel,
+            host_rel,
+            remove_dot_segments_parts(path_rel),
+            query_rel,
+            fragment_rel)
+
     user_info_ = user_info
     host_ = host
     path_ = path
@@ -114,15 +125,6 @@ def resolve_relative_reference(uri_base, uri_rel):
         query_ = query_rel
 
     if fragment_rel is not None or path != path_:
-        fragment_ = fragment_rel
-
-    if (user_info_rel is not None or
-            any(h is not None
-                for h in host_rel)):
-        user_info_ = user_info_rel
-        host_ = host_rel
-        path_ = remove_dot_segments_parts(path_rel)
-        query_ = query_rel
         fragment_ = fragment_rel
 
     return (
