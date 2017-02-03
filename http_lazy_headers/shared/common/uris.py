@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import collections
+import urllib.parse
+import itertools
 
 from ..utils import ascii_tools
 from ..utils import constraints
@@ -24,7 +26,7 @@ _ALPHANUM = (
     _ALPHA)
 
 # 0-9 / a-f / A-F
-_HEXDIG = _ALPHANUM
+_HEXDIG = _ALPHANUM  # todo: fixme, this should be a-f not a-z
 
 # ALPHA / DIGIT / "+" / "-" / "."
 _SCHEME = (
@@ -73,6 +75,28 @@ def uri(
         user_info,
         host or hosts.host(),
         path or (),
+        query,
+        fragment)
+
+
+def normalize_uri(uri):
+    (schema,
+     user_info,
+     host,
+     path,
+     query,
+     fragment) = uri
+
+    path_decoded = urllib.parse.unquote(
+        path,
+        encoding='utf-8',
+        errors='strict')
+
+    return (
+        schema.lower(),
+        user_info,
+        host,
+        path_decoded,
         query,
         fragment)
 
@@ -188,7 +212,8 @@ def remove_dot_segments_parts(segments):
 def remove_dot_segments(path):
     assert isinstance(path, str)
 
-    return remove_dot_segments_parts(path.split('/'))
+    return remove_dot_segments_parts(
+        path.split('/'))
 
 
 def _hier_part(user_info=None, host=None, path=None):
@@ -208,7 +233,61 @@ def is_scheme(txt):
         set(txt).issubset(_SCHEME))
 
 
+_HEXDIG = '0123456789ABCDEFabcdef'
+
+_HEXDIG_MAP = {
+    (a, b): bytes((int(a + b, 16),))
+    for a in _HEXDIG
+    for b in _HEXDIG}
+
+
+def decode_percent_encoded(txt):
+    if isinstance(txt, str):
+        txt = bytes(txt, 'utf-8', 'strict')
+
+    percent = False
+    checked = 0
+    hex_first = ''
+    res = []
+
+    # "% HEXDIG HEXDIG"
+    for c in txt:
+        if percent:
+            checked += 1
+
+        if checked == 1:
+            hex_first = c
+            continue
+
+        if checked == 2:
+            percent = False
+            checked = 0
+
+            try:
+                c_decoded = _HEXDIG_MAP[(hex_first, c)]
+            except IndexError:
+                raise exceptions.HTTPLazyHeadersError(
+                    'Bad percent encoded pair %{}{}'
+                    .format(hex_first, c))
+
+            res.append(c_decoded)
+            continue
+
+        if c == b'%':
+            percent = True
+            continue
+
+        res.append(c)
+
+    if percent:
+        raise exceptions.HTTPLazyHeadersError(
+            'Missing percent encoded pair')
+
+    return str(b''.join(res), 'utf-8', 'strict')
+
+
 def is_hex_encoded(txt):
+    # todo: remove
     percent = False
     checked = 0
 
@@ -226,6 +305,9 @@ def is_hex_encoded(txt):
 
         if c == '%':
             percent = True
+
+    if percent:
+        return False
 
     return True
 
@@ -321,12 +403,12 @@ def clean_authority_path(raw_path):
         raw_host, path = raw_path.split('/', 1)
     except ValueError:
         raw_host = raw_path
-        path = None
+        path = ''
     else:
+        path = ''.join(('/', path))  # Put "/" back
         constraints.constraint(
             is_abempty(path),
             'Authority URI "path-abempty" is not valid')
-        path.insert(0, '/')  # Insert "/" back
 
     return _hier_part(
         user_info=userinfo,
