@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import collections
-import urllib.parse
-import itertools
 
 from ..utils import ascii_tools
 from ..utils import constraints
@@ -75,28 +73,6 @@ def uri(
         user_info,
         host or hosts.host(),
         path or (),
-        query,
-        fragment)
-
-
-def normalize_uri(uri):
-    (schema,
-     user_info,
-     host,
-     path,
-     query,
-     fragment) = uri
-
-    path_decoded = urllib.parse.unquote(
-        path,
-        encoding='utf-8',
-        errors='strict')
-
-    return (
-        schema.lower(),
-        user_info,
-        host,
-        path_decoded,
         query,
         fragment)
 
@@ -212,8 +188,9 @@ def remove_dot_segments_parts(segments):
 def remove_dot_segments(path):
     assert isinstance(path, str)
 
-    return remove_dot_segments_parts(
-        path.split('/'))
+    return '/'.join(
+        remove_dot_segments_parts(
+            path.split('/')))
 
 
 def _hier_part(user_info=None, host=None, path=None):
@@ -242,8 +219,10 @@ _HEXDIG_MAP = {
 
 
 def decode_percent_encoded(txt):
-    if isinstance(txt, str):
-        txt = bytes(txt, 'utf-8', 'strict')
+    assert isinstance(txt, str)
+
+    if '%' not in txt:
+        return txt
 
     percent = False
     checked = 0
@@ -251,7 +230,7 @@ def decode_percent_encoded(txt):
     res = []
 
     # "% HEXDIG HEXDIG"
-    for c in txt:
+    for c in bytes(txt, 'utf-8', 'strict'):
         if percent:
             checked += 1
 
@@ -283,7 +262,11 @@ def decode_percent_encoded(txt):
         raise exceptions.HTTPLazyHeadersError(
             'Missing percent encoded pair')
 
-    return str(b''.join(res), 'utf-8', 'strict')
+    try:
+        return str(b''.join(res), 'utf-8', 'strict')
+    except UnicodeDecodeError:
+        raise exceptions.HTTPLazyHeadersError(
+            'Can\'t decode non-utf-8 sequence from text')
 
 
 def is_hex_encoded(txt):
@@ -381,6 +364,14 @@ def is_query(txt):
     return set(txt).issubset(_QUERY_CHARS)  # and is_hex_encoded(txt) ?
 
 
+def clean_path(raw_path):
+    try:
+        return decode_percent_encoded(raw_path)
+    except exceptions.HTTPLazyHeadersError:
+        raise exceptions.BadRequest(
+            'Can\'t decode percent encoded uri-path')
+
+
 def clean_authority_path(raw_path):
     # https://tools.ietf.org/html/rfc3986#section-3.2
 
@@ -413,7 +404,7 @@ def clean_authority_path(raw_path):
     return _hier_part(
         user_info=userinfo,
         host=hosts.clean_host(raw_host),
-        path=path)
+        path=clean_path(path))
 
 
 def clean_hierarchical_part(raw_path):
@@ -424,15 +415,15 @@ def clean_hierarchical_part(raw_path):
         constraints.constraint(
             is_absolute(raw_path),
             'Absolute path is not valid')
-        return _hier_part(path=raw_path)
+        return _hier_part(path=clean_path(raw_path))
 
     if raw_path:
         constraints.constraint(
             is_rootless(raw_path),
             'Rootless path is not valid')
-        return _hier_part(path=raw_path)
+        return _hier_part(path=clean_path(raw_path))
 
-    return _hier_part(path='')
+    return _hier_part(path=clean_path(''))
 
 
 def clean_absolute_uri(raw_uri):
@@ -477,15 +468,15 @@ def clean_relative_part(raw_path):
         constraints.constraint(
             is_absolute(raw_path),
             'Rel URI "path-absolute" is not valid')
-        return _hier_part(path=raw_path)
+        return _hier_part(path=clean_path(raw_path))
 
     if raw_path:
         constraints.constraint(
             is_noscheme(raw_path),
             'Rel URI "path-noscheme" is not valid')
-        return _hier_part(path=raw_path)
+        return _hier_part(path=clean_path(raw_path))
 
-    return _hier_part(path='')
+    return _hier_part(path=clean_path(''))
 
 
 def clean_relative_uri(raw_uri):
