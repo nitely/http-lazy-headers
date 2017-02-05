@@ -60,19 +60,18 @@ def uri(
         schema=None,
         user_info=None,
         host=None,
-        path=None,
+        segments=None,
         query=None,
         fragment=None):
-    # todo: remove path, add segments
 
-    if path is not None:
-        path = tuple(path)
+    if segments is not None:
+        segments = tuple(segments)
 
     return (
         schema,
         user_info,
         host or hosts.host(),
-        path or (),
+        segments or (),
         query,
         fragment)
 
@@ -141,6 +140,7 @@ def remove_dot_segments_parts(segments):
     # Ref impl: https://gist.github.com/nitely/08ee70e3429d4f174a00aa06e5ebf68c
 
     assert isinstance(segments, (tuple, list))
+    assert segments not in (('',), [''])
 
     in_buff = collections.deque(segments)
     out_buff = []
@@ -193,12 +193,12 @@ def remove_dot_segments(path):
             path.split('/')))
 
 
-def _hier_part(user_info=None, host=None, path=None):
+def _hier_part(user_info=None, host=None, segments=None):
     assert any(
         v is not None
-        for v in (user_info, host, path))
+        for v in (user_info, host, segments))
 
-    return user_info, host, path
+    return user_info, host, segments
 
 
 def is_scheme(txt):
@@ -364,12 +364,17 @@ def is_query(txt):
     return set(txt).issubset(_QUERY_CHARS)  # and is_hex_encoded(txt) ?
 
 
-def clean_path(raw_path):
+def clean_segments(raw_path):
+    if not raw_path:
+        return ()
+
     try:
-        return decode_percent_encoded(raw_path)
+        path = decode_percent_encoded(raw_path)
     except exceptions.HTTPLazyHeadersError:
         raise exceptions.BadRequest(
             'Can\'t decode percent encoded uri-path')
+
+    return tuple(path.split('/'))
 
 
 def clean_authority_path(raw_path):
@@ -404,7 +409,7 @@ def clean_authority_path(raw_path):
     return _hier_part(
         user_info=userinfo,
         host=hosts.clean_host(raw_host),
-        path=clean_path(path))
+        segments=clean_segments(path))
 
 
 def clean_hierarchical_part(raw_path):
@@ -415,15 +420,15 @@ def clean_hierarchical_part(raw_path):
         constraints.constraint(
             is_absolute(raw_path),
             'Absolute path is not valid')
-        return _hier_part(path=clean_path(raw_path))
+        return _hier_part(segments=clean_segments(raw_path))
 
     if raw_path:
         constraints.constraint(
             is_rootless(raw_path),
             'Rootless path is not valid')
-        return _hier_part(path=clean_path(raw_path))
+        return _hier_part(segments=clean_segments(raw_path))
 
-    return _hier_part(path=clean_path(''))
+    return _hier_part(segments=clean_segments(''))
 
 
 def clean_absolute_uri(raw_uri):
@@ -468,15 +473,15 @@ def clean_relative_part(raw_path):
         constraints.constraint(
             is_absolute(raw_path),
             'Rel URI "path-absolute" is not valid')
-        return _hier_part(path=clean_path(raw_path))
+        return _hier_part(segments=clean_segments(raw_path))
 
     if raw_path:
         constraints.constraint(
             is_noscheme(raw_path),
             'Rel URI "path-noscheme" is not valid')
-        return _hier_part(path=clean_path(raw_path))
+        return _hier_part(segments=clean_segments(raw_path))
 
-    return _hier_part(path=clean_path(''))
+    return _hier_part(segments=clean_segments(''))
 
 
 def clean_relative_uri(raw_uri):
