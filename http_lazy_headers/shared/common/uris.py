@@ -23,9 +23,6 @@ _ALPHANUM = (
         ascii_tools.ascii_chars((0x30, 0x39))) |
     _ALPHA)
 
-# 0-9 / a-f / A-F
-_HEXDIG = _ALPHANUM  # todo: fixme, this should be a-f not a-z
-
 # ALPHA / DIGIT / "+" / "-" / "."
 _SCHEME = (
     _ALPHANUM |
@@ -205,6 +202,7 @@ def is_scheme(txt):
         set(txt).issubset(_SCHEME))
 
 
+# 0-9 / a-f / A-F
 _HEXDIG = '0123456789ABCDEFabcdef'
 
 _HEXDIG_MAP = {
@@ -264,41 +262,13 @@ def decode_percent_encoded(txt):
             'Can\'t decode non-utf-8 sequence from text')
 
 
-def is_hex_encoded(txt):
-    # todo: remove
-    percent = False
-    checked = 0
-
-    # Check "% HEXDIG HEXDIG"
-    for c in txt:
-        if percent and c not in _HEXDIG:
-            return False
-
-        if percent:
-            checked += 1
-
-        if checked == 2:
-            percent = False
-            checked = 0
-
-        if c == '%':
-            percent = True
-
-    if percent:
-        return False
-
-    return True
-
-
 def is_user_info(txt):
     assert isinstance(txt, str)
 
     if not txt:
         return True
 
-    return (
-        set(txt).issubset(_USER_INFO) and
-        is_hex_encoded(txt))
+    return set(txt).issubset(_USER_INFO)
 
 
 def is_path(raw_path):
@@ -359,6 +329,14 @@ def is_query(txt):
     return set(txt).issubset(_QUERY_CHARS)  # and is_hex_encoded(txt) ?
 
 
+def clean_userinfo(raw_userinfo):
+    try:
+        return decode_percent_encoded(raw_userinfo)
+    except exceptions.HTTPLazyHeadersError:
+        raise exceptions.BadRequest(
+            'Can\'t decode percent encoded userinfo')
+
+
 def clean_segments(raw_path):
     if not raw_path:
         return ()
@@ -402,7 +380,7 @@ def clean_authority_path(raw_path):
             'Authority URI "path-abempty" is not valid')
 
     return _hier_part(
-        user_info=userinfo,
+        user_info=clean_userinfo(userinfo),
         host=hosts.clean_host(raw_host),
         segments=clean_segments(path))
 
