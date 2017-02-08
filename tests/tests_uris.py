@@ -26,236 +26,236 @@ class URITestCase(unittest.TestCase):
         Should remove dot segments from paths
         """
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/a/b/c/./../../g'),
-            '/a/g')
+            uris.remove_dot_segments('/a/b/c/./../../g'.split('/')),
+            '/a/g'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('mid/content=5/../6'),
-            'mid/6')
+            uris.remove_dot_segments('mid/content=5/../6'.split('/')),
+            'mid/6'.split('/'))
 
         self.assertSequenceEqual(
-            uris.remove_dot_segments('../'),
-            '')
+            uris.remove_dot_segments('../'.split('/')),
+            [])
         self.assertSequenceEqual(
-            uris.remove_dot_segments('./'),
-            '')
+            uris.remove_dot_segments('./'.split('/')),
+            [])
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/./'),
-            '/')
+            uris.remove_dot_segments('/./'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/./'),
-            '/')
+            uris.remove_dot_segments('/./'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/.'),
-            '/')
+            uris.remove_dot_segments('/.'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/../'),
-            '/')
+            uris.remove_dot_segments('/../'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('././'),
-            '')
+            uris.remove_dot_segments('././'.split('/')),
+            [])
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/..'),
-            '/')
+            uris.remove_dot_segments('/..'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('.'),
-            '')
+            uris.remove_dot_segments('.'.split('/')),
+            [])
         self.assertSequenceEqual(
-            uris.remove_dot_segments('..'),
-            '')
+            uris.remove_dot_segments('..'.split('/')),
+            [])
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/../../'),
-            '/')
+            uris.remove_dot_segments('/../../'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/../..'),
-            '/')
+            uris.remove_dot_segments('/../..'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('../../'),
-            '')
+            uris.remove_dot_segments('../../'.split('/')),
+            [])
         self.assertSequenceEqual(
-            uris.remove_dot_segments('./././././'),
-            '')
+            uris.remove_dot_segments('./././././'.split('/')),
+            [])
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/./././././'),
-            '/')
+            uris.remove_dot_segments('/./././././'.split('/')),
+            '/'.split('/'))
 
         self.assertSequenceEqual(
-            uris.remove_dot_segments('//'),
-            '//')
+            uris.remove_dot_segments('//'.split('/')),
+            '//'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('///'),
-            '///')
+            uris.remove_dot_segments('///'.split('/')),
+            '///'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('//../'),
-            '/')
+            uris.remove_dot_segments('//../'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('////../'),
-            '///')
+            uris.remove_dot_segments('////../'.split('/')),
+            '///'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('///../'),
-            '//')
+            uris.remove_dot_segments('///../'.split('/')),
+            '//'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('//../'),
-            '/')
+            uris.remove_dot_segments('//../'.split('/')),
+            '/'.split('/'))
 
         # The minimal amount of slashes left is always one
         self.assertSequenceEqual(
-            uris.remove_dot_segments('//../../../../../'),
-            '/')
+            uris.remove_dot_segments('//../../../../../'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('///../../../../../'),
-            '/')
+            uris.remove_dot_segments('///../../../../../'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('//..'),
-            '/')
+            uris.remove_dot_segments('//..'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('///..'),
-            '//')
+            uris.remove_dot_segments('///..'.split('/')),
+            '//'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('//../../../../..'),
-            '/')
+            uris.remove_dot_segments('//../../../../..'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('///../../../../..'),
-            '/')
+            uris.remove_dot_segments('///../../../../..'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/..//'),
-            '//')
+            uris.remove_dot_segments('/..//'.split('/')),
+            '//'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/..///'),
-            '///')
+            uris.remove_dot_segments('/..///'.split('/')),
+            '///'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('..//'),
-            '/')
+            uris.remove_dot_segments('..//'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('../..//'),
-            '/')
+            uris.remove_dot_segments('../..//'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('..///'),
-            '//')
+            uris.remove_dot_segments('..///'.split('/')),
+            '//'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('../..///'),
-            '//')
+            uris.remove_dot_segments('../..///'.split('/')),
+            '//'.split('/'))
 
         self.assertSequenceEqual(
-            uris.remove_dot_segments('.//'),
-            '/')
+            uris.remove_dot_segments('.//'.split('/')),
+            '/'.split('/'))
 
         self.assertSequenceEqual(
-            uris.remove_dot_segments('../bar'),
-            'bar')
+            uris.remove_dot_segments('../bar'.split('/')),
+            'bar'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('./bar'),
-            'bar')
+            uris.remove_dot_segments('./bar'.split('/')),
+            'bar'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('../bar/'),
-            'bar/')
+            uris.remove_dot_segments('../bar/'.split('/')),
+            'bar/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('./bar/'),
-            'bar/')
+            uris.remove_dot_segments('./bar/'.split('/')),
+            'bar/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('.././bar'),
-            'bar')
+            uris.remove_dot_segments('.././bar'.split('/')),
+            'bar'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('./../bar'),
-            'bar')
+            uris.remove_dot_segments('./../bar'.split('/')),
+            'bar'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('./.././bar'),
-            'bar')
+            uris.remove_dot_segments('./.././bar'.split('/')),
+            'bar'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('.././../bar'),
-            'bar')
+            uris.remove_dot_segments('.././../bar'.split('/')),
+            'bar'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('../../bar'),
-            'bar')
+            uris.remove_dot_segments('../../bar'.split('/')),
+            'bar'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('././bar'),
-            'bar')
+            uris.remove_dot_segments('././bar'.split('/')),
+            'bar'.split('/'))
 
         self.assertSequenceEqual(
-            uris.remove_dot_segments('bar/..'),
-            '/')
+            uris.remove_dot_segments('bar/..'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('bar/.'),
-            'bar/')
+            uris.remove_dot_segments('bar/.'.split('/')),
+            'bar/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/bar/..'),
-            '/')
+            uris.remove_dot_segments('/bar/..'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/bar/.'),
-            '/bar/')
+            uris.remove_dot_segments('/bar/.'.split('/')),
+            '/bar/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('bar/../'),
-            '/')
+            uris.remove_dot_segments('bar/../'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('bar/./'),
-            'bar/')
+            uris.remove_dot_segments('bar/./'.split('/')),
+            'bar/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('bar/../.'),
-            '/')
+            uris.remove_dot_segments('bar/../.'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('bar/./..'),
-            '/')
+            uris.remove_dot_segments('bar/./..'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('bar/./../.'),
-            '/')
+            uris.remove_dot_segments('bar/./../.'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('bar/.././..'),
-            '/')
+            uris.remove_dot_segments('bar/.././..'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('bar/../..'),
-            '/')
+            uris.remove_dot_segments('bar/../..'.split('/')),
+            '/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('bar/./.'),
-            'bar/')
+            uris.remove_dot_segments('bar/./.'.split('/')),
+            'bar/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('bar/././'),
-            'bar/')
+            uris.remove_dot_segments('bar/././'.split('/')),
+            'bar/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/foo/bar/..'),
-            '/foo/')
+            uris.remove_dot_segments('/foo/bar/..'.split('/')),
+            '/foo/'.split('/'))
 
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/foo/./bar'),
-            '/foo/bar')
+            uris.remove_dot_segments('/foo/./bar'.split('/')),
+            '/foo/bar'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/foo/../bar'),
-            '/bar')
+            uris.remove_dot_segments('/foo/../bar'.split('/')),
+            '/bar'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/foo/../bar/'),
-            '/bar/')
+            uris.remove_dot_segments('/foo/../bar/'.split('/')),
+            '/bar/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/foo/../bar/..'),
-            '/')
+            uris.remove_dot_segments('/foo/../bar/..'.split('/')),
+            '/'.split('/'))
 
         self.assertSequenceEqual(
-            uris.remove_dot_segments('g.'),
-            'g.')
+            uris.remove_dot_segments('g.'.split('/')),
+            'g.'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('.g'),
-            '.g')
+            uris.remove_dot_segments('.g'.split('/')),
+            '.g'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('g..'),
-            'g..')
+            uris.remove_dot_segments('g..'.split('/')),
+            'g..'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('..g'),
-            '..g')
+            uris.remove_dot_segments('..g'.split('/')),
+            '..g'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/b/c/./../g'),
-            '/b/g')
+            uris.remove_dot_segments('/b/c/./../g'.split('/')),
+            '/b/g'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/b/c/./g/.'),
-            '/b/c/g/')
+            uris.remove_dot_segments('/b/c/./g/.'.split('/')),
+            '/b/c/g/'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/b/c/g/./h'),
-            '/b/c/g/h')
+            uris.remove_dot_segments('/b/c/g/./h'.split('/')),
+            '/b/c/g/h'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/b/c/g/../h'),
-            '/b/c/h')
+            uris.remove_dot_segments('/b/c/g/../h'.split('/')),
+            '/b/c/h'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/b/c/g;x=1/./y'),
-            '/b/c/g;x=1/y')
+            uris.remove_dot_segments('/b/c/g;x=1/./y'.split('/')),
+            '/b/c/g;x=1/y'.split('/'))
         self.assertSequenceEqual(
-            uris.remove_dot_segments('/b/c/g;x=1/../y'),
-            '/b/c/y')
+            uris.remove_dot_segments('/b/c/g;x=1/../y'.split('/')),
+            '/b/c/y'.split('/'))
 
     def test_resolve_relative_reference_normal(self):
         """

@@ -99,7 +99,7 @@ def resolve_relative_reference(uri_base, uri_rel):
             schema,
             user_info_rel,
             host_rel,
-            remove_dot_segments_parts(path_rel),
+            remove_dot_segments(path_rel),
             query_rel,
             fragment_rel)
 
@@ -109,16 +109,19 @@ def resolve_relative_reference(uri_base, uri_rel):
     query_ = query
     fragment_ = fragment
 
+    # "/abs/" and "rel"
     if path and not path[-1] and path_rel and path_rel[0]:
-        path_ = remove_dot_segments_parts((
+        path_ = remove_dot_segments((
             *path, *path_rel))
 
+    # "/abs" and "rel"
     if path and path[-1] and path_rel and path_rel[0]:
-        path_ = remove_dot_segments_parts((
+        path_ = remove_dot_segments((
             *path[:-1], *path_rel))
 
+    # "/rel"
     if path_rel and not path_rel[0]:
-        path_ = remove_dot_segments_parts(path_rel)
+        path_ = remove_dot_segments(path_rel)
 
     if query_rel is not None or path != path_:
         query_ = query_rel
@@ -135,7 +138,7 @@ def resolve_relative_reference(uri_base, uri_rel):
         fragment_)
 
 
-def remove_dot_segments_parts(segments):
+def remove_dot_segments(segments):
     # Ref: https://tools.ietf.org/html/rfc3986#section-5.2.4
     # Ref impl: https://gist.github.com/nitely/08ee70e3429d4f174a00aa06e5ebf68c
 
@@ -183,14 +186,6 @@ def remove_dot_segments_parts(segments):
         out_buff.append(in_buff.popleft())
 
     return tuple(out_buff)
-
-
-def remove_dot_segments(path):
-    assert isinstance(path, str)
-
-    return '/'.join(
-        remove_dot_segments_parts(
-            path.split('/')))
 
 
 def _hier_part(user_info=None, host=None, segments=None):
