@@ -211,16 +211,22 @@ _HEXDIG_INT_MAP = {
     for b in _HEXDIG}
 
 
-def decode_percent_encoded(txt):
-    assert isinstance(txt, str)
+def _decode_percent_encoded(txt):
+    """
+    Decode a percent encoded text into
+    a bytes sequence as in [12, 43, 112, ...]
 
-    if '%' not in txt:
-        return txt
+    Usage::
 
+        bytes(_decode_percent_encoded('foo'))
+
+    :param txt: A percent encoded text.\
+    Must be utf-8 valid
+    :return: Generator of bytes (as ints)
+    """
     percent = False
     checked = 0
     hex_first = None
-    res = []
 
     # "% HEXDIG HEXDIG"
     for b in bytes(txt, 'utf-8'):
@@ -244,21 +250,30 @@ def decode_percent_encoded(txt):
                         str(bytes((hex_first,)), 'utf-8'),
                         str(bytes((b,)), 'utf-8')))
 
-            res.append(b_decoded)
+            yield b_decoded
             continue
 
         if b == 37:  # b'%'
             percent = True
             continue
 
-        res.append(b)
+        yield b
 
     if percent:
         raise exceptions.HTTPLazyHeadersError(
             'Missing percent encoded pair')
 
+
+def decode_percent_encoded(txt):
+    assert isinstance(txt, str)
+
+    if '%' not in txt:
+        return txt
+
     try:
-        return str(bytes(res), 'utf-8')
+        return str(
+            bytes(_decode_percent_encoded(txt)),
+            'utf-8')
     except UnicodeDecodeError:
         raise exceptions.HTTPLazyHeadersError(
             'Can\'t decode non-utf-8 sequence from text')
