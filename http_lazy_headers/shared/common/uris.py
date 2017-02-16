@@ -136,8 +136,7 @@ def resolve_relative_reference(uri_base, uri_rel):
 
 
 def remove_dot_segments(segments):
-    # Ref: https://tools.ietf.org/html/rfc3986#section-5.2.4
-    # Ref impl: https://gist.github.com/nitely/08ee70e3429d4f174a00aa06e5ebf68c
+    # https://tools.ietf.org/html/rfc3986#section-5.2.4
 
     assert isinstance(segments, (tuple, list))
     assert segments not in (('',), [''])
@@ -205,8 +204,9 @@ def is_scheme(txt):
 # 0-9 / a-f / A-F
 _HEXDIG = '0123456789ABCDEFabcdef'
 
-_HEXDIG_MAP = {
-    (a, b): bytes((int(a + b, 16),))
+# {(7, 3): 115, ...}
+_HEXDIG_INT_MAP = {
+    (int(a, 16), int(b, 16)): int(a + b, 16)
     for a in _HEXDIG
     for b in _HEXDIG}
 
@@ -219,16 +219,16 @@ def decode_percent_encoded(txt):
 
     percent = False
     checked = 0
-    hex_first = ''
+    hex_first = None
     res = []
 
     # "% HEXDIG HEXDIG"
-    for c in bytes(txt, 'utf-8', 'strict'):
+    for b in bytes(txt, 'utf-8'):
         if percent:
             checked += 1
 
         if checked == 1:
-            hex_first = c
+            hex_first = b
             continue
 
         if checked == 2:
@@ -236,27 +236,29 @@ def decode_percent_encoded(txt):
             checked = 0
 
             try:
-                c_decoded = _HEXDIG_MAP[(hex_first, c)]
+                b_decoded = _HEXDIG_INT_MAP[(hex_first, b)]
             except IndexError:
                 raise exceptions.HTTPLazyHeadersError(
                     'Bad percent encoded pair %{}{}'
-                    .format(hex_first, c))
+                    .format(
+                        str(bytes((hex_first,)), 'utf-8'),
+                        str(bytes((b,)), 'utf-8')))
 
-            res.append(c_decoded)
+            res.append(b_decoded)
             continue
 
-        if c == b'%':
+        if b == 37:  # b'%'
             percent = True
             continue
 
-        res.append(c)
+        res.append(b)
 
     if percent:
         raise exceptions.HTTPLazyHeadersError(
             'Missing percent encoded pair')
 
     try:
-        return str(b''.join(res), 'utf-8', 'strict')
+        return str(bytes(res), 'utf-8')
     except UnicodeDecodeError:
         raise exceptions.HTTPLazyHeadersError(
             'Can\'t decode non-utf-8 sequence from text')
@@ -330,6 +332,13 @@ def is_query(txt):
 
 
 def clean_userinfo(raw_userinfo):
+    assert (
+        raw_userinfo is None or
+        isinstance(raw_userinfo, str))
+
+    if not raw_userinfo:
+        return raw_userinfo
+
     try:
         return decode_percent_encoded(raw_userinfo)
     except exceptions.HTTPLazyHeadersError:
@@ -338,6 +347,10 @@ def clean_userinfo(raw_userinfo):
 
 
 def clean_segments(raw_path):
+    assert (
+        raw_path is None or
+        isinstance(raw_path, str))
+
     if not raw_path:
         return ()
 
@@ -372,7 +385,7 @@ def clean_authority_path(raw_path):
         raw_host, path = raw_path.split('/', 1)
     except ValueError:
         raw_host = raw_path
-        path = ''
+        path = None
     else:
         path = ''.join(('/', path))  # Put "/" back
         constraints.constraint(
