@@ -96,7 +96,7 @@ def resolve_relative_reference(uri_base, uri_rel):
             schema,
             user_info_rel,
             host_rel,
-            remove_dot_segments(path_rel),
+            path_rel,
             query_rel,
             fragment_rel)
 
@@ -213,14 +213,14 @@ _HEXDIG_INT_MAP = {
 
 def _decode_percent_encoded(txt):
     """
-    Decode a percent encoded text into
+    Decode a percent-encoded text into
     a bytes sequence as in [12, 43, 112, ...]
 
     Usage::
 
         bytes(_decode_percent_encoded('foo'))
 
-    :param txt: A percent encoded text.\
+    :param txt: A percent-encoded text.\
     Must be utf-8 valid
     :return: Generator of bytes (as ints)
     """
@@ -276,7 +276,8 @@ def decode_percent_encoded(txt):
             'utf-8')
     except UnicodeDecodeError:
         raise exceptions.HTTPLazyHeadersError(
-            'Can\'t decode non-utf-8 sequence from text')
+            'Can\'t decode non-utf-8 '
+            'sequence from text')
 
 
 def is_user_info(txt):
@@ -410,7 +411,8 @@ def clean_authority_path(raw_path):
     return _hier_part(
         user_info=clean_userinfo(userinfo),
         host=hosts.clean_host(raw_host),
-        segments=clean_segments(path))
+        segments=remove_dot_segments(
+            clean_segments(path)))
 
 
 def clean_hierarchical_part(raw_path):
@@ -421,13 +423,17 @@ def clean_hierarchical_part(raw_path):
         constraints.constraint(
             is_absolute(raw_path),
             'Absolute path is not valid')
-        return _hier_part(segments=clean_segments(raw_path))
+        return _hier_part(
+            segments=remove_dot_segments(
+                clean_segments(raw_path)))
 
     if raw_path:
         constraints.constraint(
             is_rootless(raw_path),
             'Rootless path is not valid')
-        return _hier_part(segments=clean_segments(raw_path))
+        return _hier_part(
+            segments=remove_dot_segments(
+                clean_segments(raw_path)))
 
     return _hier_part(segments=clean_segments(''))
 
