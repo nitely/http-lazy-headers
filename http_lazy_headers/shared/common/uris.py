@@ -73,6 +73,21 @@ def uri(
         fragment)
 
 
+def uri_from(uri_txt):
+    """
+    Receive an (unencoded) URI as seen in a\
+    web-browser address. Return the URI components
+
+    Usage::
+
+        uri_from('http://Alliancefrançaise.nu/éy éy éy/foo?bar=baz#qux')
+
+    :param uri_txt:
+    :return:
+    """
+    pass
+
+
 def resolve_relative_reference(uri_base, uri_rel):
     # https://tools.ietf.org/html/rfc3986#section-5.4
     (schema,
@@ -96,7 +111,7 @@ def resolve_relative_reference(uri_base, uri_rel):
             schema,
             user_info_rel,
             host_rel,
-            path_rel,
+            remove_dot_segments(path_rel),
             query_rel,
             fragment_rel)
 
@@ -218,7 +233,7 @@ def _decode_percent_encoded(txt):
 
     Usage::
 
-        bytes(_decode_percent_encoded('foo'))
+        str(bytes(_decode_percent_encoded('foo')), 'utf-8')
 
     :param txt: A percent-encoded text.\
     Must be utf-8 valid
@@ -229,7 +244,7 @@ def _decode_percent_encoded(txt):
     hex_first = None
 
     # "% HEXDIG HEXDIG"
-    for b in bytes(txt, 'utf-8'):
+    for b in bytes(txt, encoding='utf-8'):
         if percent:
             checked += 1
 
@@ -273,7 +288,7 @@ def decode_percent_encoded(txt):
     try:
         return str(
             bytes(_decode_percent_encoded(txt)),
-            'utf-8')
+            encoding='utf-8')
     except UnicodeDecodeError:
         raise exceptions.HTTPLazyHeadersError(
             'Can\'t decode non-utf-8 '
@@ -464,7 +479,7 @@ def clean_absolute_uri(raw_uri):
 
     # Scheme must be lowered,
     # also when formatting
-    return uri(
+    return (
         scheme.lower(),
         *clean_hierarchical_part(raw_path),
         query)
@@ -503,17 +518,18 @@ def clean_relative_uri(raw_uri):
             is_query(query),
             'Query string is not valid')
 
-    return uri(
-        None,  # Scheme
+    return (
         *clean_relative_part(raw_uri),
         query)
 
 
 def clean_uri(raw_uri):
     try:
-        return clean_absolute_uri(raw_uri)
+        return uri(*clean_absolute_uri(raw_uri))
     except exceptions.HeaderError:
-        return clean_relative_uri(raw_uri)
+        return uri(
+            None,  # Scheme
+            *clean_relative_uri(raw_uri))
 
 
 def _format_uri(value):
