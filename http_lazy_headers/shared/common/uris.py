@@ -226,6 +226,17 @@ _HEXDIG_INT_MAP = {
     for b in _HEXDIG}
 
 
+def _decode_hex_pair(first_byte, second_byte):
+    try:
+        return _HEXDIG_INT_MAP[(first_byte, second_byte)]
+    except IndexError:
+        raise exceptions.HTTPLazyHeadersError(
+            'Bad percent encoded pair %{}{}'
+            .format(
+                str(bytes((first_byte,)), 'utf-8'),
+                str(bytes((second_byte,)), 'utf-8')))
+
+
 def _decode_percent_encoded(txt):
     """
     Decode a percent-encoded text into
@@ -255,17 +266,7 @@ def _decode_percent_encoded(txt):
         if checked == 2:
             percent = False
             checked = 0
-
-            try:
-                b_decoded = _HEXDIG_INT_MAP[(hex_first, b)]
-            except IndexError:
-                raise exceptions.HTTPLazyHeadersError(
-                    'Bad percent encoded pair %{}{}'
-                    .format(
-                        str(bytes((hex_first,)), 'utf-8'),
-                        str(bytes((b,)), 'utf-8')))
-
-            yield b_decoded
+            yield _decode_hex_pair(hex_first, b)
             continue
 
         if b == 37:  # b'%'
