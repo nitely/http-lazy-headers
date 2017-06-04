@@ -59,7 +59,7 @@ class AcceptEncoding(bases.AcceptSomeBase):
 
     name = 'accept-encoding'
 
-    def check_values(self, values):
+    def check(self, values):
         for v in values:
             assertions.must_be_tuple_of(v, 2)
 
@@ -72,6 +72,6 @@ class AcceptEncoding(bases.AcceptSomeBase):
         # Allow empty value
         return tuple(sorted(
             (
-                self.clean_value(raw_value)
+                self.clean_one(raw_value)
                 for raw_value in raw_values),
             key=quality.weight_sort_key))

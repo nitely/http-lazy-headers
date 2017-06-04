@@ -59,7 +59,7 @@ class Range(bases.SingleHeaderBase):
 
     name = 'range'
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_tuple_of(value, 2)
 
         unit, unit_range = value
@@ -85,7 +85,7 @@ class Range(bases.SingleHeaderBase):
             '"{}" received, start and/or end '
             'was expected'.format(unit_range))
 
-    def values_str(self, values):
+    def to_str(self, values):
         unit, unit_range = values[0]
 
         if unit != ranges.RangesOptions.bytes:
@@ -99,7 +99,7 @@ class Range(bases.SingleHeaderBase):
                     end if end is not None else '')
                 for start, end in unit_range))
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         try:
             name, raw_range = raw_value.split('=', 1)
         except ValueError:

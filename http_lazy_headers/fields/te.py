@@ -73,18 +73,18 @@ class TE(bases.HeaderBase):
 
     name = 'te'
 
-    def check_values(self, values):
+    def check(self, values):
         for v in values:
             assertions.must_be_tuple_of(v, 2)
             encoding, params = v
             assertions.must_be_token(encoding)
             assertions.must_be_quality(params)
 
-    def values_str(self, values):
+    def to_str(self, values):
         return ', '.join(
             formatters.format_values_with_params(values))
 
-    def prepare_raw_values(self, raw_values_collection):
+    def prepare_raw(self, raw_values_collection):
         return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_value(self, raw_value):

@@ -44,11 +44,11 @@ class ETag(bases.SingleHeaderBase):
 
     name = 'etag'
 
-    def check_value(self, value):
+    def check_one(self, value):
         entity_tags.check_etag(value)
 
-    def values_str(self, values):
+    def to_str(self, values):
         return next(entity_tags.format_etags(values))
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         return entity_tags.clean_etag(raw_value)

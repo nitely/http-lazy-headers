@@ -57,7 +57,7 @@ class Upgrade(bases.MultiHeaderBase):
 
     name = 'upgrade'
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_tuple_of(value, 2)
         protocol, version = value
         assertions.must_be_token(protocol)
@@ -71,12 +71,12 @@ class Upgrade(bases.MultiHeaderBase):
 
         return protocol
 
-    def values_str(self, values):
+    def to_str(self, values):
         return ', '.join(
             self.value_str(v)
             for v in values)
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         try:
             protocol_name, protocol_version = raw_value.split('/', 1)
         except ValueError:

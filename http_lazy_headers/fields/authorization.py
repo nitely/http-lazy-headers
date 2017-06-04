@@ -72,7 +72,7 @@ class Authorization(bases.SingleHeaderBase):
 
     name = 'authorization'
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_tuple_of(value, 3)
 
         schema, token, params = value
@@ -84,12 +84,12 @@ class Authorization(bases.SingleHeaderBase):
             not (token and params),
             '"{}" and "{}" received, either '
             'token or params was expected'
-            .format(token, params))
+                .format(token, params))
 
-    def values_str(self, values):
+    def to_str(self, values):
         return next(formatters.format_auth_values(values))
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         try:
             auth_schema, params_or_token = raw_value.split(' ', 1)
         except ValueError:
@@ -105,16 +105,17 @@ class Authorization(bases.SingleHeaderBase):
                 auth_schema,
                 None,
                 parameters.ParamsCI())
-        elif checkers.is_token68(params_or_token):
+
+        if checkers.is_token68(params_or_token):
             return (
                 auth_schema,
                 params_or_token,
                 parameters.ParamsCI())
-        else:
-            return (
-                auth_schema,
-                None,
-                cleaners.clean_params(
-                    parsers.from_raw_params(
-                        params_or_token,
-                        separator=',')))
+
+        return (
+            auth_schema,
+            None,
+            cleaners.clean_params(
+                parsers.from_raw_params(
+                    params_or_token,
+                    separator=',')))

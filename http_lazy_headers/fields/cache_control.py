@@ -132,7 +132,7 @@ class CacheControl(bases.HeaderBase):
 
         assertions.must_be_ascii(param_value)
 
-    def check_values(self, values):
+    def check(self, values):
         assertions.must_have_one_value(values)
         value = values[0]
         assertions.must_be_params(value)
@@ -161,14 +161,14 @@ class CacheControl(bases.HeaderBase):
 
         return param_name
 
-    def values_str(self, values):
+    def to_str(self, values):
         params = values[0]
 
         return ', '.join(
             self.value_str(p)
             for p in params.items())
 
-    def prepare_raw_values(self, raw_values_collection):
+    def prepare_raw(self, raw_values_collection):
         return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_value(self, raw_value):

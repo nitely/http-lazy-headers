@@ -51,15 +51,15 @@ class Cookie(bases.HeaderBase):
 
     name = 'cookie'
 
-    def check_values(self, values):
+    def check(self, values):
         cookies.check_cookie(values)
 
-    def values_str(self, values):
+    def to_str(self, values):
         return '; '.join(
             '{}={}'.format(name, value)
             for name, value in self.values())
 
-    def prepare_raw_values(self, raw_values_collection):
+    def prepare_raw(self, raw_values_collection):
         raw_values_collection = preparers.prepare_single_raw_values(
             raw_values_collection)
         return parsers.from_tokens(

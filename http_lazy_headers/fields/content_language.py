@@ -28,13 +28,13 @@ class ContentLanguage(bases.TokensHeaderBase):
 
     name = 'content-language'
 
-    def check_value(self, value):
+    def check_one(self, value):
         language_tags.check_language_tag(value)
 
-    def values_str(self, values):
+    def to_str(self, values):
         return ', '.join(
             language_tags.format_language_tag(*value)
             for value in values)
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         return language_tags.clean_language_tag(raw_value)

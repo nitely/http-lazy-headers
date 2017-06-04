@@ -38,8 +38,8 @@ class From(bases.SingleHeaderBase):
 
     name = 'from'
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_ascii(value)
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         return raw_value

@@ -75,7 +75,7 @@ class Warning(bases.MultiHeaderBase):
         str(c)
         for c in codes}
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_tuple_of(value, 4)
         assertions.must_be_tuple_of(value[1], 2)
 
@@ -120,12 +120,12 @@ class Warning(bases.MultiHeaderBase):
             agent=agent,
             message=parsers.quote(message))
 
-    def values_str(self, values):
+    def to_str(self, values):
         return ', '.join(
             self.value_str(v)
             for v in values)
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         raw_values = tuple(parsers.from_raw_values(
             raw_value,
             separator=' '))

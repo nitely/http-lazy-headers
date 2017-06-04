@@ -24,11 +24,11 @@ class Age(bases.SingleHeaderBase):
 
     name = 'age'
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_int(value)
 
-    def values_str(self, values):
+    def to_str(self, values):
         return str(values[0])
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         return cleaners.clean_delta_seconds(raw_value)

@@ -86,7 +86,7 @@ class ContentDisposition(bases.SingleHeaderBase):
 
     name = 'content-disposition'
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_tuple_of(value, 2)
 
         disposition_type, params = value
@@ -134,7 +134,7 @@ class ContentDisposition(bases.SingleHeaderBase):
                 .format(lang))
             assertions.must_be_encoded_as(mime_value, charset)
 
-    def values_str(self, values):
+    def to_str(self, values):
         disposition_type, params = values[0]
 
         if not params:
@@ -145,7 +145,7 @@ class ContentDisposition(bases.SingleHeaderBase):
             '; '.join(
                 formatters.format_ext_params(params)))
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         # See test cases: http://greenbytes.de/tech/tc2231/#c-d-inline
         raw_value, raw_params = parsers.from_raw_value_with_params(raw_value)
         constraints.must_be_token(raw_value)

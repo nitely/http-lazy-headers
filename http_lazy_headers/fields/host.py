@@ -64,13 +64,13 @@ class Host(bases.SingleHeaderBase):
 
     name = 'host'
 
-    def check_value(self, value):
+    def check_one(self, value):
         hosts.check_host(value)
 
-    def values_str(self, values):
+    def to_str(self, values):
         return hosts.format_host(values[0])
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         return hosts.clean_host(raw_value)
 
     def clean(self, raw_values):
@@ -84,7 +84,7 @@ class Host(bases.SingleHeaderBase):
 
         if raw_value:
             return (
-                self.clean_value(raw_value),)
+                self.clean_one(raw_value),)
         else:
             return (
                 hosts.host(),)

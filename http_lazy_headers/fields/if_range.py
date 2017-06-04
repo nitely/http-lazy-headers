@@ -53,7 +53,7 @@ class IfRange(bases.SingleHeaderBase):
 
     name = 'if-range'
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_instance_of(
             value, (tuple, datetime.datetime))
 
@@ -66,7 +66,7 @@ class IfRange(bases.SingleHeaderBase):
              '"{}" received, a strong e-tag '
              'was expected'.format(value)))
 
-    def values_str(self, values):
+    def to_str(self, values):
         value = values[0]
 
         if isinstance(value, datetime.datetime):
@@ -74,7 +74,7 @@ class IfRange(bases.SingleHeaderBase):
         else:  # e-tag
             return next(entity_tags.format_etags(values))
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         # Can't be weak
         if checkers.is_etag(raw_value):
             return raw_value[1:-1], False

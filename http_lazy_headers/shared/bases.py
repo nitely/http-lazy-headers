@@ -81,7 +81,7 @@ class HeaderBase:
 
         if (settings.DEBUG and
                 values is not None):
-            self.check_values(values)
+            self.check(values)
 
         self._values = values
         self._raw_values_collection = raw_values_collection
@@ -102,7 +102,7 @@ class HeaderBase:
     def __str__(self):
         return ': '.join((
             self.name,
-            self.values_str(self.values())))
+            self.to_str(self.values())))
 
     def values(self):
         self.validate()
@@ -114,7 +114,7 @@ class HeaderBase:
 
         try:
             self._values = self.clean(
-                self.prepare_raw_values(
+                self.prepare_raw(
                     pre_clean(self._raw_values_collection)))
         except exceptions.HeaderError as err:
             err.explanation = '{}: {}'.format(
@@ -123,13 +123,19 @@ class HeaderBase:
 
         self._raw_values_collection = None
 
-    def check_values(self, values):  # todo: rename to check()
+    def check_one(self, value):
         raise NotImplementedError
 
-    def values_str(self, values):  # todo: rename to to_str()
+    def check(self, values):
         raise NotImplementedError
 
-    def prepare_raw_values(self, raw_values_collection):  # todo: rename to prepare_raw()
+    def to_str(self, values):
+        raise NotImplementedError
+
+    def prepare_raw(self, raw_values_collection):
+        raise NotImplementedError
+
+    def clean_one(self, raw_value):
         raise NotImplementedError
 
     def clean(self, raw_values):
@@ -138,27 +144,21 @@ class HeaderBase:
 
 class MultiHeaderBase(HeaderBase):
 
-    def check_value(self, value):  # todo: rename to check_one()
-        raise NotImplementedError
-
-    def check_values(self, values):
+    def check(self, values):
         assertions.must_not_be_empty(values)
 
         for v in values:
-            self.check_value(v)
+            self.check_one(v)
 
-    def values_str(self, values):
+    def to_str(self, values):
         return ', '.join(values)
 
-    def prepare_raw_values(self, raw_values_collection):
+    def prepare_raw(self, raw_values_collection):
         return preparers.prepare_multi_raw_values(raw_values_collection)
-
-    def clean_value(self, raw_value):  # todo: rename to clean_one()
-        raise NotImplementedError
 
     def clean(self, raw_values):
         values = tuple(
-            self.clean_value(rv)
+            self.clean_one(rv)
             for rv in raw_values)
         constraints.must_not_be_empty(values)
         return values
@@ -169,61 +169,61 @@ class SingleHeaderBase(HeaderBase):
     Single Value Header
     """
 
-    def check_value(self, value):
+    def check_one(self, value):
         raise NotImplementedError
 
-    def check_values(self, values):
+    def check(self, values):
         assertions.must_have_one_value(values)
-        self.check_value(values[0])
+        self.check_one(values[0])
 
-    def values_str(self, values):
+    def to_str(self, values):
         return values[0]
 
-    def prepare_raw_values(self, raw_values_collection):
+    def prepare_raw(self, raw_values_collection):
         return preparers.prepare_single_raw_values(raw_values_collection)
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         raise NotImplementedError
 
     def clean(self, raw_values):
         raw_value = raw_values[0]
         constraints.must_not_be_empty(raw_value)
         return (
-            self.clean_value(raw_value),)
+            self.clean_one(raw_value),)
 
 
 class URIHeaderBase(SingleHeaderBase):
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_uri(value)
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         constraints.must_be_uri(raw_value)
         return raw_value
 
 
 class TokensHeaderBase(MultiHeaderBase):
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_token(value)
 
-    def prepare_raw_values(self, raw_values_collection):
+    def prepare_raw(self, raw_values_collection):
         return preparers.prepare_tokens(raw_values_collection)
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         constraints.must_be_token(raw_value)
         return raw_value.lower()
 
 
 class DateSomeBase(SingleHeaderBase):
 
-    def check_value(self, value):
+    def check_one(self, value):
         dates.check_date(value)
 
-    def values_str(self, values):
+    def to_str(self, values):
         return dates.format_date(values[0])
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         return dates.clean_date_time(raw_value)
 
 
@@ -238,10 +238,10 @@ class IfMatchSomeBase(MultiHeaderBase):
 
     """
 
-    def check_value(self, value):
+    def check_one(self, value):
         entity_tags.check_etag(value)
 
-    def values_str(self, values):
+    def to_str(self, values):
         etag, is_weak = values[0]
 
         if etag == '*':
@@ -249,7 +249,7 @@ class IfMatchSomeBase(MultiHeaderBase):
 
         return ', '.join(entity_tags.format_etags(values))
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         # todo: validate is single value when value is "*"
 
         if raw_value == '*':
@@ -267,7 +267,7 @@ class AcceptSomeBase(HeaderBase):
 
     # todo: remove, no header use this as is (well just one)
 
-    def check_values(self, values):
+    def check(self, values):
         assertions.must_not_be_empty(values)
 
         for v in values:
@@ -278,20 +278,20 @@ class AcceptSomeBase(HeaderBase):
             assertions.must_be_token(value)
             assertions.must_be_weight(weight)
 
-    def values_str(self, values):
+    def to_str(self, values):
         return ', '.join(
             formatters.format_values_with_weight(values))
 
-    def prepare_raw_values(self, raw_values_collection):
+    def prepare_raw(self, raw_values_collection):
         return preparers.prepare_tokens(raw_values_collection)
 
-    def clean_value(self, value):
+    def clean_one(self, value):
         return cleaners.clean_accept_some(value)
 
     def clean(self, raw_values):
         values = tuple(sorted(
             (
-                self.clean_value(raw_value)
+                self.clean_one(raw_value)
                 for raw_value in raw_values),
             key=quality.weight_sort_key))
 
@@ -302,7 +302,7 @@ class AcceptSomeBase(HeaderBase):
 
 class LibsHeaderBase(HeaderBase):
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_tuple_of(value, 3)
 
         lib, version, comments = value
@@ -316,13 +316,13 @@ class LibsHeaderBase(HeaderBase):
         for c in comments or ():
             assertions.must_be_ascii(c)
 
-    def check_values(self, values):
+    def check(self, values):
         assertions.must_not_be_empty(values)
 
         for v in values:
-            self.check_value(v)
+            self.check_one(v)
 
-    def value_str(self, value):
+    def to_str_one(self, value):
         lib, version, comments = value
 
         if version:
@@ -339,17 +339,17 @@ class LibsHeaderBase(HeaderBase):
 
         return lib
 
-    def values_str(self, values):
+    def to_str(self, values):
         return ' '.join(
-            self.value_str(v)
+            self.to_str_one(v)
             for v in values)
 
-    def prepare_raw_values(self, raw_values_collection):
+    def prepare_raw(self, raw_values_collection):
         return parsers.from_raw_values(
             preparers.prepare_single_raw_values(raw_values_collection)[0],
             separator=' ')
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         try:
             product, version = raw_value.split('/', 1)
         except ValueError:
@@ -363,7 +363,7 @@ class LibsHeaderBase(HeaderBase):
     def clean(self, raw_values):
         # Skip comments
         values = tuple(
-            self.clean_value(raw_value)
+            self.clean_one(raw_value)
             for raw_value in raw_values
             if not checkers.is_comment(raw_value))
 

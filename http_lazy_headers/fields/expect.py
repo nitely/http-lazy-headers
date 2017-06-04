@@ -33,13 +33,13 @@ class Expect(bases.SingleHeaderBase):
 
     name = 'expect'
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.assertion(
             value == _CONTINUE,
             '"{}" received, {} was expected'
             .format(value, _CONTINUE))
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         constraints.constraint(
             raw_value == _CONTINUE,
             '{} is not a valid value'.format(raw_value),

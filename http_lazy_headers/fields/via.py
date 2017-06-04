@@ -52,7 +52,7 @@ class Via(bases.MultiHeaderBase):
 
     name = 'via'
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_tuple_of(value, 3)
         assertions.must_be_tuple_of(value[0], 2)
         assertions.must_be_tuple_of(value[1], 2)
@@ -94,12 +94,12 @@ class Via(bases.MultiHeaderBase):
                 proto,
                 received_by)
 
-    def values_str(self, values):
+    def to_str(self, values):
         return ', '.join((
             self.value_str(value)
             for value in values))
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         try:
             version, received_by = raw_value.split(' ', 1)
         except ValueError:

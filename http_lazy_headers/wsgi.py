@@ -57,6 +57,6 @@ def to_wsgi(headers):
 
     for header in headers:
         wsgi_headers.append(
-            (header.name, header.values_str()))
+            (header.name, header.to_str()))
 
     return wsgi_headers

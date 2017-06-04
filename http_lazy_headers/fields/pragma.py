@@ -56,7 +56,7 @@ class Pragma(bases.HeaderBase):
 
     name = 'pragma'
 
-    def check_values(self, values):
+    def check(self, values):
         assertions.must_have_one_value(values)
 
         params = values[0]
@@ -78,14 +78,14 @@ class Pragma(bases.HeaderBase):
             param_name,
             parsers.quote_maybe(param_value))
 
-    def values_str(self, values):
+    def to_str(self, values):
         params = values[0]
 
         return ', '.join(
             self.value_str(p)
             for p in params.items())
 
-    def prepare_raw_values(self, raw_values_collection):
+    def prepare_raw(self, raw_values_collection):
         return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_value(self, raw_value):

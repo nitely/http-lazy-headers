@@ -50,17 +50,17 @@ class TransferEncoding(bases.MultiHeaderBase):
 
     name = 'transfer-encoding'
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_tuple_of(value, 2)
         encoding, params = value
         assertions.must_be_token(encoding)
         assertions.must_be_ascii_params(params)
 
-    def values_str(self, values):
+    def to_str(self, values):
         return ', '.join(
             formatters.format_values_with_params(values))
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         value, raw_params = parsers.from_raw_value_with_params(raw_value)
         constraints.must_be_token(value)
         return (

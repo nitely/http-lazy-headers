@@ -35,11 +35,11 @@ class RetryAfter(bases.SingleHeaderBase):
 
     name = 'retry-after'
 
-    def check_value(self, value):
+    def check_one(self, value):
         (isinstance(value, int) or
          dates.check_date(value))
 
-    def values_str(self, values):
+    def to_str(self, values):
         value = values[0]
 
         if isinstance(value, datetime.datetime):
@@ -47,7 +47,7 @@ class RetryAfter(bases.SingleHeaderBase):
         else:
             return str(value)
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         try:
             return dates.clean_date_time(raw_value)
         except exceptions.HeaderError:

@@ -32,14 +32,14 @@ class ContentLength(bases.HeaderBase):
 
     name = 'content-length'
 
-    def check_values(self, values):
+    def check(self, values):
         assertions.must_have_one_value(values)
         assertions.must_be_int(values[0])
 
-    def values_str(self, values):
+    def to_str(self, values):
         return str(values[0])
 
-    def prepare_raw_values(self, raw_values_collection):
+    def prepare_raw(self, raw_values_collection):
         return preparers.prepare_tokens(raw_values_collection)
 
     def clean(self, raw_values):

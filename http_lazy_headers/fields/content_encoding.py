@@ -35,7 +35,7 @@ class ContentEncoding(bases.TokensHeaderBase):
 
     name = 'content-encoding'
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_token(value)
         assertions.assertion(
             value.lower() in encodings.CONTENT_ENCODING_VALUES,
@@ -43,7 +43,7 @@ class ContentEncoding(bases.TokensHeaderBase):
             'was expected'.format(
                 value, encodings.CONTENT_ENCODING_VALUES))
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         constraints.must_be_token(raw_value)
         raw_value = raw_value.lower()
         constraints.constraint(

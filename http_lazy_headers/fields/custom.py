@@ -53,17 +53,17 @@ class Custom(bases.HeaderBase):
 
         self.name = bases.decode_one(name).lower()  # Override class var
 
-    def check_values(self, values):
+    def check(self, values):
         for value in values:
             if value == '':
                 continue
 
             assertions.must_be_ascii(value)
 
-    def values_str(self, values):
+    def to_str(self, values):
         return ', '.join(values)
 
-    def prepare_raw_values(self, raw_values_collection):
+    def prepare_raw(self, raw_values_collection):
         return raw_values_collection
 
     def clean(self, raw_values):

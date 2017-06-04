@@ -88,7 +88,7 @@ class WWWAuthenticate(bases.HeaderBase):
 
     name = 'www-authenticate'
 
-    def check_values(self, values):
+    def check(self, values):
         assertions.must_not_be_empty(values)
 
         for v in values:
@@ -103,11 +103,11 @@ class WWWAuthenticate(bases.HeaderBase):
                 'token or params was expected'
                 .format(token, params))
 
-    def values_str(self, values):
+    def to_str(self, values):
         return ', '.join(
             formatters.format_auth_values(values))
 
-    def prepare_raw_values(self, raw_values_collection):
+    def prepare_raw(self, raw_values_collection):
         return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_challenge(self, raw_challenge):

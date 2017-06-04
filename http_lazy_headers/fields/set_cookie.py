@@ -215,7 +215,7 @@ class SetCookie(bases.HeaderBase):
                 self.cookie_str(cookie))
             for cookie in self.values())
 
-    def check_values(self, values):
+    def check(self, values):
         assertions.must_not_be_empty(values)
 
         for c in values:
@@ -284,7 +284,7 @@ class SetCookie(bases.HeaderBase):
         return '; '.join(
             self._cookie_str(cookie))
 
-    def prepare_raw_values(self, raw_values_collection):
+    def prepare_raw(self, raw_values_collection):
         return raw_values_collection
 
     def clean(self, raw_values):

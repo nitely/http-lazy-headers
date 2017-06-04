@@ -49,14 +49,14 @@ class ContentType(bases.SingleHeaderBase):
 
     name = 'content-type'
 
-    def check_value(self, value):
+    def check_one(self, value):
         media_ranges.check_value(value)
         _, params = value
         assertions.must_be_ascii_params(params)
 
-    def values_str(self, values):
+    def to_str(self, values):
         return next(
             media_ranges.format_media_ranges(values))
 
-    def clean_value(self, value):
+    def clean_one(self, value):
         return media_ranges.clean_media_type(value)

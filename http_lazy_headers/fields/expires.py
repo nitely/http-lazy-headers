@@ -29,13 +29,13 @@ class Expires(bases.SingleHeaderBase):
 
     name = 'expires'
 
-    def check_value(self, value):
+    def check_one(self, value):
         if value == 0:
             return
 
         dates.check_date(value)
 
-    def values_str(self, values):
+    def to_str(self, values):
         value = values[0]
 
         if isinstance(value, datetime.datetime):
@@ -44,7 +44,7 @@ class Expires(bases.SingleHeaderBase):
         # Invalid date
         return str(value)
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         # Invalid dates are represented
         # as a time in the past
         return dates.clean_date_time(

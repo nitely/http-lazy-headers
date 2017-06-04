@@ -26,11 +26,11 @@ class MaxForwards(bases.SingleHeaderBase):
 
     name = 'max-forwards'
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_int(value)
 
-    def values_str(self, values):
+    def to_str(self, values):
         return str(values[0])
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         return cleaners.clean_number(raw_value, max_chars=4)

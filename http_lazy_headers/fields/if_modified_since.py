@@ -29,7 +29,7 @@ class IfModifiedSince(bases.DateSomeBase):
 
     name = 'if-modified-since'
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         # This header should be ignore if
         # the date is not valid, but since
         # we can not do that here, min is

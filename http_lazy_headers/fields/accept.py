@@ -56,7 +56,7 @@ class Accept(bases.HeaderBase):
 
     name = 'accept'
 
-    def check_values(self, values):
+    def check(self, values):
         for v in values:
             media_ranges.check_value(v)
 
@@ -75,11 +75,11 @@ class Accept(bases.HeaderBase):
                 '"{}" received, all params as str '
                 'were expected'.format(params))
 
-    def values_str(self, values):
+    def to_str(self, values):
         return ', '.join(
             media_ranges.format_media_ranges(values))
 
-    def prepare_raw_values(self, raw_values_collection):
+    def prepare_raw(self, raw_values_collection):
         return preparers.prepare_multi_raw_values(raw_values_collection)
 
     def clean_value(self, value):

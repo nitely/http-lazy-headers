@@ -136,7 +136,7 @@ class ContentRange(bases.SingleHeaderBase):
 
     name = 'content-range'
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_tuple_of(value, 4)
 
         unit, unit_range, length, chars = value
@@ -213,7 +213,7 @@ class ContentRange(bases.SingleHeaderBase):
             'no chars was expected'
             .format(value))
 
-    def values_str(self, values):
+    def to_str(self, values):
         unit, range_, length, chars = values[0]
 
         if not unit:
@@ -247,7 +247,7 @@ class ContentRange(bases.SingleHeaderBase):
             end=end,
             length=length)
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         try:
             unit, chars = raw_value.split(' ', 1)
         except ValueError:
