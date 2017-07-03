@@ -68,7 +68,7 @@ class Pragma(bases.HeaderBase):
             assertions.must_be_token(t)
             not v or assertions.must_be_ascii(v)
 
-    def value_str(self, value):
+    def to_str_one(self, value):
         param_name, param_value = value
 
         if not param_value:
@@ -82,7 +82,7 @@ class Pragma(bases.HeaderBase):
         params = values[0]
 
         return ', '.join(
-            self.value_str(p)
+            self.to_str_one(p)
             for p in params.items())
 
     def prepare_raw(self, raw_values_collection):

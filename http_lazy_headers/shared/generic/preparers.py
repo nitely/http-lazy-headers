@@ -7,15 +7,13 @@ from ..utils import parsers
 
 
 def prepare_multi_raw_values(raw_values_collection):
-    return itertools.chain(*(
-        parsers.from_raw_values(rvs)
-        for rvs in raw_values_collection))
+    for rvs in raw_values_collection:
+        yield from parsers.from_raw_values(rvs)
 
 
 def prepare_tokens(raw_values_collection):
-    return itertools.chain(*(
-        parsers.from_tokens(rvs)
-        for rvs in raw_values_collection))
+    for rvs in raw_values_collection:
+        yield from parsers.from_tokens(rvs)
 
 
 def prepare_single_raw_values(raw_values_collection):

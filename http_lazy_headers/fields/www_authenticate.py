@@ -110,7 +110,7 @@ class WWWAuthenticate(bases.HeaderBase):
     def prepare_raw(self, raw_values_collection):
         return preparers.prepare_multi_raw_values(raw_values_collection)
 
-    def clean_challenge(self, raw_challenge):
+    def clean_one(self, raw_challenge):
         scheme, *token_or_params = raw_challenge
 
         constraints.must_be_token(scheme)
@@ -138,7 +138,7 @@ class WWWAuthenticate(bases.HeaderBase):
 
     def clean(self, raw_values):
         values = tuple(
-            self.clean_challenge(rv)
+            self.clean_one(rv)
             for rv in parse_challenges(raw_values))
 
         constraints.must_not_be_empty(values)

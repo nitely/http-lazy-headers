@@ -376,8 +376,7 @@ def clean_language_tag(raw_language_tag):
         'Value must have a language, '
         'private-use or grandfathered')
     constraints.constraint(
-        all(
-            ext[1]
+        all(ext[1]
             for ext in extensions),
         'Extension must have a value')
     constraints.constraint(

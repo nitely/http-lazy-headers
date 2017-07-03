@@ -106,7 +106,7 @@ class CacheControl(bases.HeaderBase):
 
     name = 'cache-control'
 
-    def check_value(self, value):
+    def check_one(self, value):
         assertions.must_be_tuple_of(value, 2)
         param_name, param_value = value
         assertions.must_be_token(param_name)
@@ -138,9 +138,9 @@ class CacheControl(bases.HeaderBase):
         assertions.must_be_params(value)
 
         for item in value.items():
-            self.check_value(item)
+            self.check_one(item)
 
-    def value_str(self, value):
+    def _to_str(self, value):
         param_name, param_value = value
 
         if param_name in cache.CACHE_SECS_VALUES:
@@ -165,13 +165,13 @@ class CacheControl(bases.HeaderBase):
         params = values[0]
 
         return ', '.join(
-            self.value_str(p)
+            self._to_str(p)
             for p in params.items())
 
     def prepare_raw(self, raw_values_collection):
         return preparers.prepare_multi_raw_values(raw_values_collection)
 
-    def clean_value(self, raw_value):
+    def clean_one(self, raw_value):
         # Directives with delta secs
         # must have values
         if (raw_value not in cache.CACHE_SECS_VALUES and
@@ -196,7 +196,7 @@ class CacheControl(bases.HeaderBase):
 
     def clean(self, raw_values):
         values = tuple(
-            self.clean_value(v)
+            self.clean_one(v)
             for v in raw_values)
 
         constraints.must_not_be_empty(values)

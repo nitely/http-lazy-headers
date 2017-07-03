@@ -73,14 +73,13 @@ class Via(bases.MultiHeaderBase):
         hosts.check_host(host)
         comment is None or assertions.must_be_ascii(comment)
 
-    def value_str(self, value):
+    def to_str_one(self, value):
         (protocol, version), (host, pseudonym), comment = value
 
         proto = version
 
         if protocol is not None:
-            proto = '/'.join((
-                protocol, version))
+            proto = '/'.join((protocol, version))
 
         received_by = pseudonym or hosts.format_host(host)
 
@@ -96,7 +95,7 @@ class Via(bases.MultiHeaderBase):
 
     def to_str(self, values):
         return ', '.join((
-            self.value_str(value)
+            self.to_str_one(value)
             for value in values))
 
     def clean_one(self, raw_value):

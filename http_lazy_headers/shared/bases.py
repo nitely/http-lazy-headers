@@ -63,6 +63,10 @@ class HeaderBase:
 
     name = None
 
+    __slots__ = (
+        '_values',
+        '_raw_values_collection')
+
     def __init__(
             self,
             values=None,
@@ -127,6 +131,9 @@ class HeaderBase:
         raise NotImplementedError
 
     def check(self, values):
+        raise NotImplementedError
+
+    def to_str_one(self, value):
         raise NotImplementedError
 
     def to_str(self, values):
@@ -290,9 +297,8 @@ class AcceptSomeBase(HeaderBase):
 
     def clean(self, raw_values):
         values = tuple(sorted(
-            (
-                self.clean_one(raw_value)
-                for raw_value in raw_values),
+            (self.clean_one(raw_value)
+             for raw_value in raw_values),
             key=quality.weight_sort_key))
 
         constraints.must_not_be_empty(values)

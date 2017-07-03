@@ -1,6 +1,6 @@
+# -*- coding: utf-8 -*-
 
-import itertools
-
+import collections
 
 __all__ = [
     'ascii_range',
@@ -19,11 +19,14 @@ def _ascii_range(start, end, to_chr):
 
 
 def _ascii_chars(*args, to_chr):
-    return itertools.chain(*(
-        (to_chr(cp),)
-        if isinstance(cp, int)
-        else _ascii_range(*cp, to_chr=to_chr)
-        for cp in args))
+    for cp in args:
+        if isinstance(cp, int):
+            yield to_chr(cp)
+        else:
+            assert (
+                isinstance(cp, collections.Iterable) and
+                len(cp) == 2)
+            yield from _ascii_range(*cp, to_chr=to_chr)
 
 
 def ascii_range(start, end):

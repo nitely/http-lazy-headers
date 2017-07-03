@@ -125,13 +125,11 @@ class ContentDisposition(bases.SingleHeaderBase):
             assertions.must_be_instance_of(charset, str)
             assertions.assertion(
                 checkers.is_mime_charset(charset),
-                '"{}" is not a valid charset'
-                .format(charset))
+                '"{}" is not a valid charset'.format(charset))
             not lang or assertions.must_be_instance_of(lang, str)
             not lang or assertions.assertion(
                 checkers.is_lang_value(lang),
-                '"{}" is not a valid language'
-                .format(lang))
+                '"{}" is not a valid language'.format(lang))
             assertions.must_be_encoded_as(mime_value, charset)
 
     def to_str(self, values):

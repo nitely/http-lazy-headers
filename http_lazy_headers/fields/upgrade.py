@@ -63,7 +63,7 @@ class Upgrade(bases.MultiHeaderBase):
         assertions.must_be_token(protocol)
         version is None or assertions.must_be_token(version)
 
-    def value_str(self, value):
+    def to_str_one(self, value):
         protocol, version = value
 
         if version:
@@ -73,7 +73,7 @@ class Upgrade(bases.MultiHeaderBase):
 
     def to_str(self, values):
         return ', '.join(
-            self.value_str(v)
+            self.to_str_one(v)
             for v in values)
 
     def clean_one(self, raw_value):

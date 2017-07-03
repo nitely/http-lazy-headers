@@ -82,9 +82,8 @@ class AcceptLanguage(bases.TokensHeaderBase):
 
     def clean(self, raw_values):
         values = tuple(sorted(
-            (
-                self.clean_one(raw_value)
-                for raw_value in raw_values),
+            (self.clean_one(raw_value)
+             for raw_value in raw_values),
             key=quality.weight_sort_key))
 
         constraints.must_not_be_empty(values)

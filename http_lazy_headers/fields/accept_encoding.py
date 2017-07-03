@@ -71,7 +71,6 @@ class AcceptEncoding(bases.AcceptSomeBase):
     def clean(self, raw_values):
         # Allow empty value
         return tuple(sorted(
-            (
-                self.clean_one(raw_value)
-                for raw_value in raw_values),
+            (self.clean_one(raw_value)
+             for raw_value in raw_values),
             key=quality.weight_sort_key))

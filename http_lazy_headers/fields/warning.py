@@ -100,7 +100,7 @@ class Warning(bases.MultiHeaderBase):
         (date_time is None or
          assertions.must_be_datetime(date_time))
 
-    def value_str(self, value):
+    def to_str_one(self, value):
         code, (host, pseudonym), message, date_time = value
 
         agent = pseudonym or hosts.format_host(host)
@@ -122,7 +122,7 @@ class Warning(bases.MultiHeaderBase):
 
     def to_str(self, values):
         return ', '.join(
-            self.value_str(v)
+            self.to_str_one(v)
             for v in values)
 
     def clean_one(self, raw_value):

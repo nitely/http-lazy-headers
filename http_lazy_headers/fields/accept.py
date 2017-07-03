@@ -56,24 +56,27 @@ class Accept(bases.HeaderBase):
 
     name = 'accept'
 
+    def check_one(self, value):
+        media_ranges.check_value(value)
+
+        _, params = value
+
+        # There may be a "q" with no value
+        # and "charset" with no value, but
+        # we don't allow it
+        assertions.must_be_quality(params)
+        assertions.must_be_token(
+            params.get('charset', 'dummy'))
+        assertions.assertion(
+            all(isinstance(v, str)
+                for p, v in params.items()
+                if not p == 'q'),
+            '"{}" received, all params as str '
+            'were expected'.format(params))
+
     def check(self, values):
         for v in values:
-            media_ranges.check_value(v)
-
-            _, params = v
-
-            # There may be a "q" with no value
-            # and "charset" with no value, but
-            # we don't allow it
-            assertions.must_be_quality(params)
-            assertions.must_be_token(
-                params.get('charset', 'dummy'))
-            assertions.assertion(
-                all(isinstance(v, str)
-                    for p, v in params.items()
-                    if not p == 'q'),
-                '"{}" received, all params as str '
-                'were expected'.format(params))
+            self.check_one(v)
 
     def to_str(self, values):
         return ', '.join(
@@ -82,7 +85,7 @@ class Accept(bases.HeaderBase):
     def prepare_raw(self, raw_values_collection):
         return preparers.prepare_multi_raw_values(raw_values_collection)
 
-    def clean_value(self, value):
+    def clean_one(self, value):
         # todo: params may contain only a token (no argument), except q
         value, params = media_ranges.clean_media_type(value)
         return value, cleaners.clean_quality(params)
@@ -90,7 +93,6 @@ class Accept(bases.HeaderBase):
     def clean(self, raw_values):
         # Allow empty field
         return tuple(sorted(
-            (
-                self.clean_value(raw_value)
-                for raw_value in raw_values),
+            (self.clean_one(raw_value)
+             for raw_value in raw_values),
             key=quality.quality_mime_sort_key))

@@ -73,12 +73,15 @@ class TE(bases.HeaderBase):
 
     name = 'te'
 
+    def check_one(self, value):
+        assertions.must_be_tuple_of(value, 2)
+        encoding, params = value
+        assertions.must_be_token(encoding)
+        assertions.must_be_quality(params)
+
     def check(self, values):
         for v in values:
-            assertions.must_be_tuple_of(v, 2)
-            encoding, params = v
-            assertions.must_be_token(encoding)
-            assertions.must_be_quality(params)
+            self.check_one(v)
 
     def to_str(self, values):
         return ', '.join(
@@ -99,7 +102,6 @@ class TE(bases.HeaderBase):
     def clean(self, raw_values):
         # Allow empty field
         return tuple(sorted(
-            (
-                self.clean_value(raw_value)
-                for raw_value in raw_values),
+            (self.clean_value(raw_value)
+             for raw_value in raw_values),
             key=quality.quality_sort_key))

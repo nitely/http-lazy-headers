@@ -277,8 +277,7 @@ class SetCookie(bases.HeaderBase):
                 yield _FROM_PY_ATTR[attr]
 
         if cookie.extension is not None:
-            for ext in cookie.extension:
-                yield ext
+            yield from cookie.extension
 
     def cookie_str(self, cookie):
         return '; '.join(

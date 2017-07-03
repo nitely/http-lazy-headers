@@ -13,6 +13,8 @@ class Headers:
     Headers collection
     """
 
+    __slots__ = ('_headers',)
+
     def __init__(self, headers=None):
         assert all(
             isinstance(h, bases.HeaderBase)
@@ -49,6 +51,9 @@ class Headers:
 
     def __len__(self):
         return len(self._headers)
+
+    def __bool__(self):
+        return bool(self._headers)
 
     def fields(self):
         return self._headers.values()

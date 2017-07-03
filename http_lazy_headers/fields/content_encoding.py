@@ -44,11 +44,9 @@ class ContentEncoding(bases.TokensHeaderBase):
                 value, encodings.CONTENT_ENCODING_VALUES))
 
     def clean_one(self, raw_value):
-        constraints.must_be_token(raw_value)
         raw_value = raw_value.lower()
         constraints.constraint(
             raw_value in encodings.CONTENT_ENCODING_VALUES,
-            '{} is not a valid encoding'
-            .format(raw_value),
+            '{} is not a valid encoding'.format(raw_value),
             status=415)
         return raw_value

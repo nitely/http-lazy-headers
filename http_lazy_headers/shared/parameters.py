@@ -10,6 +10,8 @@ class Params:
     An immutable DS for header-value parameters.
     """
 
+    __slots__ = ('_params',)
+
     def __init__(self, params=None):
         self._params = collections.OrderedDict(params or ())
 
@@ -39,15 +41,16 @@ class Params:
     def __len__(self):
         return len(self._params)
 
+    def __bool__(self):
+        return bool(self._params)
+
     def as_str(self, separator=';'):
         separator = ''.join((
             separator.strip(),
             ' '))
 
         return separator.join(
-            '='.join((
-                p,
-                parsers.quote_maybe(str(v))))
+            '='.join((p, parsers.quote_maybe(str(v))))
             for p, v in self.items())
 
     def items(self):
