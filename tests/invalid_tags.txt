@@ -1,0 +1,9 @@
+ax-TZ # Not in the registry, but well-formed
+fra-Latn # ISO 639 can be 3-letters
+fra
+fra-FX
+abcd-Latn # Language of 4 chars reserved for future use
+AaBbCcDd-x-y-any-x # Language of 5-8 chars, registered
+zh-Latm-CN # Typo
+de-DE-1902 # Wrong variant
+fr-shadok # Variant
